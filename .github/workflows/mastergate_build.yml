@@ -72,13 +72,13 @@ jobs:
 
       - name: Get the code
         if: steps.want.outputs.go == 'true'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Build variables
         if: steps.want.outputs.go == 'true'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: FirestormViewer/fs-build-variables
           path: build-variables
@@ -86,7 +86,7 @@ jobs:
       - name: Python 3.11
         if: steps.want.outputs.go == 'true'
         id: py
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
 
@@ -174,7 +174,7 @@ jobs:
 
       - name: Upload
         if: steps.want.outputs.go == 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: MasterGateViewer-${{ matrix.key }}
           path: out/*
@@ -188,7 +188,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           path: dist
           merge-multiple: true
@@ -199,5 +199,5 @@ jobs:
           ls -la dist
           gh release create "${{ github.ref_name }}" dist/* --repo "${{ github.repository }}" --draft \
             --title "MasterGate Viewer ${GITHUB_REF_NAME#mgv-}" \
-            --notes "Built by GitHub Actions from ${{ github.sha }}. Check the SHA256SUMS files before publishing."
+            --notes "MasterGate Viewer ${GITHUB_REF_NAME#mgv-}: a third-party Second Life viewer based on Firestorm, with the MG Phone built in. Not provided or supported by Linden Lab. Downloads, release notes and support: https://mastergate.io/viewer/ - privacy policy: https://mastergate.io/viewer/privacy/. The SHA256SUMS files list each package's checksum. Built by GitHub Actions from ${{ github.sha }}. Draft: replace the Windows Setup with the one published on mastergate.io before publishing."
 # </MG>
