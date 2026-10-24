@@ -1,63 +1,48 @@
-# Firestorm Pull Request Guidelines
+# Contributing to MasterGate Viewer
 
-Thank you for submitting code to Firestorm; we will review it and merge or provide feedback in due course.
-We have written this guide to help you contribute code that meets our needs. It will hopefully reduce the number of iterations required before we can merge the code.
+Thank you for helping improve MasterGate Viewer. This guide explains how to report problems and how to send code, so that changes stay easy to review and easy to merge with new Firestorm releases.
 
-1. **Descriptive Title**:
-  Use a clear and descriptive title for the PR.
+## Reporting a problem or an idea
 
-1. **Related Issues**:
-   Reference any related issues or pull requests by including the JIRA number and description in the commit message header (e.g., `[FIRE-12345] When I click, my head falls off` or `[FIRE-12345] prevent click detaching head`).
+- **Bugs and support:** open a ticket at **https://mastergate.io/m/ticket/add**. Say which version you use (Help › About), your system (Windows, macOS or Linux), what you did, what you expected and what happened. Add a screenshot or the viewer log if you can.
+- **Ideas and feature requests:** the same ticket page, or the MasterGate group in Second Life.
+- **Security issues** (anything that could expose accounts, inventory or content): use a ticket marked *Security*, and please do not publish details before we have answered.
 
-1. **Description**:
-   Provide a detailed description of the changes. Explain why the changes are necessary and what problem they solve. If a JIRA is associated with the change, there is no need to duplicate that, but we would appreciate a summary and explanation of the fix.
+Problems with MasterGate Viewer are not handled by Linden Lab or by the Firestorm team, so please report them to us.
 
-1. **Comment tags (important)**:
-   We use comments to preserve the original upstream (LL) code when making modifications; this allows the person merging future code updates to see both the original code from LL and any new updates and then use those to determine whether the FS-specific changes need to be updated and reviewed.
- If you are modifying LL code, we need the LL code preserved in a comment.
- For example:
+## Sending code (pull requests)
 
- ```c++
-    int buggy_code = TRUE; 
-    LL_WARN() << "This code is buggy" << LL_ENDL;
- ```
+Pull requests go to the **`mastergate/main`** branch.
 
-Would become:
+1. **Title:** short and clear, e.g. `Wardrobe: keep the 3D view after a teleport`.
+2. **Description:** what the change does, why it is needed, and how you tested it (system, steps to check it).
+3. **One topic per pull request.** Keep unrelated fixes apart.
+4. **It must build without warnings**: the Windows build treats warnings as errors, and the macOS and Linux builds run on GitHub for every release.
+5. **License:** by sending a pull request you agree that your contribution is published under the GNU LGPL 2.1, like the rest of the viewer.
 
- ```c++
-    // <FS> [FIRE-999] Fix the buggy code 
-    // int buggy_code = TRUE; 
-    // LL_WARN() << "This code is buggy" << LL_ENDL;
-    bool fixed_code = true;
-    LL_DEBUG() << "I fixed this" << LL_ENDL;
-    // </FS>
- ```
+### Where MasterGate code goes
 
- Note: You can tag them with your initials, e.g. `<FS:YI>` or a short unique tag (shorter is better)
+- **New features:** new files named `mg*.cpp` / `mg*.h` in `indra/newview` (one per MG Phone app, e.g. `mgphonewardrobe.cpp`), registered in `indra/newview/CMakeLists.txt`. Code in these files needs no special comments.
+- **Changes to upstream code** (Linden Lab or Firestorm files): mark them with `<MG>` comment tags and keep the original code in a comment. When a new Firestorm release is merged, whoever merges can then see what the original did, what upstream changed and what we changed on top:
 
- If you add new code, the same rules apply, but there is nothing to comment out.
- This is done so that when LL updates the original code, we can see what the original code was doing, what their changes do, and how that relates to the changes that we applied on top.
+  ```c++
+  // <MG> the phone rings instead of the call dialog
+  // LLFloaterReg::showInstance("incoming_call", payload, false);
+  if (!MGPhoneCalls::onIncomingInvite(payload))
+  {
+      LLFloaterReg::showInstance("incoming_call", payload, false);
+  }
+  // </MG>
+  ```
 
- A single line change can use the shorthand `</FS:YI>`:
+  A one-line change can use the short form: `bool keep = true; // <MG/> was false: ...`
+- **The interface skin** lives in `indra/newview/skins/mastergate`; the default skin's files stay as upstream.
 
- ```c++
-    bool break_stuff = true;
- ```
+### Rules for the MG Phone
 
-Could be fixed as follows:
+- **Never send asset UUIDs to a web page.** Phone pages get inventory item ids and pictures rendered by the viewer (thumbnails, 3D frames), never the UUID of a texture, material, animation or mesh.
+- **No content export** unless the user created every part of it (Linden Lab's Policy on Third-Party Viewers, 2.b). Geometry and pictures read for previews stay inside the viewer.
+- **Nothing happens without the user:** no automatic purchases, uploads or installs. Anything sent to mastergate.io must be described in the [privacy policy](https://mastergate.io/viewer/privacy/).
+- Follow Linden Lab's [Policy on Third-Party Viewers](https://secondlife.com/corporate/third-party-viewers) and the [Second Life Terms of Service](https://lindenlab.com/tos).
 
- ```c++
-    bool break_stuff = false; // </FS:Beq> [FIRE-23456] don't break stuff.
- ```
-
- The Comment tags are only required when changing code maintained upstream. If the code you are changing is in an FS-created file, RLV code, OpenSim-only code, etc., then we do not need the comments.
-
- If the code you are changing is already inside an `//<FS>` comment block, then there is no need to add a new block, but do try to make sure that any comments align with the updates you make.
-
-5. **Testing**:
-   Include details on how the changes should be tested. Describe the testing environment and any steps needed to verify the changes.
-
-1. **Documentation**:
-   If the change includes a new feature, it would be beneficial to suggest how we should update the FS Wiki pages to help users understand the feature
-
-Thank you for your contribution!
+Thank you!
