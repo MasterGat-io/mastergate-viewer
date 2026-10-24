@@ -1517,7 +1517,9 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                         self.path(libfile)
 
             with self.prefix(dst="MacOS"):
-                executable = self.dst_path_of(CHANNEL_VENDOR_BASE)
+                # <MG> the binary is "Firestorm" (CMake OUTPUT_NAME); CHANNEL_VENDOR_BASE is now
+                # "MasterGateViewer", which named a file that does not exist (strip failed)
+                executable = self.dst_path_of("Firestorm")
                 if self.args.get('bugsplat'):
                     # According to Apple Technical Note TN2206:
                     # https://developer.apple.com/library/archive/technotes/tn2206/_index.html#//apple_ref/doc/uid/DTS40007919-CH1-TNTAG207

@@ -2826,11 +2826,15 @@ if (DARWIN)
   #set(product "${VIEWER_CHANNEL}")
   set(product "Firestorm")
   set(MACOSX_EXECUTABLE_NAME "Firestorm")
-  set(MACOSX_BUNDLE_INFO_STRING "Firestorm Viewer")
+  # <MG> MasterGate Viewer's own bundle identity, so macOS keeps it apart from an installed
+  # Firestorm (preferences, secondlife:// handler, privacy permissions). The executable
+  # inside the bundle stays "Firestorm": viewer_manifest.py and the packaging expect it.
+  set(MACOSX_BUNDLE_INFO_STRING "MasterGate Viewer")
   set(MACOSX_BUNDLE_ICON_FILE "firestorm_icon.icns")
-  set(MACOSX_BUNDLE_GUI_IDENTIFIER "org.firestormviewer.firestorm")
+  set(MACOSX_BUNDLE_GUI_IDENTIFIER "io.mastergate.viewer")
   set(MACOSX_BUNDLE_LONG_VERSION_STRING "${VIEWER_CHANNEL} ${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION}")
-  set(MACOSX_BUNDLE_BUNDLE_NAME "Firestorm")
+  set(MACOSX_BUNDLE_BUNDLE_NAME "MasterGate")
+  # </MG>
   set(MACOSX_BUNDLE_SHORT_VERSION_STRING "${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION}")
   set(MACOSX_BUNDLE_BUNDLE_VERSION "${VIEWER_SHORT_VERSION}${VIEWER_MACOSX_PHASE}${VIEWER_REVISION}")
   set(MACOSX_BUNDLE_COPYRIGHT "Copyright 2010-2026 The Phoenix Firestorm Project, Inc.")
