@@ -27,6 +27,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llviewermedia.h"
+#include "mgphonecalls.h" // <MG/> the MG Phone keeps its sound and stays awake
 
 #include "llagent.h"
 #include "llagentcamera.h"
@@ -832,12 +833,14 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
             // Overrides if the window is minimized or we lost focus (taking care
             // not to accidentally "raise" the priority either)
             if (!gViewerWindow->getActive() /* viewer window minimized? */
-                && new_priority > LLPluginClassMedia::PRIORITY_HIDDEN)
+                && new_priority > LLPluginClassMedia::PRIORITY_HIDDEN
+                && !MGPhoneCalls::isPhoneMedia(pimpl)) // <MG/> the phone keeps ringing / polling
             {
                 new_priority = LLPluginClassMedia::PRIORITY_HIDDEN;
             }
             else if (!gFocusMgr.getAppHasFocus() /* viewer window lost focus? */
-                     && new_priority > LLPluginClassMedia::PRIORITY_LOW)
+                     && new_priority > LLPluginClassMedia::PRIORITY_LOW
+                     && !MGPhoneCalls::isPhoneMedia(pimpl)) // <MG/>
             {
                 new_priority = LLPluginClassMedia::PRIORITY_LOW;
             }
@@ -2210,6 +2213,13 @@ void LLViewerMediaImpl::updateVolume()
     {
         // always scale the volume by the global media volume
         F32 volume = mRequestedVolume * LLViewerMedia::getInstance()->getVolume();
+        // <MG> the MG Phone has its own volume: it rings and plays its sounds even
+        // with media, the master volume or "mute when minimized" turned off
+        if (MGPhoneCalls::isPhoneMedia(this))
+        {
+            volume = mRequestedVolume * MGPhoneCalls::phoneMediaVolume();
+        }
+        // </MG>
 
         if (mProximityCamera > 0)
         {

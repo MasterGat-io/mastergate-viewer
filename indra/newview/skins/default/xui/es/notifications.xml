@@ -79,7 +79,7 @@ Detalles del error: la notificación de nombre &apos;[_NAME]&apos; no se ha enco
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="BadInstallation">
-		Ha habido un error actualizando [APP_NAME]. Por favor, [https://www.firestormviewer.org/downloads descarga la última versión] del Visor.
+		Ha habido un error actualizando [APP_NAME]. Por favor, [https://mastergate.io/viewer/ descarga la última versión] del Visor.
 		<usetemplate name="okbutton" yestext="Aceptar"/>
 	</notification>
 	<notification name="LoginFailedNoNetwork">
@@ -642,7 +642,7 @@ El objeto debe de haber sido borrado o estar fuera de alcance (&apos;out of rang
 
 ¿Ir a [_URL] para más información?
 		<url name="url" option="0">
-			https://wiki.firestormviewer.org/fs_system_requirements
+			https://mastergate.io/viewer/help/?topic=fs_system_requirements
 		</url>
 		<usetemplate ignoretext="El hardware de mi ordenador no está admitido" name="okcancelignore" notext="No" yestext="Sí"/>
 	</notification>
@@ -1445,7 +1445,7 @@ Si es la primera vez que usas [CURRENT_GRID], debes crear una cuenta para poder 
 
 Puedes revisar tu conexión a Internet y volver a intentarlo en unos minutos, pulsar Ayuda para conectarte a [SUPPORT_SITE], o pulsar Teleporte para intentar teleportarte a tu Base.
 		<url name="url">
-			https://www.firestormviewer.org/support/
+			https://mastergate.io/viewer/support/
 		</url>
 		<form name="form">
 			<button name="OK" text="Aceptar"/>
@@ -3740,7 +3740,7 @@ Al ocultar el botón Hablar se desactiva la función de voz.
 		</form>
 	</notification>
 	<notification name="ModeChange">
-		Cambiar entre los diferentes modos requiere que cierres y reinicies Firestorm.
+		Cambiar entre los diferentes modos requiere que cierres y reinicies MasterGate.
 		<usetemplate name="okcancelbuttons" yestext="Cerrar" notext="No cerrar"/>
 	</notification>
 	<notification label="" name="NoClassifieds">

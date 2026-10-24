@@ -306,7 +306,7 @@ static std::wstring get_app_name()
     //    channel.replace(channel.size() - release_suffix.size(), release_suffix.size(), L" Viewer");
     //}
     //return channel;
-    std::wstring prefix = L"Firestorm";
+    std::wstring prefix = L"MasterGateViewer"; // <MG/> was L"Firestorm"
     if (channel.starts_with(prefix))
         channel.erase(0, prefix.size());
 #ifdef OPENSIM
@@ -600,21 +600,21 @@ static void register_uninstall_info(const std::wstring& install_dir,
 
         // <FS:TJ> Use Firestorm installation information
         //std::wstring link_url = L"https://support.secondlife.com/contact-support/";
-        std::wstring link_url = L"https://www.firestormviewer.org/support";
+        std::wstring link_url = L"https://mastergate.io/viewer/support/"; // <MG/>
         // </FS:TJ>
         RegSetValueExW(hkey, L"HelpLink", 0, REG_SZ,
             (BYTE*)link_url.c_str(), (DWORD)((link_url.size() + 1) * sizeof(wchar_t)));
 
         // <FS:TJ> Use Firestorm installation information
         //link_url = L"https://secondlife.com/whatis/";
-        link_url = L"https://www.firestormviewer.org";
+        link_url = L"https://mastergate.io/viewer/"; // <MG/>
         // </FS:TJ>
         RegSetValueExW(hkey, L"URLInfoAbout", 0, REG_SZ,
             (BYTE*)link_url.c_str(), (DWORD)((link_url.size() + 1) * sizeof(wchar_t)));
 
         // <FS:TJ> Use Firestorm installation information
         //link_url = L"https://secondlife.com/support/downloads/";
-        link_url = L"https://www.firestormviewer.org/downloads";
+        link_url = L"https://mastergate.io/viewer/"; // <MG/> download page
         // </FS:TJ>
         RegSetValueExW(hkey, L"URLUpdateInfo", 0, REG_SZ,
             (BYTE*)link_url.c_str(), (DWORD)((link_url.size() + 1) * sizeof(wchar_t)));

@@ -7,15 +7,15 @@
 
 	<!-- Default Args - these arguments will be replaced in all strings -->
 	<string name="SECOND_LIFE">[CURRENT_GRID]</string>
-	<string name="APP_NAME">Firestorm</string>
-	<string name="CAPITALIZED_APP_NAME">FIRESTORM</string>
+	<string name="APP_NAME">MasterGate Viewer</string>
+	<string name="CAPITALIZED_APP_NAME">MASTERGATE VIEWER</string>
 	<string name="SECOND_LIFE_GRID">Second Life Grid</string>
-	<string name="SUPPORT_SITE">Firestorm Support Portal</string>
-	<string name="DOWNLOAD_URL">https://www.firestormviewer.org/choose-your-platform/</string>
+	<string name="SUPPORT_SITE">MasterGate Support</string>
+	<string name="DOWNLOAD_URL">https://mastergate.io/viewer/</string>
 	<string name="CURRENT_GRID"/> <!-- Will be set in fsgridhandler.cpp / llviewernetwork.cpp -->
 	<string name="VIEWER_GENERATION">Viewer [VERSION]</string>
 	<string name="SHORT_VIEWER_GENERATION">V[VERSION]</string>
-	<string name="APP_NAME_ABBR">FS</string>
+	<string name="APP_NAME_ABBR">MGV</string>
 
 	<!-- starting up -->
 	<string name="StartupLoading">Loading [APP_NAME]...</string>
@@ -135,15 +135,15 @@ Voice Server Version: [VOICE_VERSION]
 	<string name="LoginFailedNoNetwork">Network error: Could not establish connection, please check your network connection.</string>
 	<string name="LoginFailedHeader">Login failed.</string>
 	<string name="Quit">Quit</string>
-	<string name="create_account_url">https://www.firestormviewer.org/join-secondlife/</string>
+	<string name="create_account_url">https://join.secondlife.com/</string>
 	
 	<string name="AgniGridLabel">Second Life Main Grid (Agni)</string>
 	<string name="AditiGridLabel">Second Life Beta Test Grid (Aditi)</string>
 	
-	<string name="ViewerDownloadURL">https://www.firestormviewer.org/choose-your-platform/</string>
+	<string name="ViewerDownloadURL">https://mastergate.io/viewer/</string>
 	<string name="LoginFailedViewerNotPermitted">
 The viewer you are using can no longer access Second Life. Please visit the following page to download a new viewer:
-https://www.firestormviewer.org/choose-your-platform/
+https://mastergate.io/viewer/
 
 For more information, see our FAQ below:
 http://secondlife.com/viewer-access-faq</string>
@@ -404,7 +404,7 @@ are allowed.
 
 	<string name="ReleaseNotes">Release Notes</string>
 	<!-- Always mark translate="false" for strings that are nothing but URLs, as they don't need translation. -->
-	<string name="RELEASE_NOTES_BASE_URL" translate="false">https://wiki.firestormviewer.org/changelog:firestorm_change_log_</string>
+	<string name="RELEASE_NOTES_BASE_URL" translate="false">https://mastergate.io/viewer/help/?topic=changelog_</string>
 
 	<!-- Indicates something is being loaded. Maybe should be merged with RetrievingData -->
 	<string name="LoadingData">Loading...</string>
@@ -445,7 +445,7 @@ are allowed.
 	<string name="AssetUploadServerUnavaliable">Service not available or upload timeout was reached.</string>
 	<string name="AssetUploadRequestInvalid">
 Error in upload request.  Please visit 
-https://www.firestormviewer.org/support for help fixing this problem.
+https://mastergate.io/viewer/support/ for help fixing this problem.
 </string>
 
 	<!-- Settings errors -->
@@ -2734,6 +2734,7 @@ name="Command_360_Capture_Label">360° Snapshot</string>
   <string name="Command_MarketplaceListings_Label">Marketplace</string>
   <string name="Command_MiniMap_Label">Mini-map</string>
   <string name="Command_Move_Label">Walk / run / fly</string>
+  <string name="Command_MGPhone_Label">MG Phone</string>
   <string name="Command_People_Label">People</string>
   <string name="Command_Performance_Label">Graphics speed</string>
   <string name="Command_Picks_Label">Picks</string>
@@ -2808,6 +2809,7 @@ name="Command_360_Capture_Label">360° Snapshot</string>
   <string name="Command_MarketplaceListings_Tooltip">Sell your creation</string>
   <string name="Command_MiniMap_Tooltip">Show nearby people (CTRL+SHIFT+M)</string>
   <string name="Command_Move_Tooltip">Moving your avatar</string>
+  <string name="Command_MGPhone_Tooltip">Your MasterGate phone (CTRL+ALT+M)</string>
   <string name="Command_People_Tooltip">Friends, groups, and nearby people (CTRL+SHIFT+A)</string>
   <string name="Command_Performance_Tooltip">Tune graphics settings</string>
   <string name="Command_Picks_Tooltip">Places to show as favorites in your profile</string>

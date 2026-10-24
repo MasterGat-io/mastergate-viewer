@@ -25,6 +25,7 @@
  */
 
 #include "llvoiceclient.h"
+#include "mgphonecalls.h" // <MG/>
 #include "llvoicevivox.h"
 #include "llvoicewebrtc.h"
 #include "llviewernetwork.h"
@@ -676,6 +677,10 @@ void LLVoiceClient::updateMicMuteLogic()
         // Either of these always overrides any other PTT setting.
         new_mic_mute = true;
     }
+    // <MG> during a call the MG Phone's Mute button decides (open by default), even with
+    // push-to-talk, "disable mic" or "mute when minimized" set
+    MGPhoneCalls::micOverride(new_mic_mute);
+    // </MG>
     LLWebRTCVoiceClient::getInstance()->setMuteMic(new_mic_mute);
     LLVivoxVoiceClient::getInstance()->setMuteMic(new_mic_mute);
 }

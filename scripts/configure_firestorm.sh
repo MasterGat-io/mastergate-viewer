@@ -394,7 +394,7 @@ if [ -z $CHANNEL ] ; then
 else
     CHANNEL=`echo $CHANNEL | sed -e "s/[^a-zA-Z0-9\-]*//g"` # strip out difficult characters from channel
 fi
-CHANNEL="Firestorm-$CHANNEL"
+CHANNEL="MasterGateViewer-$CHANNEL" # <MG/> was "Firestorm-$CHANNEL"
 
 if [ \( $WANTS_CLEAN -eq $TRUE \) -a \( $WANTS_BUILD -eq $FALSE \) ] ; then
     echo "Cleaning $TARGET_PLATFORM...."
@@ -438,6 +438,16 @@ if [ \( $WANTS_VERSION -eq $TRUE \) -o \( $WANTS_CONFIG -eq $TRUE \) ] ; then
     else
         buildVer=`hg summary | head -1 | cut -d " "  -f 2 | cut -d : -f 1 | grep "[0-9]*"`
     fi
+    # <MG> the MasterGate release number: indra/newview/MGV_REVISION.txt (raise it for
+    # every published release), or MGV_REVISION from the environment to override it.
+    # Read here, not set in mgv-env.cmd: MSBuild rejects an env "revision" next to REVISION.
+    if [ -z "$MGV_REVISION" ] && [ -r indra/newview/MGV_REVISION.txt ] ; then
+        MGV_REVISION=`tr -d ' \r\n' < indra/newview/MGV_REVISION.txt`
+    fi
+    if [ -n "$MGV_REVISION" ] ; then
+        buildVer=$MGV_REVISION
+    fi
+    # </MG>
     export revision=${buildVer}
 
     majorVer=`cat indra/newview/VIEWER_VERSION_FS.txt | cut -d "." -f 1`

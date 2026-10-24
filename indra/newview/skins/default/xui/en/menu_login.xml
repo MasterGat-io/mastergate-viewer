@@ -57,13 +57,13 @@
      tear_off="true"
      name="Help">
         <menu_item_call
-         label="Firestorm Wiki"
+         label="MasterGate Help"
          name="Firestorm Wiki"
          shortcut="F1">
             <menu_item_call.on_click
              function="PromptShowURL"
              name="script_library_url"
-             parameter="WebLaunchExternalTarget,https://wiki.firestormviewer.org/doku.php?id=start" />
+             parameter="WebLaunchExternalTarget,https://mastergate.io/viewer/help/?topic=start" />
        </menu_item_call>
        <menu_item_call
         label="Troubleshooting"
@@ -71,7 +71,7 @@
            <menu_item_call.on_click
             function="PromptShowURL"
             name="wiki_troubleshooting_url"
-            parameter="WebLaunchExternalTarget,https://wiki.firestormviewer.org/firestorm_troubleshooting" />
+            parameter="WebLaunchExternalTarget,https://mastergate.io/viewer/help/?topic=firestorm_troubleshooting" />
        </menu_item_call>
         <menu_item_call
          label="Guidebook"

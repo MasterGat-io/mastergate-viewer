@@ -77,6 +77,7 @@
 #include "llconversationlog.h"
 #include "message.h"
 #include "llviewerregion.h"
+#include "mgphonecalls.h" // <MG/> voice calls in the MG Phone
 #include "llcorehttputil.h"
 #include "lluiusage.h"
 #include "llurlregistry.h"
@@ -2719,6 +2720,12 @@ void LLCallDialogManager::onVoiceChannelChangedInt(const LLUUID &session_id)
         mCallDialogPayload["disconnected_channel_name"] = mSession->mName;
         mCallDialogPayload["session_type"] = mSession->mSessionType;
 
+        // <MG> the MG Phone shows the outgoing call itself
+        if (MGPhoneCalls::handlesCallUi())
+        {
+            return;
+        }
+        // </MG>
         LLOutgoingCallDialog* ocd = LLFloaterReg::getTypedInstance<LLOutgoingCallDialog>("outgoing_call", LLOutgoingCallDialog::OCD_KEY);
         if(ocd)
         {
@@ -2787,6 +2794,12 @@ void LLCallDialogManager::onVoiceChannelStateChangedInt(const LLVoiceChannel::ES
         break;
     }
 
+    // <MG> the MG Phone shows calling / ringing / ended itself
+    if (MGPhoneCalls::handlesCallUi())
+    {
+        return;
+    }
+    // </MG>
     ocd = LLFloaterReg::getTypedInstance<LLOutgoingCallDialog>("outgoing_call", LLOutgoingCallDialog::OCD_KEY);
     if(ocd)
     {
@@ -3297,6 +3310,8 @@ void LLIncomingCallDialog::processCallResponse(S32 response, const LLSD &payload
 {
     if (!gIMMgr || gDisconnected)
         return;
+
+    MGPhoneCalls::onInviteResponse(response, payload); // <MG/> phone ring screen + call log
 
     LLUUID session_id = payload["session_id"].asUUID();
     LLUUID caller_id = payload["caller_id"].asUUID();
@@ -4264,7 +4279,7 @@ void LLIMMgr::inviteToSession(
             LLAvatarNameCache::get(caller_id,
                 boost::bind(&LLIMMgr::onInviteNameLookup, payload, _1, _2));
         }
-        else
+        else if (!MGPhoneCalls::onIncomingInvite(payload)) // <MG/> rings in the MG Phone
         {
             LLFloaterReg::showInstance("incoming_call", payload, false);
         }
@@ -4288,7 +4303,10 @@ void LLIMMgr::onInviteNameLookup(LLSD payload, const LLUUID& id, const LLAvatarN
 
     std::string notify_box_type = payload["notify_box_type"].asString();
 
-    LLFloaterReg::showInstance("incoming_call", payload, false);
+    if (!MGPhoneCalls::onIncomingInvite(payload)) // <MG/> rings in the MG Phone
+    {
+        LLFloaterReg::showInstance("incoming_call", payload, false);
+    }
 }
 
 //*TODO disconnects all sessions
@@ -5195,7 +5213,8 @@ public:
         } //end if invitation has instant message
         else if ( input["body"].has("voice") )
         {
-            if(!LLVoiceClient::getInstance()->voiceEnabled() || !LLVoiceClient::getInstance()->isVoiceWorking())
+            // <MG> the MG Phone's voice line takes calls with voice chat turned off
+            if(!MGPhoneCalls::voiceLineWanted() || !LLVoiceClient::getInstance()->isVoiceWorking())
             {
                 // Don't display voice invites unless the user has voice enabled.
                 return;

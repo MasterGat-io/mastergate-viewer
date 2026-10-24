@@ -4,7 +4,7 @@
 		<panel label="資訊" name="support_panel">
 			<text name="support_intro">
 如需瞭解有關 Firestorm 的最新資訊，請存取
-https://www.firestormviewer.org
+https://mastergate.io/viewer/
 			</text>
 			<button label="複製到剪貼簿" name="copy_btn" />
 			<button label="尋找是否有更新版本" name="update_btn" />

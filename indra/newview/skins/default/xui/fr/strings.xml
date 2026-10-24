@@ -8,7 +8,7 @@
 		Grille de Second Life
 	</string>
 	<string name="SUPPORT_SITE">
-		Portail Assistance Firestorm
+		Portail Assistance MasterGate
 	</string>
 	<string name="StartupLoading">
 		Chargement de [APP_NAME]...
@@ -203,7 +203,7 @@ Version serveur vocal : [VOICE_VERSION]
 		Quitter
 	</string>
 	<string name="create_account_url">
-		https://www.firestormviewer.org/join-secondlife/
+		https://join.secondlife.com/
 	</string>
 	<string name="AgniGridLabel">
 		Grille principale de Second Life (Agni)

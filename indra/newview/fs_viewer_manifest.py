@@ -17,7 +17,11 @@ class FSViewerManifest:
             'app_name_oneword':self.app_name_oneword()
             }
 
-        return "Phoenix-%(app_name)s_%(optimized)s-%(version_dashes)s" % substitution_strings
+        # <MG> dropped the "Phoenix-" prefix, and "LEGACY": our one build runs on every CPU
+        if not self.fs_is_avx2():
+            return "%(app_name)s-%(version_dashes)s" % substitution_strings
+        # </MG>
+        return "%(app_name)s_%(optimized)s-%(version_dashes)s" % substitution_strings
 
     def fs_is_opensim(self):
         return self.args['viewer_flavor'] == 'oss' #Havok would be hvk
@@ -57,7 +61,7 @@ class FSViewerManifest:
         return "".join(self.fs_channel_unique().split())
 
     def fs_channel_unique(self):
-        return self.channel().replace("Firestorm", "").strip()
+        return self.channel().replace("MasterGateViewer", "").strip() # <MG/> was "Firestorm"
 
     def fs_sign_win_binaries(self):
         signtool_path = os.getenv('SIGNTOOL_PATH')
@@ -72,6 +76,12 @@ class FSViewerManifest:
             self.args['configuration'] + "\\llplugin\\dullahan_host.exe",
             self.args['configuration'] + "\\" + self.final_exe()
         ]
+
+        # <MG> our own certificate, when one is set up (mg_sign_thumbprint)
+        if self.mg_sign_thumbprint():
+            self.mg_sign(executable_paths)
+            return
+        # </MG>
 
         if not signtool_path or not codesigning_dlib_path:
             print("Signing configuration is missing. Skipping signing process.")
@@ -95,6 +105,12 @@ class FSViewerManifest:
         metadata_file = os.getenv("CODESIGNING_METADATA_PATH")
         installer_path = self.args['configuration'] + "\\" + substitution_strings['installer_file']
 
+        # <MG>
+        if self.mg_sign_thumbprint():
+            self.mg_sign([installer_path])
+            return
+        # </MG>
+
         if not signtool_path or not codesigning_dlib_path:
             print("Signing configuration is missing. Skipping signing process.")
             return
@@ -108,6 +124,50 @@ class FSViewerManifest:
             ], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
         except Exception as e:
             print(f"Couldn't sign windows installer: {installer_path}. Error: {e}")
+
+    # <MG> Signing with MasterGate's own certificate (OV / open source / EV), next to
+    # Firestorm's Azure Trusted Signing above. Public code signing keys live on hardware
+    # (USB token, or a cloud HSM such as Certum SimplySign whose desktop app shows the
+    # certificate in the Windows store), so signtool picks the certificate by thumbprint.
+    # Set in raw/Viewer/mgv-sign.cmd (called by mgv-env.cmd), never in the repository:
+    #   MGV_SIGN_THUMBPRINT  SHA-1 thumbprint of the certificate (certmgr.msc > Personal)
+    #   MGV_SIGN_TIMESTAMP   RFC 3161 timestamp server (default: Certum's)
+    # Without MGV_SIGN_THUMBPRINT nothing changes: the build stays unsigned. With it, a
+    # signing failure stops the package, so an unsigned Setup is never shipped by mistake.
+    def mg_sign_thumbprint(self):
+        return os.getenv('MGV_SIGN_THUMBPRINT', '').replace(' ', '').strip()
+
+    def mg_signtool(self):
+        tool = os.getenv('SIGNTOOL_PATH', '')
+        if tool and os.path.isfile(tool):
+            return tool
+        # the newest Windows 10/11 SDK signtool
+        from glob import glob
+        kits = os.path.expandvars(r'${ProgramFiles(x86)}\Windows Kits\10\bin')
+        found = sorted(glob(os.path.join(kits, '10.*', 'x64', 'signtool.exe')))
+        if not found:
+            raise RuntimeError("signtool.exe not found: install the Windows SDK or set SIGNTOOL_PATH")
+        return found[-1]
+
+    def mg_sign_command(self):
+        timestamp = os.getenv('MGV_SIGN_TIMESTAMP', 'http://time.certum.pl')
+        return [self.mg_signtool(), "sign", "/fd", "SHA256", "/tr", timestamp, "/td", "SHA256",
+                "/sha1", self.mg_sign_thumbprint()]
+
+    def mg_sign(self, paths):
+        tool = self.mg_signtool()
+        for path in paths:
+            print(f"Signing {path}")
+            subprocess.check_call(self.mg_sign_command() + [path])
+            subprocess.check_call([tool, "verify", "/pa", "/q", path])
+
+    # the uninstaller is written while makensis runs: !uninstfinalize signs it then (NSIS 3.08+)
+    def mg_nsis_uninst_finalize(self):
+        if not self.mg_sign_thumbprint():
+            return ""
+        cmd = " ".join('"%s"' % a if (' ' in a or '\\' in a) else a for a in self.mg_sign_command())
+        return "!uninstfinalize '%s \"%%1\"' = 0" % cmd
+    # </MG>
 
     def fs_delete_linux_symbols( self ):
         debugDir = os.path.join( self.get_dst_prefix(), "bin", ".debug" )

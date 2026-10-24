@@ -138,6 +138,7 @@ public:
         void unloadMediaSource();
 
         LLPluginClassMedia* getMediaPlugin();
+        LLViewerMediaImpl* getMediaImpl() const { return mMediaSource.get(); } // <MG/> the MG Phone's own volume / priority
 
         bool setCaretColor( unsigned int red, unsigned int green, unsigned int blue );
 

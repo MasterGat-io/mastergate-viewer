@@ -173,6 +173,7 @@
 // <FS:Ansariel> [FS communication UI]
 //#include "llfloaterimnearbychat.h
 #include "fsfloaternearbychat.h"
+#include "mgfloaterphone.h" // <MG/> native MG Phone panel
 // <FS:Ansariel> [FS communication UI]
 #include "fsfloaterposer.h" // <FS:AR> [FIRE-30873]: Poser
 #include "llpanelblockedlist.h"
@@ -429,6 +430,7 @@ void LLViewerFloaterReg::registerFloaters()
     // <FS:Ansariel> Optional small camera floater
     LLFloaterReg::add("fs_camera_small", "floater_fs_camera_small.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterCamera>);
     LLFloaterReg::add("camera_presets", "floater_camera_presets.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterCameraPresets>);
+    LLFloaterReg::add("mg_phone", "floater_mg_phone.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<MGFloaterPhone>); // <MG/>
     LLFloaterReg::add("chat_voice", "floater_voice_chat_volume.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterChatVoiceVolume>);
     LLFloaterReg::add("change_item_thumbnail", "floater_change_item_thumbnail.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterChangeItemThumbnail>);
     // <FS:Ansariel> [FS communication UI]

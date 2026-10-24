@@ -41,7 +41,7 @@
 		 mouse_opaque="false"
 		 top_pad="15"
 		 width="500">
-			Maximum bandwidth ([https://wiki.firestormviewer.org/fs_speedtest need a suggestion?]):
+			Maximum bandwidth ([https://mastergate.io/viewer/help/?topic=fs_speedtest need a suggestion?]):
 		</text>
 
 		<icon
@@ -395,7 +395,7 @@
 		 name="cache_size_label_l"
 		 top_pad="15"
 		 width="500">
-		   Texture Cache Size ([https://wiki.firestormviewer.org/cache need a suggestion?]):
+		   Texture Cache Size ([https://mastergate.io/viewer/help/?topic=cache need a suggestion?]):
 		</text>
 		<slider
 		 can_edit_text="true"

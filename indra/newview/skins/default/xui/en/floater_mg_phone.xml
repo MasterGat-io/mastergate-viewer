@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<!-- MasterGate Viewer: native MG Phone panel (mgfloaterphone.cpp), shaped like a phone.
+     Matches the web popup (phone-launcher.css #mgphone): body #070b1a radius 44, 30 px grip
+     strip (no pill: it read as the phone's own home bar), screen inset 12 px with radius 34.
+     legacy_header_height = header_height: otherwise LLFloater stretches the floater up by
+     the header height and every child sits 30 px lower (the "gap" above the screen).
+     MG_PhoneBezel is the phone body; the browser is the screen, inset by the bezel
+     (12 px sides, 30 px top incl. the drag/close strip, 14 px bottom; mgfloaterphone.cpp
+     BEZEL_* must match). MG_PhoneScreenMask rounds the screen corners and lets clicks
+     through. The page renders at its logical size (texture 512x1024; 1024x512 /
+     1024x1024 for landscape / tablet) and is scaled to the screen, whose aspect the
+     floater keeps when resized. -->
+<floater
+ can_close="true"
+ can_minimize="false"
+ can_resize="true"
+ height="804"
+ width="404"
+ min_height="300"
+ min_width="170"
+ layout="topleft"
+ name="mg_phone"
+ header_height="30"
+ legacy_header_height="30"
+ save_rect="true"
+ single_instance="true"
+ title=""
+ bg_opaque_image="MG_PhoneBezel"
+ bg_alpha_image="MG_PhoneBezel"
+ background_visible="true"
+ background_opaque="true">
+    <floater.string name="signing_in">Signing in to MasterGate…</floater.string>
+    <web_browser
+     name="phone_browser"
+     follows="all"
+     layout="topleft"
+     left="12"
+     top="30"
+     width="380"
+     height="760"
+     border_visible="false"
+     bg_opaque_color="0.051 0.051 0.051 1"
+     decouple_texture_size="true"
+     texture_width="512"
+     texture_height="1024"
+     trusted_content="false"
+     start_url="" />
+    <icon
+     name="phone_screen_mask"
+     image_name="MG_PhoneScreenMask"
+     follows="all"
+     layout="topleft"
+     left="12"
+     top="30"
+     width="380"
+     height="760"
+     mouse_opaque="false" />
+    <text
+     name="phone_status"
+     follows="left|right|top"
+     layout="topleft"
+     font="SansSerifMedium"
+     halign="center"
+     text_color="0.639 0.639 0.639 1"
+     left="12"
+     top="380"
+     width="380"
+     height="24"
+     visible="false" />
+</floater>

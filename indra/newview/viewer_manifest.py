@@ -199,36 +199,39 @@ class ViewerManifest(LLManifest,FSViewerManifest):
                 self.path("*.dae") # <FS:Beq> FIRE-30963 - better physics defaults
 
             # skins
+            # <MG> Package only the base skin and the MasterGate skin (skins.xml lists only
+            # MasterGate; the other upstream skins stay in the source tree for clean merges).
+            # A glob that matches nothing is reported as missing by LLManifest.path(), so each
+            # pattern is only added when it has files.
+            def mg_path_if_any(pattern):
+                if glob.glob(os.path.join(self.get_src_prefix(), pattern)):
+                    self.path(pattern)
             with self.prefix(src_dst="skins"):
                     self.path("skins.xml")
-                    # include the entire textures directory recursively
-                    with self.prefix(src_dst="*/textures"):
-                            self.path("*/*.jpg") # <FS:TJ> Needed for Firestorm skins
-                            self.path("*/*.tga") # <FS:Ansariel> Needed for legacy icons
-                            self.path("*/*.png")
-                            self.path("*.tga")
-                            self.path("*.j2c")
-                            self.path("*.jpg") # <FS:Ansariel> Needed for Firestorm
-                            self.path("*.png")
-                            self.path("textures.xml")
-                    self.path("*/xui/*/*.xml")
-                    self.path("*/xui/*/widgets/*.xml")
-                    self.path("*/themes/*/colors.xml")
-                    with self.prefix(src_dst="*/themes/*/textures"):
-                        self.path("*/*.tga")
-                        self.path("*/*.jpg")
-                        self.path("*/*.png")
-                        self.path("*.tga")
-                        self.path("*.j2c")
-                        self.path("*.png")
-                    self.path("*/*.xml")
+                    for skin in ("default", "mastergate"):
+                        with self.prefix(src_dst=skin):
+                            # include the entire textures directory recursively
+                            with self.prefix(src_dst="textures"):
+                                for pattern in ("*/*.jpg", "*/*.tga", "*/*.png", "*.tga", "*.j2c",
+                                                "*.jpg", "*.png", "textures.xml"):
+                                    mg_path_if_any(pattern)
+                            mg_path_if_any("xui/*/*.xml")
+                            mg_path_if_any("xui/*/widgets/*.xml")
+                            mg_path_if_any("themes/*/colors.xml")
+                            with self.prefix(src_dst="themes"):
+                                for pattern in ("*/textures/*/*.tga", "*/textures/*/*.jpg",
+                                                "*/textures/*/*.png", "*/textures/*.tga",
+                                                "*/textures/*.j2c", "*/textures/*.png"):
+                                    mg_path_if_any(pattern)
+                            mg_path_if_any("*.xml")
 
-                    # Update: 2017-11-01 CP Now we store app code in the html folder
-                    #         Initially the HTML/JS code to render equirectangular
-                    #         images for the 360 capture feature but more to follow.
-                    with self.prefix(src="*/html", dst="*/html"):
-                        #self.path("*/*/*/*.js") # <FS:Ansariel> Copied outside packaging and from packages directory already
-                        self.path("*/*/*.html")
+                            # Update: 2017-11-01 CP Now we store app code in the html folder
+                            #         Initially the HTML/JS code to render equirectangular
+                            #         images for the 360 capture feature but more to follow.
+                            with self.prefix(src_dst="html"):
+                                #self.path("*/*/*/*.js") # <FS:Ansariel> Copied outside packaging and from packages directory already
+                                mg_path_if_any("*/*/*.html")
+            # </MG>
 
             #build_data.json.  Standard with exception handling is fine.  If we can't open a new file for writing, we have worse problems
             #platform is computed above with other arg parsing
@@ -373,8 +376,7 @@ class ViewerManifest(LLManifest,FSViewerManifest):
 
     # <FS:Ansariel> FIRE-30446: Set FriendlyAppName for protocol registrations
     def friendly_app_name(self):
-        global CHANNEL_VENDOR_BASE
-        return CHANNEL_VENDOR_BASE
+        return "MasterGate Viewer" # <MG/> display name (was CHANNEL_VENDOR_BASE)
     # </FS:Ansariel>
 
     def icon_path(self):
@@ -1129,14 +1131,14 @@ class Windows_x86_64_Manifest(ViewerManifest):
         """ % substitution_strings
 
         if self.channel_type() == 'release':
-            substitution_strings['caption'] = CHANNEL_VENDOR_BASE
+            substitution_strings['caption'] = self.friendly_app_name() # <MG/> was CHANNEL_VENDOR_BASE
         else:
             substitution_strings['caption'] = self.app_name() + ' ${VERSION}'
 
         inst_vars_template = """
             OutFile "%(installer_file)s"
             !define INSTNAME   "%(app_name_oneword)s"
-            !define SHORTCUT   "%(app_name)s"
+            !define SHORTCUT   "%(friendly_app_name)s" ; <MG/> Start menu / desktop name "MasterGate Viewer" (was app_name)
             !define DL_URL   "%(dl_url)s"
             !define URLNAME   "secondlife"
             !define IS64BIT   "%(is64bit)d"
@@ -1177,6 +1179,7 @@ class Windows_x86_64_Manifest(ViewerManifest):
                 "%%INSTALL_FILES%%":self.nsi_file_commands(True),
                 "%%PROGRAMFILES%%":program_files,
                 "%%ENGAGEREGISTRY%%":engage_registry,
+                "%%MG_UNINSTFINALIZE%%":self.mg_nsis_uninst_finalize(), # <MG/>
                 "%%DELETE_FILES%%":self.nsi_file_commands(False)})
 
         # <FS:Ansariel> Undo Github-Build stuff

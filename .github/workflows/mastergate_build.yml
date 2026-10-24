@@ -1,0 +1,203 @@
+# <MG> MasterGate Viewer: Linux / macOS / Windows packages on GitHub's runners.
+# Same settings as raw/Viewer/mgv-build.cmd: open build (ReleaseFS_open, no FMOD /
+# KDU / Havok), OpenAL audio, Second Life only, channel "Release". No private 3p
+# bundles. The version is 7.2.4.<indra/newview/MGV_REVISION.txt>, as in local builds.
+#
+# Run it from the Actions tab ("Run workflow"), or push a tag mgv-<version>
+# (e.g. mgv-7.2.4.80714): a tag builds every platform and attaches the packages and
+# their SHA-256 sums to a draft GitHub Release.
+#
+# Signing, all optional (repository secrets; without them nothing is signed):
+#   macOS  MGV_MAC_CERT (base64 .p12 of the "Developer ID Application" certificate),
+#          MGV_MAC_CERT_PASS, MGV_MAC_SIGNING_IDENTITY ("Developer ID Application:
+#          Name (TEAMID)"), and for notarization MGV_NOTARIZE_APPLE_ID,
+#          MGV_NOTARIZE_PASSWORD (app-specific password), MGV_NOTARIZE_TEAM_ID.
+#          Without them the app is signed ad hoc: users open it once through
+#          System Settings > Privacy & Security > Open Anyway (macOS 15+).
+#   Windows the published Setup is built and signed on the owner's PC (mgv-sign.cmd);
+#          the Windows package made here is unsigned.
+name: MasterGate Viewer build
+on:
+  workflow_dispatch:
+    inputs:
+      platforms:
+        description: 'Platforms to build: all, linux, mac, windows (comma separated)'
+        required: false
+        default: 'linux,mac'
+  push:
+    tags:
+      - "mgv-*"
+
+permissions:
+  contents: write   # the draft release on tag builds
+
+env:
+  AUTOBUILD_VARIABLES_FILE: ${{ github.workspace }}/build-variables/variables
+  MG_ARGS: --chan Release --no-opensim --openal -DLL_TESTS:BOOL=FALSE
+  XZ_DEFAULTS: -T0
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            key: linux
+          - os: macos-15
+            key: mac
+          - os: windows-2022
+            key: windows
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 300
+    env:
+      MGV_MAC_CERT: ${{ secrets.MGV_MAC_CERT }}
+      MGV_MAC_SIGNING_IDENTITY: ${{ secrets.MGV_MAC_SIGNING_IDENTITY }}
+    steps:
+      - name: Skip platforms not asked for
+        id: want
+        shell: bash
+        run: |
+          list="${{ github.event.inputs.platforms }}"
+          [ -z "$list" ] && list="all"
+          if [[ ",$list," == *",all,"* || ",$list," == *",${{ matrix.key }},"* ]]; then echo "go=true" >> "$GITHUB_OUTPUT"; else echo "go=false" >> "$GITHUB_OUTPUT"; fi
+
+      - name: Bash 4 and GNU sed (macOS)
+        if: steps.want.outputs.go == 'true' && runner.os == 'macOS'
+        run: |
+          brew install bash gnu-sed
+          echo "$(brew --prefix)/bin" >> $GITHUB_PATH
+          echo "/usr/local/bin" >> $GITHUB_PATH
+          echo "$(brew --prefix)/opt/gnu-sed/libexec/gnubin" >> $GITHUB_PATH
+
+      - name: Get the code
+        if: steps.want.outputs.go == 'true'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Build variables
+        if: steps.want.outputs.go == 'true'
+        uses: actions/checkout@v4
+        with:
+          repository: FirestormViewer/fs-build-variables
+          path: build-variables
+
+      - name: Python 3.11
+        if: steps.want.outputs.go == 'true'
+        id: py
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Python requirements (autobuild, llsd)
+        if: steps.want.outputs.go == 'true'
+        shell: bash
+        run: |
+          echo "PYTHON=${{ steps.py.outputs.python-path }}" >> $GITHUB_ENV
+          python -m pip install -r requirements.txt
+
+      - name: Free disk space (Linux)
+        if: steps.want.outputs.go == 'true' && runner.os == 'Linux'
+        uses: jlumbroso/free-disk-space@main
+        with:
+          swap-storage: false
+
+      - name: GCC 13 and system libraries (Linux)
+        if: steps.want.outputs.go == 'true' && runner.os == 'Linux'
+        run: |
+          sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+          sudo apt-get update
+          sudo apt-get install -y gcc-13 g++-13 python3-setuptools mesa-common-dev libgl1-mesa-dev libxinerama-dev \
+            libxrandr-dev libpulse-dev libglu1-mesa-dev libfreetype6-dev libfontconfig1-dev
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 130 --slave /usr/bin/g++ g++ /usr/bin/g++-13
+          echo "CC=gcc-13" >> $GITHUB_ENV
+          echo "CXX=g++-13" >> $GITHUB_ENV
+
+      - name: Visual Studio version (Windows)
+        if: steps.want.outputs.go == 'true' && runner.os == 'Windows'
+        shell: bash
+        run: echo "AUTOBUILD_VSVER=170" >> $GITHUB_ENV
+
+      # Same keychain layout as Firestorm's build: viewer_manifest.py signs with it when
+      # build_secrets_checkout is set, and apple-notarize.sh reads notarize_creds.sh.
+      - name: Signing certificate (macOS, only with the secrets)
+        if: steps.want.outputs.go == 'true' && runner.os == 'macOS' && env.MGV_MAC_CERT != ''
+        env:
+          CERT_PASS: ${{ secrets.MGV_MAC_CERT_PASS }}
+          APPLE_ID: ${{ secrets.MGV_NOTARIZE_APPLE_ID }}
+          APPLE_PASS: ${{ secrets.MGV_NOTARIZE_PASSWORD }}
+          TEAM_ID: ${{ secrets.MGV_NOTARIZE_TEAM_ID }}
+        run: |
+          secrets_dir="${{ github.workspace }}/signing"
+          mkdir -p "$secrets_dir/code-signing-osx"
+          keychain_pass="$(uuidgen)"
+          echo -n "$MGV_MAC_CERT" | base64 --decode > "$secrets_dir/code-signing-osx/cert.p12"
+          echo -n "$keychain_pass" > "$secrets_dir/code-signing-osx/password.txt"
+          security create-keychain -p "$keychain_pass" ~/Library/Keychains/viewer.keychain
+          security default-keychain -s viewer.keychain
+          security set-keychain-settings -lut 21600 ~/Library/Keychains/viewer.keychain
+          security unlock-keychain -p "$keychain_pass" ~/Library/Keychains/viewer.keychain
+          security import "$secrets_dir/code-signing-osx/cert.p12" -P "$CERT_PASS" -A -t cert -f pkcs12 -k ~/Library/Keychains/viewer.keychain
+          security set-key-partition-list -S apple-tool:,apple:, -s -k "$keychain_pass" -t private ~/Library/Keychains/viewer.keychain
+          security list-keychain -d user -s ~/Library/Keychains/viewer.keychain
+          rm -f "$secrets_dir/code-signing-osx/cert.p12"
+          if [ -n "$APPLE_ID" ] && [ -n "$APPLE_PASS" ] && [ -n "$TEAM_ID" ]; then
+            printf 'USERNAME=%q\nPASSWORD=%q\nASC_PROVIDER=%q\n' "$APPLE_ID" "$APPLE_PASS" "$TEAM_ID" > "$secrets_dir/code-signing-osx/notarize_creds.sh"
+          else
+            echo "SKIP_NOTARIZATION=true" >> $GITHUB_ENV
+          fi
+          echo "build_secrets_checkout=$secrets_dir" >> $GITHUB_ENV
+
+      - name: Configure
+        if: steps.want.outputs.go == 'true'
+        shell: bash
+        run: autobuild configure -A 64 -c ReleaseFS_open -- --package ${{ env.MG_ARGS }} "-DPYTHON_EXECUTABLE:FILEPATH=${PYTHON}"
+
+      - name: Build and package
+        if: steps.want.outputs.go == 'true'
+        shell: bash
+        run: autobuild build -A 64 -c ReleaseFS_open --no-configure
+
+      - name: Collect the package and its SHA-256
+        if: steps.want.outputs.go == 'true'
+        shell: bash
+        run: |
+          mkdir -p out
+          shopt -s nullglob
+          for f in build-linux-*/newview/*.tar.xz build-darwin-*/newview/*.dmg build-*/newview/Release/*Setup.exe; do cp "$f" out/; done
+          cd out
+          ls -la
+          [ -n "$(ls)" ] || { echo "no package was made"; exit 1; }
+          if command -v sha256sum >/dev/null; then sha256sum * > SHA256SUMS-${{ matrix.key }}.txt; else shasum -a 256 * > SHA256SUMS-${{ matrix.key }}.txt; fi
+          cat SHA256SUMS-${{ matrix.key }}.txt
+
+      - name: Upload
+        if: steps.want.outputs.go == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: MasterGateViewer-${{ matrix.key }}
+          path: out/*
+
+      - name: Clean up the keychain (macOS)
+        if: always() && runner.os == 'macOS' && env.MGV_MAC_CERT != ''
+        run: security delete-keychain ~/Library/Keychains/viewer.keychain || true
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/mgv-')
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Draft release with the packages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ls -la dist
+          gh release create "${{ github.ref_name }}" dist/* --repo "${{ github.repository }}" --draft \
+            --title "MasterGate Viewer ${GITHUB_REF_NAME#mgv-}" \
+            --notes "Built by GitHub Actions from ${{ github.sha }}. Check the SHA256SUMS files before publishing."
+# </MG>

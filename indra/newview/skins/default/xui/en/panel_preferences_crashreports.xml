@@ -10,7 +10,7 @@
  label="Crash Reports"
  name="crash_reports">
     <panel.string name="PrivacyPolicyUrl">
-        https://www.firestormviewer.org/privacy-policy
+        https://mastergate.io/privacy.php
     </panel.string>
     <check_box
      layout="topleft"

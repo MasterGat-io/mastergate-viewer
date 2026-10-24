@@ -31,7 +31,7 @@ Dettagli errore: La notifica denominata &apos;[_NAME]&apos; non è stata trovata
 		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="Si"/>
 	</notification>
 	<notification name="BadInstallation">
-		Il programma [APP_NAME] ha riscontrato un&apos;errore durante il tentativo di aggiornamento.  [https://www.firestormviewer.org/downloads Scarica l&apos;ultima versione] del viewer.
+		Il programma [APP_NAME] ha riscontrato un&apos;errore durante il tentativo di aggiornamento.  [https://mastergate.io/viewer/ Scarica l&apos;ultima versione] del viewer.
 	</notification>
 	<notification name="LoginFailedNoNetwork">
 		Non è possibile collegarsi alla [CURRENT_GRID].
@@ -3659,7 +3659,7 @@ Consigliamo di controllare le impostazioni di rete e del firewall.
 Disabilitare tutte le funzioni SIP ALG sul router.
 
 Le comunicazioni tramite voce non saranno disponibili.
-https://wiki.firestormviewer.org/fs_voice
+https://mastergate.io/viewer/help/?topic=fs_voice
 		<usetemplate ignoretext="Avvisami quando non è possibile la connessione con il server voce" name="okignore"/>
 	</notification>
 	<notification name="NoVoiceConnect-GIAB">
@@ -3667,7 +3667,7 @@ https://wiki.firestormviewer.org/fs_voice
 
 Le comunicazioni tramite voce non saranno disponibili.
 Consigliamo di controllare le impostazioni di rete e del firewall.
-[https://wiki.firestormviewer.org/fs_voice]
+[https://mastergate.io/viewer/help/?topic=fs_voice]
 	</notification>
 	<notification name="AvatarRezLeftNotification">
 		( presente da [EXISTENCE] secondi )
@@ -5171,8 +5171,8 @@ Questa impostazione è destinata ai casi in cui il rilevamento VRAM riporta valo
 	</notification>
 	<notification name="CurrencyURIOverrideReceived">
 		Questa regione ha attivato un gestore di denaro esterno.
-Gli acquisti di valuta fatti attraverso Firestorm sono transazioni tra voi (l&apos;utente) e il fornitore/i fornitori o rivenditore/i della valuta.
-Né Firestorm Viewer, né Phoenix Firestorm Viewer Project Inc. o la sua squadra possono essere ritenuti responsabili di spese o danni legati direttamente o indirettamente a queste transazioni.
+Gli acquisti di valuta fatti attraverso MasterGate sono transazioni tra voi (l&apos;utente) e il fornitore/i fornitori o rivenditore/i della valuta.
+Né MasterGate Viewer, né Phoenix Firestorm Viewer Project Inc. o la sua squadra possono essere ritenuti responsabili di spese o danni legati direttamente o indirettamente a queste transazioni.
 Se non si ritiene di aderire a questi termini d&apos;uso, non effettuare transazioni usando questo viewer.
 		<usetemplate ignoretext="La regione attiva un nuovo portale per la valuta." name="okignore" />
 	</notification>
@@ -5350,8 +5350,8 @@ Tieni presente che non è possibile selezionare "Ambiente condiviso" o "Basato s
 		L'importazione in blocco delle Windlight è terminata.
 	</notification>
 	<notification name="FSAOScriptedNotification">
-		Firestorm Animation Overrider (AO): [AO_MESSAGE]
-		<usetemplate ignoretext="Avvisami quando un oggetto scriptato richiede l'accesso all'AO di Firestorm" name="notifyignore" />
+		MasterGate Animation Overrider (AO): [AO_MESSAGE]
+		<usetemplate ignoretext="Avvisami quando un oggetto scriptato richiede l'accesso all'AO di MasterGate" name="notifyignore" />
 	</notification>
 	<notification name="WarnForceLoginURL">
 		L'URL della schermata iniziale è stato sovrascritto a scopo di test.
@@ -5382,7 +5382,7 @@ Alcuni programmi antivirus potrebbero bloccare erroneamente parti di [APP_NAME],
 
 Per istruzioni dettagliate su come autorizzare [APP_NAME], che includono l'elenco di file e cartelle da escludere, consulta la nostra guida:
 
-https://wiki.firestormviewer.org/antivirus_whitelisting
+https://mastergate.io/viewer/help/?topic=antivirus_whitelisting
 	</notification>
 
 	<notification name="FSSetTitleRegion">

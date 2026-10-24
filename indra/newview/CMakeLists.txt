@@ -146,6 +146,14 @@ set(viewer_SOURCE_FILES
     fsfloatervramusage.cpp
     fsfloaterwearablefavorites.cpp
     fsfloaterwhitelisthelper.cpp
+    mgfloaterphone.cpp # <MG/> native MG Phone panel
+    mgphoneauth.cpp # <MG/> automatic sign-in + native notifications
+    mgphonecalls.cpp # <MG/> voice calls in the MG Phone
+    mgphonecamera.cpp # <MG/> pro capture controls for the MG Phone Camera
+    mgphoneanims.cpp # <MG/> the MG Phone Animations app
+    mgphonewardrobe.cpp # <MG/> the MG Phone Wardrobe app
+    mgphoneupdate.cpp # <MG/> install a new release from the MG Phone
+    mgphoneinventory.cpp # <MG/> the MG Phone Textures app
     fsjointpose.cpp
     fskeywords.cpp
     fslslbridge.cpp
@@ -1007,6 +1015,14 @@ set(viewer_HEADER_FILES
     fsfloatervramusage.h
     fsfloaterwearablefavorites.h
     fsfloaterwhitelisthelper.h
+    mgfloaterphone.h # <MG/>
+    mgphoneauth.h # <MG/>
+    mgphonecalls.h # <MG/>
+    mgphonecamera.h # <MG/>
+    mgphoneanims.h # <MG/>
+    mgphonewardrobe.h # <MG/>
+    mgphoneupdate.h # <MG/>
+    mgphoneinventory.h # <MG/>
     fsjointpose.h
     fsgridhandler.h
     fskeywords.h

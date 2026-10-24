@@ -312,6 +312,13 @@ FSPanelLogin::FSPanelLogin(const LLRect &rect,
     LLTextBox* forgot_password_text = getChild<LLTextBox>("forgot_password_text");
     forgot_password_text->setClickedCallback(onClickForgotPassword, NULL);
 
+    // <MG> the version under the name in the login sidebar (mastergate skin)
+    if (LLTextBox* version_text = findChild<LLTextBox>("sidebar_version"))
+    {
+        version_text->setText(LLVersionInfo::getInstance()->getVersion());
+    }
+    // </MG>
+
     loadLoginPage();
 
     LLComboBox* username_combo(getChild<LLComboBox>("username_combo"));

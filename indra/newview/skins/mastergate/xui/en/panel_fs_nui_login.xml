@@ -1,0 +1,456 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<!-- MasterGate skin: login controls in a left sidebar, login web page on the right.
+     MasterGate is the only skin, so the Mode row (mode_selection) is hidden; mode_combo must
+     still exist because FSPanelLogin reads it.
+     Every named control from skins/default/xui/en/panel_fs_nui_login.xml is kept with the same
+     type, because FSPanelLogin (fspanellogin.cpp) looks them up by name:
+     login (panel), start_location_panel + grid_panel (layout_panel, hidden by code),
+     username_combo, remove_user_btn, remember_username_check, password_edit, remember_check,
+     password_show_btn, password_hide_btn, start_location_combo, server_combo, grid_login_text,
+     grid_builder_text, mode_combo, connect_btn, create_new_account_text, forgot_password_text,
+     login_html, login_widgets. -->
+<panel
+  follows="all"
+  height="768"
+  layout="topleft"
+  name="panel_login"
+  focus_root="true"
+  background_visible="true"
+  bg_opaque_color="0.051 0.051 0.051 1"
+  background_opaque="true"
+  width="1024">
+  <panel.string
+    name="forgot_password_url">
+    http://secondlife.com/account/request.php
+  </panel.string>
+  <string name="ServerComboTooltip">
+    An existing grid or a grid URI
+  </string>
+
+  <web_browser
+    tab_stop="false"
+    trusted_content="true"
+    bg_opaque_color="0.051 0.051 0.051 1"
+    border_visible="false"
+    follows="all"
+    left="300"
+    name="login_html"
+    start_url=""
+    top="18"
+    height="750"
+    width="724" />
+
+  <panel
+    name="login_widgets"
+    follows="left|top|bottom"
+    layout="topleft"
+    left="0"
+    top="0"
+    width="300"
+    height="768"
+    background_visible="true"
+    background_opaque="true"
+    bg_opaque_color="0.075 0.078 0.082 1">
+    <panel
+      name="sidebar_rule"
+      follows="right|top|bottom"
+      left="299"
+      top="0"
+      width="1"
+      height="768"
+      background_visible="true"
+      background_opaque="true"
+      bg_opaque_color="1 1 1 0.10" />
+
+    <layout_stack
+      animate="false"
+      clip="false"
+      follows="all"
+      layout="topleft"
+      name="sidebar_stack"
+      orientation="vertical"
+      left="24"
+      top="18"
+      width="252"
+      height="750">
+
+      <layout_panel
+        auto_resize="false"
+        name="logo_panel"
+        layout="topleft"
+        height="168"
+        width="252">
+        <icon
+          image_name="login_mg_logo"
+          name="sl_logo_small"
+          follows="left|top"
+          left="80"
+          top="18"
+          width="92"
+          height="92" />
+        <text
+          name="sidebar_title"
+          follows="left|top"
+          font="SansSerifLarge"
+          font.style="BOLD"
+          halign="center"
+          text_color="0.929 0.929 0.929 1"
+          left="0"
+          top_pad="10"
+          width="252"
+          height="20">
+          MasterGate Viewer
+        </text>
+        <!-- <MG> release name + version on the login screen (TPV Policy 1.g), set by
+             FSPanelLogin; shown even when the login web page cannot load -->
+        <text
+          name="sidebar_version"
+          follows="left|top"
+          font="SansSerifSmall"
+          halign="center"
+          text_color="0.62 0.62 0.62 1"
+          left="0"
+          top_pad="2"
+          width="252"
+          height="16" />
+      </layout_panel>
+
+      <layout_panel
+        auto_resize="false"
+        name="login"
+        layout="topleft"
+        height="92"
+        width="252">
+        <text
+          name="username_label"
+          follows="left|top"
+          font="SansSerifSmall"
+          text_color="0.588 0.588 0.588 1"
+          left="0"
+          top="4"
+          width="200"
+          height="16">
+          Username
+        </text>
+        <combo_box
+          allow_text_entry="true"
+          follows="left|top"
+          height="32"
+          label="Username"
+          combo_editor.font="SansSerifLarge"
+          max_chars="128"
+          force_disable_fulltext_search="true"
+          combo_editor.commit_on_focus_lost="false"
+          combo_editor.prevalidator="ascii"
+          tool_tip="The username you chose when you registered, like bobsmith12 or Steller Sunshine"
+          name="username_combo"
+          left="0"
+          top_pad="4"
+          width="214">
+          <combo_box.combo_editor
+            text_pad_left="10"
+            text_pad_right="8"/>
+        </combo_box>
+        <button
+          follows="left|top"
+          height="32"
+          width="32"
+          image_unselected="TrashItem_Off"
+          image_selected="TrashItem_Press"
+          image_pressed="TrashItem_Press"
+          tool_tip="Remove this username"
+          label=""
+          layout="topleft"
+          name="remove_user_btn"
+          tab_stop="false"
+          left_pad="6"
+          top_delta="0" />
+        <check_box
+          tab_stop="false"
+          control_name="FSRememberUsername"
+          follows="left|top"
+          font="SansSerif"
+          left="0"
+          top_pad="8"
+          height="18"
+          label="Remember username"
+          name="remember_username_check"
+          width="252" />
+      </layout_panel>
+
+      <layout_panel
+        auto_resize="false"
+        name="password_container"
+        layout="topleft"
+        height="92"
+        width="252">
+        <text
+          name="password_label"
+          follows="left|top"
+          font="SansSerifSmall"
+          text_color="0.588 0.588 0.588 1"
+          left="0"
+          top="4"
+          width="200"
+          height="16">
+          Password
+        </text>
+        <!-- The max length might be changed in FSPanelLogin.cpp for Opensim! -->
+        <line_editor
+          follows="left|top"
+          height="32"
+          left="0"
+          top_pad="4"
+          max_length_chars="16"
+          text_pad_left="10"
+          text_pad_right="34"
+          name="password_edit"
+          label="Password"
+          font="SansSerifLarge"
+          is_password="true"
+          select_on_focus="true"
+          commit_on_focus_lost="false"
+          width="252" />
+        <button
+          name="password_show_btn"
+          tool_tip="Show password text"
+          follows="left|top"
+          left="224"
+          top_delta="6"
+          height="20"
+          width="20"
+          image_pressed="Profile_Group_Visibility_Off_Pressed"
+          image_unselected="Profile_Group_Visibility_Off"
+          tab_stop="false"
+          visible="true" />
+        <button
+          name="password_hide_btn"
+          tool_tip="Hide password text"
+          follows="left|top"
+          left="224"
+          top_delta="0"
+          height="20"
+          width="20"
+          image_pressed="Profile_Group_Visibility_On_Pressed"
+          image_unselected="Profile_Group_Visibility_On"
+          tab_stop="false"
+          visible="false" />
+        <check_box
+          tab_stop="false"
+          control_name="RememberPassword"
+          enabled_control="FSRememberUsername"
+          follows="left|top"
+          font="SansSerif"
+          left="0"
+          top="64"
+          height="18"
+          label="Remember password"
+          name="remember_check"
+          width="252" />
+      </layout_panel>
+
+      <layout_panel
+        auto_resize="false"
+        name="start_location_panel"
+        layout="topleft"
+        height="64"
+        width="252">
+        <text
+          name="start_location_label"
+          follows="left|top"
+          font="SansSerifSmall"
+          text_color="0.588 0.588 0.588 1"
+          left="0"
+          top="4"
+          width="200"
+          height="16">
+          Start location
+        </text>
+        <combo_box
+          allow_text_entry="true"
+          control_name="NextLoginLocation"
+          follows="left|top"
+          label="Start location"
+          height="32"
+          max_chars="128"
+          combo_editor.font="SansSerifLarge"
+          left="0"
+          top_pad="4"
+          name="start_location_combo"
+          width="252"
+          combo_button.scale_image="true">
+          <combo_box.combo_editor
+            text_pad_left="10"
+            text_pad_right="8"/>
+          <combo_box.item
+            label="Last location"
+            name="MyLastLocation"
+            value="last" />
+          <combo_box.item
+            label="Home"
+            name="MyHome"
+            value="home" />
+          <combo_box.item
+            label="&lt;Type region name&gt;"
+            name="Typeregionname" value="" />
+        </combo_box>
+      </layout_panel>
+
+      <layout_panel
+        auto_resize="false"
+        name="connect_panel"
+        layout="topleft"
+        height="118"
+        width="252">
+        <button
+          follows="left|top"
+          image_unselected="PushButton_Login"
+          image_pressed="PushButton_Login_Pressed"
+          image_hover_unselected="PushButton_Login_Over"
+          label="Log In"
+          label_color="0.016 0.078 0.102 1"
+          font="SansSerifLarge"
+          font.style="BOLD"
+          name="connect_btn"
+          left="0"
+          top="16"
+          width="252"
+          height="44" />
+        <text
+          follows="left|top"
+          font="SansSerif"
+          text_color="EmphasisColor"
+          halign="center"
+          left="0"
+          height="16"
+          name="create_new_account_text"
+          top_pad="16"
+          width="252">
+          Create an account
+        </text>
+        <text
+          follows="left|top"
+          font="SansSerif"
+          text_color="EmphasisColor"
+          halign="center"
+          left="0"
+          height="16"
+          name="forgot_password_text"
+          top_pad="6"
+          width="252">
+          Forgot password?
+        </text>
+      </layout_panel>
+
+      <layout_panel
+        auto_resize="false"
+        name="grid_panel"
+        layout="topleft"
+        height="82"
+        width="252"
+        visible="true">
+        <text
+          follows="left|top"
+          font="SansSerifSmall"
+          text_color="0.588 0.588 0.588 1"
+          height="16"
+          name="grid_login_text"
+          left="0"
+          top="4"
+          width="200">
+          Grid
+        </text>
+        <combo_box
+          allow_text_entry="true"
+          font="SansSerifLarge"
+          follows="left|top"
+          height="32"
+          max_chars="256"
+          combo_editor.font="SansSerifLarge"
+          left="0"
+          top_pad="4"
+          force_disable_fulltext_search="true"
+          combo_editor.commit_on_focus_lost="false"
+          combo_editor.prevalidator="ascii"
+          layout="topleft"
+          name="server_combo"
+          width="252"
+          combo_button.scale_image="true">
+          <combo_box.drop_down_button
+            font="SansSerifLarge"/>
+        </combo_box>
+        <text
+          follows="left|top"
+          font="SansSerifSmall"
+          text_color="EmphasisColor"
+          top_pad="4"
+          height="16"
+          name="grid_builder_text"
+          left="0"
+          width="252"
+          visible="false">
+          + Click to add more grids
+        </text>
+      </layout_panel>
+
+      <layout_panel
+        auto_resize="false"
+        name="mode_selection"
+        layout="topleft"
+        height="64"
+        width="252"
+        visible="false">
+        <text
+          follows="left|top"
+          font="SansSerifSmall"
+          text_color="0.588 0.588 0.588 1"
+          height="16"
+          name="mode_selection_text"
+          left="0"
+          top="4"
+          width="200">
+          Mode
+        </text>
+        <combo_box
+          follows="left|top"
+          left="0"
+          top_pad="4"
+          height="32"
+          max_chars="128"
+          tool_tip="Select which style of viewer you are most familiar with to set your defaults to appropriately."
+          name="mode_combo"
+          width="252"
+          combo_button.scale_image="true">
+          <combo_box.drop_down_button
+            font="SansSerifLarge"/>
+          <combo_box.item
+            label="MasterGate"
+            name="Firestorm"
+            value="settings_firestorm.xml" />
+          <combo_box.item
+            label="Phoenix"
+            name="Phoenix"
+            value="settings_phoenix.xml" />
+          <combo_box.item
+            label="[VIEWER_GENERATION]"
+            name="V3"
+            value="settings_v3.xml" />
+          <combo_box.item
+            label="Hybrid"
+            name="Hybrid"
+            value="settings_hybrid.xml" />
+          <combo_box.item
+            label="Text"
+            name="Text"
+            value="settings_text.xml" />
+        </combo_box>
+      </layout_panel>
+
+      <layout_panel
+        auto_resize="true"
+        name="sidebar_filler"
+        height="40"
+        width="252" />
+    </layout_stack>
+  </panel>
+</panel>

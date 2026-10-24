@@ -33,8 +33,8 @@
         top="16"
         width="434"
         wrap="true">
-For the latest information about Firestorm, visit 
-https://www.firestormviewer.org
+For the latest information about MasterGate Viewer, visit 
+https://mastergate.io/viewer/
       </text>
       <text_editor
         parse_urls="true"
@@ -71,7 +71,7 @@ https://www.firestormviewer.org
         top="16"
         width="489"
         wrap="true">
-Firestorm would not be possible without the decision from Linden Lab to make their Second Life viewer source code available.
+MasterGate Viewer and Firestorm would not be possible without the decision from Linden Lab to make their Second Life viewer source code available.
 
 Second Life is brought to you by the Lindens, 
 with open source contributions from:

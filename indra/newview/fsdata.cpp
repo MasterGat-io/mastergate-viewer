@@ -68,7 +68,8 @@ FSData::FSData() :
     mHeaders.insert("User-Agent", LLViewerMedia::getInstance()->getCurrentUserAgent());
     mHeaders.insert("viewer-version", LLVersionInfo::getInstance()->getChannelAndVersionFS());
 
-    mBaseURL = gSavedSettings.getBOOL("FSdataQAtest") ? "http://phoenixviewer.com/app/fsdatatest" : "http://phoenixviewer.com/app/fsdata";
+    // <MG> Our own data.xml (MOTD, agents, blocked releases), not Firestorm's.
+    mBaseURL = gSavedSettings.getBOOL("FSdataQAtest") ? "https://mastergate.io/viewer/fsdatatest" : "https://mastergate.io/viewer/fsdata";
     mFSDataURL = mBaseURL + "/" + "data.xml";
 }
 

@@ -8,7 +8,7 @@
 		Second Life
 	</string>
 	<string name="APP_NAME">
-		Second Life
+		MasterGate Viewer
 	</string>
 	<string name="CAPITALIZED_APP_NAME">
 		SECOND LIFE
@@ -17,7 +17,7 @@
 		Second Life Ağı
 	</string>
 	<string name="SUPPORT_SITE">
-		Firestorm Destek Portalı
+		MasterGate Destek Portalı
 	</string>
 	<string name="StartupDetectingHardware">
 		Donanım saptanıyor...
@@ -192,7 +192,7 @@ Ses Sunucusu Sürümü: [VOICE_VERSION]
 		Çık
 	</string>
 	<string name="create_account_url">
-		https://www.firestormviewer.org/join-secondlife/
+		https://join.secondlife.com/
 	</string>
 	<string name="AgniGridLabel">
 		Second Life Ana Ağı (Agni)

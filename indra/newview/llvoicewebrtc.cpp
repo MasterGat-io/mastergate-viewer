@@ -25,6 +25,7 @@
  */
 #include <algorithm>
 #include "llvoicewebrtc.h"
+#include "mgphonecalls.h" // <MG/> phone-only voice line
 
 #include "llsdutil.h"
 
@@ -353,7 +354,9 @@ void LLWebRTCVoiceClient::updateSettings()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE;
 
-    setVoiceEnabled(LLVoiceClient::getInstance()->voiceEnabled());
+    // <MG> with voice chat off, the MG Phone can keep a voice line for calls (no nearby voice)
+    setVoiceEnabled(MGPhoneCalls::voiceLineWanted());
+    // </MG>
     if (mVoiceEnabled)
     {
         static LLCachedControl<S32> sVoiceEarLocation(gSavedSettings, "VoiceEarLocation");
@@ -558,6 +561,8 @@ void LLWebRTCVoiceClient::voiceConnectionCoro()
                 }
 
                 voiceEnabled = voiceEnabled && regionp->isVoiceEnabled();
+                // <MG> phone-only voice line: never join nearby (spatial) voice
+                voiceEnabled = voiceEnabled && !MGPhoneCalls::nearbyVoiceBlocked();
 
                 if (voiceEnabled)
                 {

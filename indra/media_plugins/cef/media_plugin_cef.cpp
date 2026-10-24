@@ -720,6 +720,29 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
                 settings.log_verbose = mCefLogVerbose;
                 settings.autoplay_without_gesture = true;
 
+                // <MG> Developer-only: set MGV_CEF_REMOTE_DEBUG_PORT (e.g. 9333) in the
+                // environment that starts the viewer to expose Chrome DevTools on localhost
+                // for every web view (used to debug the MG Phone panel). Off unless set,
+                // and not compiled into packaged releases (MGV_CEF_DEV_DEBUG, CMakeLists.txt).
+#if MGV_CEF_DEV_DEBUG
+                if (const char* mg_debug_port = getenv("MGV_CEF_REMOTE_DEBUG_PORT"))
+                {
+                    // one plugin process per web view: offset by pid so they do not collide
+                    // (scan base..base+499 for /json/version)
+#if LL_WINDOWS
+                    const int port = atoi(mg_debug_port) + (int)(_getpid() % 500);
+#else
+                    const int port = atoi(mg_debug_port) + (int)(getpid() % 500);
+#endif
+                    if (port > 1024 && port < 65536)
+                    {
+                        settings.enable_remote_debug = true;
+                        settings.remote_debugging_port = port;
+                    }
+                }
+#endif
+                // </MG>
+
                 std::vector<std::string> custom_schemes(1, "secondlife");
                 mCEFLib->setCustomSchemes(custom_schemes);
 

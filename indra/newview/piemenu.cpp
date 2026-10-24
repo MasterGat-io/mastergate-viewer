@@ -76,6 +76,13 @@ PieMenu::PieMenu(const Params& p) :
         LL_WARNS("Pie") << "Could not find font size for Pie menu, falling back to Small font." << LL_ENDL;
         mFont = LLFontGL::getFont(LLFontDescriptor("SansSerif", "Small", LLFontGL::NORMAL));
     }
+    // <MG> the highlighted slice's label is drawn bold
+    mFontBold = LLFontGL::getFont(LLFontDescriptor("SansSerif", "Pie", LLFontGL::BOLD));
+    if (!mFontBold)
+    {
+        mFontBold = mFont;
+    }
+    // </MG>
 
     // set slices pointer to our own slices
     mSlices = &mMySlices;
@@ -215,6 +222,11 @@ void PieMenu::show(S32 x, S32 y, LLView* spawning_view)
     mSlice = nullptr;
     mOldSlice = nullptr;
 
+    // <MG> fade the menu in
+    mFadeTimer.reset();
+    mFadeTimer.start();
+    // </MG>
+
     // draw the menu on screen
     setVisible(true);
     LLView::setVisible(true);
@@ -291,19 +303,47 @@ void PieMenu::draw()
     static LLCachedControl<bool> sPieMenuPopupFontEffect(gSavedSettings, "PieMenuPopupFontEffect");
     static LLCachedControl<bool> sPieMenuOuterRingShade(gSavedSettings, "PieMenuOuterRingShade");
 
-    // on first click, make the menu fade out to indicate "borderless" operation
-    if (mFirstClick)
+    // <MG> MasterGate look: a solid dark disc with a soft shadow, faint dividers,
+    // and the theme accent (PieMenuSelectedColor at full strength) for the
+    // highlighted slice (tinted fill + bright rim), submenu notches and the hub.
+    // Everything fades in over PIE_FADE_TIME when the menu opens.
+    constexpr F32 PIE_FADE_TIME = 0.12f;
+    F32 fade = 1.f;
+    if (mFadeTimer.getStarted())
     {
-        borderColor %= 0.f;
+        fade = llclamp(mFadeTimer.getElapsedTimeF32() / PIE_FADE_TIME, 0.f, 1.f);
+        if (fade >= 1.f)
+        {
+            mFadeTimer.stop();
+        }
     }
+    LLColor4 accent = selectedColor;
+    accent.mV[VALPHA] = fade;
+    LLColor4 accentFill = accent % 0.16f;
+    LLColor4 accentFillOuter = accent % 0.38f;
+    LLColor4 accentSoft = accent % 0.55f;
+    LLColor4 discInner = bgColor * 1.35f;   // a touch lighter toward the hub
+    discInner.mV[VALPHA] = bgColor.mV[VALPHA] * fade;
+    LLColor4 discOuter = bgColor;
+    discOuter.mV[VALPHA] *= fade;
+    LLColor4 rimColor = LLColor4(1.f, 1.f, 1.f, 0.10f * fade);
+    LLColor4 dividerColor = lineColor;
+    dividerColor.mV[VALPHA] *= fade;
+    LLColor4 shadowColor = LLColor4(0.f, 0.f, 0.f, 0.38f * fade);
+    LLColor4 clearColor = LLColor4(0.f, 0.f, 0.f, 0.f);
+    textColor.mV[VALPHA] *= fade;
+    // </MG>
 
     constexpr S32 steps = 100;
 
     // move origin point to the center of our rectangle
     LLUI::instance().translate(r.getWidth() / 2.f, r.getHeight() / 2.f);
 
-    // draw the general pie background
-    gl_washer_2d(PIE_OUTER_SIZE * factor, PIE_INNER_SIZE, steps, bgColor, borderColor);
+    // <MG> soft drop shadow around the disc, then the disc itself
+    const F32 outerR = PIE_OUTER_SIZE * factor;
+    gl_washer_2d(outerR + 9.f, outerR - 1.f, steps, shadowColor, clearColor);
+    gl_washer_2d(outerR, PIE_INNER_SIZE, steps, discInner, discOuter);
+    // </MG>
 
     // set up an item list iterator to point at the beginning of the item list
     slice_list_t::iterator cur_item_iter{ mSlices->begin() };
@@ -433,7 +473,10 @@ void PieMenu::draw()
                 label = currentSubmenu->getLabel();
                 if (sPieMenuOuterRingShade)
                 {
-                    gl_washer_segment_2d(PIE_OUTER_SIZE * PIE_OUTER_SHADE_FACTOR * factor, PIE_OUTER_SIZE * factor, segmentStart + PIE_SLICE_DIVIDER_WIDTH / 2.f, segmentStart + F_PI / (PIE_MAX_SLICES_F / 2.f) - PIE_SLICE_DIVIDER_WIDTH / 2.f, steps / 8, selectedColor, selectedColor);
+                    // <MG> a short accent notch just outside the rim marks "opens more"
+                    const F32 sliceArc = F_PI / (PIE_MAX_SLICES_F / 2.f);
+                    gl_washer_segment_2d(outerR + 5.f, outerR + 2.f, segmentStart + sliceArc * 0.3f, segmentStart + sliceArc * 0.7f, steps / 16, accentSoft, accentSoft);
+                    // </MG>
                 }
             }
 
@@ -453,15 +496,21 @@ void PieMenu::draw()
                     mOldSlice = mSlice;
                 }
 
-                // draw the currently highlighted pie slice
-                gl_washer_segment_2d(PIE_OUTER_SIZE * factor, PIE_INNER_SIZE, segmentStart + PIE_SLICE_DIVIDER_WIDTH / 2.f, segmentStart + F_PI / (PIE_MAX_SLICES_F / 2.f) - PIE_SLICE_DIVIDER_WIDTH / 2.f, steps / 8, selectedColor, borderColor);
+                // <MG> highlighted slice: accent tint growing toward the rim, plus a bright rim arc
+                const F32 sliceStart = segmentStart + PIE_SLICE_DIVIDER_WIDTH / 2.f;
+                const F32 sliceEnd = segmentStart + F_PI / (PIE_MAX_SLICES_F / 2.f) - PIE_SLICE_DIVIDER_WIDTH / 2.f;
+                gl_washer_segment_2d(outerR - 1.f, PIE_INNER_SIZE + 2.f, sliceStart, sliceEnd, steps / 8, accentFill, accentFillOuter);
+                gl_washer_segment_2d(outerR, outerR - 3.f, sliceStart, sliceEnd, steps / 8, accent, accent);
+                itemColor = LLColor4(1.f, 1.f, 1.f, fade);
+                // </MG>
             }
         }
-        // draw the divider line for this slice
-        gl_washer_segment_2d(PIE_OUTER_SIZE * factor, PIE_INNER_SIZE, segmentStart - PIE_SLICE_DIVIDER_WIDTH / 2.f, segmentStart + PIE_SLICE_DIVIDER_WIDTH / 2.f, steps / 8, lineColor, borderColor);
+        // <MG> faint divider that stops short of the hub and the rim
+        gl_washer_segment_2d(outerR - 10.f, PIE_INNER_SIZE + 8.f, segmentStart - PIE_SLICE_DIVIDER_WIDTH / 4.f, segmentStart + PIE_SLICE_DIVIDER_WIDTH / 4.f, steps / 8, dividerColor, dividerColor);
 
-        // draw the slice labels around the center
-        mFont->renderUTF8(label,
+        // draw the slice labels around the center (bold when highlighted)
+        const bool highlighted = mSlice && (mCurrentSegment == num) && !label.empty();
+        (highlighted ? mFontBold : mFont)->renderUTF8(label,
                             0,
                             PIE_X[num] * (sPieMenuPopupFontEffect() ? factor : 1.f),
                             PIE_Y[num] * (sPieMenuPopupFontEffect() ? factor : 1.f),
@@ -470,21 +519,19 @@ void PieMenu::draw()
                             LLFontGL::VCENTER,
                             LLFontGL::NORMAL,
                             LLFontGL::DROP_SHADOW_SOFT);
+        // </MG>
         // next slice
         num++;
     }
     while (num < PIE_MAX_SLICES);   // do this until the menu is full
 
-    // draw inner and outer circle, outer only if it was not the first click
-    if (!mFirstClick)
-    {
-        gl_washer_2d(PIE_OUTER_SIZE * factor, PIE_OUTER_SIZE * factor - 2.f, steps, lineColor, borderColor);
-        if (sPieMenuOuterRingShade)
-        {
-            gl_washer_2d(PIE_OUTER_SIZE * PIE_OUTER_SHADE_FACTOR * factor, PIE_OUTER_SIZE * factor - 2.f, steps, lineColor, borderColor);
-        }
-    }
-    gl_washer_2d(PIE_INNER_SIZE + 1, PIE_INNER_SIZE - 1, steps, borderColor, lineColor);
+    // <MG> hairline rim and the hub: a small disc whose ring lights up in the accent
+    // while nothing is highlighted (releasing there closes the menu)
+    gl_washer_2d(outerR, outerR - 1.f, steps, rimColor, rimColor);
+    gl_washer_2d(PIE_INNER_SIZE - 2.f, 0.f, steps / 2, discInner, discInner);
+    gl_washer_2d(PIE_INNER_SIZE, PIE_INNER_SIZE - 2.f, steps / 2, mSlice ? rimColor : accentSoft, mSlice ? rimColor : accentSoft);
+    (void)borderColor;
+    // </MG>
 
     // restore OpenGL drawing matrix
     gGL.popMatrix();
@@ -613,7 +660,10 @@ F32 PieMenu::getScaleFactor()
         // otherwise calculate the size factor to make the menu shrink over time
         else
         {
-            factor = PIE_POPUP_FACTOR - (PIE_POPUP_FACTOR - 1.f) * elapsedTime / PIE_POPUP_TIME;
+            // <MG> ease-out (cubic): fast start, gentle settle
+            F32 inv = 1.f - elapsedTime / PIE_POPUP_TIME;
+            factor = 1.f + (PIE_POPUP_FACTOR - 1.f) * inv * inv * inv;
+            // </MG>
         }
     }
 #endif

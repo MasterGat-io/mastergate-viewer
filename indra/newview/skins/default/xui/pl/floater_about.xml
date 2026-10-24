@@ -4,7 +4,7 @@
 		<panel label="Informacje" name="support_panel">
 			<text name="support_intro">
 				Najnowsze informacje o Firestorm są dostępne pod adresem
-https://www.firestormviewer.org
+https://mastergate.io/viewer/
 			</text>
 			<button label="Kopiuj do schowka" name="copy_btn"/>
 		</panel>

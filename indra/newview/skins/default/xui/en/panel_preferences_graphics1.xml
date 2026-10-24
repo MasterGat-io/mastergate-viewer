@@ -536,7 +536,7 @@
          layout="topleft"
          left="196"
          name="Fullscreen Mode"
-         tool_tip="Run Firestorm in Fullscreen mode. A restart is required to change mode."
+         tool_tip="Run the viewer in Fullscreen mode. A restart is required to change mode."
          top="60"
          width="280" />
 

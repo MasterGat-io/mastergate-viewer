@@ -711,7 +711,20 @@
      name="Communicate"
      tear_off="true"
      visible="true">
-     
+        <!-- <MG> native MG Phone panel -->
+        <menu_item_check
+         label="MG Phone"
+         name="MG Phone"
+         shortcut="control|alt|M">
+          <menu_item_check.on_check
+           function="Floater.Visible"
+           parameter="mg_phone" />
+          <menu_item_check.on_click
+           function="Floater.ToggleOrBringToFront"
+           parameter="mg_phone" />
+        </menu_item_check>
+        <menu_item_separator/>
+
         <menu
          create_jump_keys="true"
          label="Online Status"
@@ -2610,15 +2623,15 @@
        </menu_item_call>
        <menu_item_separator/>
     	<menu_item_call
-             label="Firestorm Blog"
+             label="MasterGate Website"
              name="Firestorm Blog">
              <menu_item_call.on_click
              function="PromptShowURL"
              name="firestorm_blog_url"
-             parameter="WebLaunchExternalTarget,https://www.firestormviewer.org/" />
+             parameter="WebLaunchExternalTarget,https://mastergate.io/viewer/" />
        </menu_item_call>
     	<menu_item_call
-             label="Firestorm Primfeed"
+             label="Primfeed" visible="false"
              name="Firestorm Primfeed">
              <menu_item_call.on_click
              function="PromptShowURL"
@@ -2626,7 +2639,7 @@
              parameter="WebLaunchExternalTarget,https://www.primfeed.com/firestorm-viewer" />
        </menu_item_call>
     	<menu_item_call
-             label="Firestorm Flickr"
+             label="Flickr" visible="false"
              name="Firestorm Flickr">
              <menu_item_call.on_click
              function="PromptShowURL"
@@ -2634,7 +2647,7 @@
              parameter="WebLaunchExternalTarget,http://www.flickr.com/groups/firestormviewer/pool/" />
        </menu_item_call>
     	<menu_item_call
-             label="Firestorm YouTube"
+             label="YouTube" visible="false"
              name="Firestorm YouTube">
              <menu_item_call.on_click
              function="PromptShowURL"
@@ -2642,7 +2655,7 @@
              parameter="WebLaunchExternalTarget,http://www.youtube.com/user/PhoenixViewerSL" />
        </menu_item_call>
     	<menu_item_call
-             label="Firestorm Twitter"
+             label="Twitter" visible="false"
              name="Firestorm Twitter">
              <menu_item_call.on_click
              function="PromptShowURL"
@@ -2650,7 +2663,7 @@
              parameter="WebLaunchExternalTarget,https://twitter.com/phoenixviewersl" />
        </menu_item_call>
     	<menu_item_call
-             label="Firestorm Plurk"
+             label="Plurk" visible="false"
              name="Firestorm Plurk">
              <menu_item_call.on_click
              function="PromptShowURL"
@@ -2686,13 +2699,13 @@
         </menu_item_check>
         
         <menu_item_call
-         label="Firestorm Wiki"
+         label="MasterGate Help"
          name="Firestorm Wiki"
 	     shortcut="F1">
              <menu_item_call.on_click
              function="PromptShowURL"
              name="script_library_url"
-             parameter="WebLaunchExternalTarget,https://wiki.firestormviewer.org" />
+             parameter="WebLaunchExternalTarget,https://mastergate.io/viewer/help/" />
         </menu_item_call>
         
         <menu_item_call
@@ -2701,36 +2714,36 @@
             <menu_item_call.on_click
              function="PromptShowURL"
              name="wiki_troubleshooting_url"
-             parameter="WebLaunchExternalTarget,https://wiki.firestormviewer.org/firestorm_troubleshooting" />
+             parameter="WebLaunchExternalTarget,https://mastergate.io/viewer/help/?topic=firestorm_troubleshooting" />
         </menu_item_call>
 	   
         <menu_item_call
-         label="Join Firestorm Support Group"
+         label="Support Group" visible="false"
          name="firestorm_support_group">
             <menu_item_call.on_click
              function="Advanced.WebBrowserTest"
-             parameter="https://wiki.firestormviewer.org/firestorm_support_groups_join" />
+             parameter="https://mastergate.io/viewer/help/?topic=firestorm_support_groups_join" />
             <menu_item_call.on_visible
              function="GridCheck"
              parameter="secondlife" />
         </menu_item_call>
 
         <menu_item_call
-         label="Firestorm Classes Schedule"
+         label="Classes Schedule" visible="false"
          name="Firestorm Classes Schedule">
              <menu_item_call.on_click
              function="PromptShowURL"
              name="wiki_classes_url"
-             parameter="WebLaunchExternalTarget,https://wiki.firestormviewer.org/firestorm_classes" />
+             parameter="WebLaunchExternalTarget,https://mastergate.io/viewer/help/?topic=firestorm_classes" />
         </menu_item_call>
 
         <menu_item_call
-         label="Firestorm Events Calendar"
+         label="MasterGate Events"
          name="Firestorm Events Calendar">
              <menu_item_call.on_click
              function="PromptShowURL"
              name="events_calendar_url"
-             parameter="WebLaunchExternalTarget,https://teamup.com/ksxdajnbw9mvw7cbwz" />
+             parameter="WebLaunchExternalTarget,https://mastergate.io/second-life-events" />
         </menu_item_call>
 
         <menu_item_check

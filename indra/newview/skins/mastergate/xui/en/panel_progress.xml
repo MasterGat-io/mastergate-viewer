@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!-- MasterGate skin: login / teleport progress screen.
+     The last-session snapshot (or black, for teleports) is drawn full screen by
+     LLProgressView::drawStartTexture(); this panel dims it with a scrim and shows a centred card.
+     Names used by llprogressview.cpp are kept: panel4, panel_top_spacer, panel_motd, panel_icons,
+     title_text, progress_text, login_progress_bar, message_text, logos_lbl (Vivox logo is drawn
+     next to it), cancel_btn, login_media_panel. -->
+<panel
+ follows="left|bottom|right|top"
+ height="768"
+ layout="topleft"
+ left="0"
+ name="login_progress_panel"
+ top="768"
+ width="1024">
+    <icon
+     name="progress_scrim"
+     image_name="MG_Scrim"
+     follows="all"
+     left="0"
+     top="0"
+     width="1024"
+     height="768" />
+    <layout_stack
+     follows="left|right|top|bottom"
+     height="768"
+     layout="topleft"
+     left="0"
+     name="horizontal_centering"
+     orientation="horizontal"
+     top="0"
+     width="1024">
+        <layout_panel
+         layout="topleft"
+         min_width="10"
+         name="left"
+         width="262" />
+        <layout_panel
+         height="768"
+         layout="topleft"
+         min_width="500"
+         auto_resize="false"
+         name="center"
+         width="500">
+            <layout_stack
+             follows="left|right|top|bottom"
+             height="768"
+             layout="topleft"
+             left="0"
+             orientation="vertical"
+             name="vertical_centering1"
+             top="0"
+             width="500">
+                <layout_panel
+                 height="200"
+                 layout="topleft"
+                 min_height="10"
+                 name="panel3"
+                 width="500" />
+                <layout_panel
+                 auto_resize="false"
+                 height="330"
+                 layout="topleft"
+                 min_height="330"
+                 name="panel4"
+                 width="500">
+                    <icon
+                     follows="all"
+                     image_name="MG_Card"
+                     layout="topleft"
+                     left="0"
+                     top="0"
+                     height="330"
+                     width="500" />
+                    <layout_stack
+                     follows="left|right|top|bottom"
+                     height="330"
+                     layout="topleft"
+                     left="0"
+                     orientation="vertical"
+                     name="vertical_centering2"
+                     animate="false"
+                     top="0"
+                     width="500">
+                      <layout_panel
+                       auto_resize="false"
+                       height="12"
+                       layout="topleft"
+                       min_height="12"
+                       name="panel_top_spacer"
+                       width="500" />
+                      <layout_panel
+                       auto_resize="false"
+                       height="186"
+                       layout="topleft"
+                       min_height="186"
+                       name="panel_login"
+                       width="500">
+                        <icon
+                         image_name="login_mg_logo"
+                         name="progress_logo"
+                         follows="top"
+                         layout="topleft"
+                         left="214"
+                         top="22"
+                         width="72"
+                         height="72" />
+                        <text
+                         follows="left|right|top"
+                         layout="topleft"
+                         font="SansSerifHuge"
+                         font_shadow="none"
+                         halign="center"
+                         height="30"
+                         left="40"
+                         top_pad="14"
+                         right="-40"
+                         name="title_text"
+                         text_color="LoginProgressBoxTextColor"/>
+                        <text
+                         follows="left|right|top"
+                         layout="topleft"
+                         font="SansSerif"
+                         font_shadow="none"
+                         halign="center"
+                         height="18"
+                         top_pad="6"
+                         left="40"
+                         right="-40"
+                         name="progress_text"
+                         text_color="0.639 0.639 0.639 1"
+                         word_wrap="true"/>
+                        <progress_bar
+                         follows="left|right|top"
+                         layout="topleft"
+                         height="6"
+                         left="60"
+                         top_pad="16"
+                         name="login_progress_bar"
+                         right="-60" />
+                      </layout_panel>
+                      <layout_panel
+                       auto_resize="false"
+                       height="80"
+                       layout="topleft"
+                       min_height="80"
+                       name="panel_motd"
+                       width="500">
+                        <text
+                         follows="left|right|top|bottom"
+                         font="SansSerif"
+                         font_shadow="none"
+                         halign="center"
+                         valign="center"
+                         height="64"
+                         layout="topleft"
+                         left="44"
+                         line_spacing.pixels="3"
+                         name="message_text"
+                         text_color="0.588 0.588 0.588 1"
+                         top="4"
+                         right="-44"
+                         word_wrap="true"/>
+                      </layout_panel>
+                      <layout_panel
+                       auto_resize="false"
+                       height="40"
+                       layout="topleft"
+                       min_height="40"
+                       name="panel_icons"
+                       width="500">
+                        <!--Logos are tied to following label from code-->
+                        <text
+                         follows="left|top"
+                         layout="topleft"
+                         font="SansSerifSmall"
+                         font_shadow="none"
+                         halign="left"
+                         height="16"
+                         width="170"
+                         left="150"
+                         top="8"
+                         name="logos_lbl"
+                         text_color="0.588 0.588 0.588 1">
+                          [APP_NAME] uses
+                        </text>
+                      </layout_panel>
+                    </layout_stack>
+                </layout_panel>
+                <layout_panel
+                 height="200"
+                 layout="topleft"
+                 min_width="10"
+                 name="panel5"
+                 width="500" />
+            </layout_stack>
+        </layout_panel>
+        <layout_panel
+         layout="topleft"
+         min_width="10"
+         name="right"
+         width="262" />
+    </layout_stack>
+    <button
+     follows="right|bottom"
+     height="30"
+     layout="topleft"
+     left="-128"
+     name="cancel_btn"
+     top="718"
+     width="104" />
+  <web_browser
+   follows="all"
+   layout="topleft"
+   left="0"
+   name="login_media_panel"
+   width="1024"
+   height="768"
+   top="0"/>
+</panel>

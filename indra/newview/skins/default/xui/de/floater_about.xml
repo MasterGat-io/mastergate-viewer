@@ -4,7 +4,7 @@
 		<panel label="Info" name="support_panel">
     <text name="support_intro">    
 Aktuelle Informationen über Firestorm finden Sie unter
-https://www.firestormviewer.org
+https://mastergate.io/viewer/
     </text>
 			<button label="In Zwischenablage kopieren" name="copy_btn"/>
 			<button label="Nach Updates suchen" name="update_btn"/>

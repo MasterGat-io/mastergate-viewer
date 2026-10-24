@@ -40,6 +40,7 @@ Unicode true                # Enable unicode support
 
 # This placeholder is replaced by viewer_manifest.py
 %%VERSION%%
+%%MG_UNINSTFINALIZE%% ; <MG/> signs uninst.exe when a certificate is set up (fs_viewer_manifest.py)
 
 !include "WordFunc.nsh"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -105,7 +106,7 @@ SetOverwrite on							# Overwrite files by default
 #AutoCloseWindow true					# After all files install, close window
 
 # Registry key paths, ours and Microsoft's
-!define LINDEN_KEY      "SOFTWARE\The Phoenix Firestorm Project"
+!define LINDEN_KEY      "SOFTWARE\MasterGate\MasterGate Viewer" # <MG/> was "SOFTWARE\The Phoenix Firestorm Project" (would collide with a real Firestorm install)
 !define INSTNAME_KEY    "${LINDEN_KEY}\${INSTNAME}"
 !define MSCURRVER_KEY   "SOFTWARE\Microsoft\Windows\CurrentVersion"
 !define MSNTCURRVER_KEY "SOFTWARE\Microsoft\Windows NT\CurrentVersion"
@@ -134,17 +135,53 @@ SetOverwrite on							# Overwrite files by default
 # little file into the install directory -- see .onInstSuccess and un.onInit.
 !include MultiUser.nsh
 !include MUI2.nsh
-!define MUI_BGCOLOR FFFFFF
+# <MG> Modern dark look: dark header, welcome and finish pages with our artwork
+# (made by raw/Viewer/tools/make_installer_art.py), no popup questions. Was MUI_BGCOLOR FFFFFF.
+!define MUI_BGCOLOR 0D0D0D
+!define MUI_TEXTCOLOR EDEDED
+!define MUI_HEADERIMAGE
+!define MUI_HEADERIMAGE_RIGHT
+!define MUI_HEADERIMAGE_BITMAP "%%SOURCE%%\installers\windows\mg_header.bmp"
+!define MUI_HEADERIMAGE_BITMAP_STRETCH AspectFitHeight
+!define MUI_WELCOMEFINISHPAGE_BITMAP "%%SOURCE%%\installers\windows\mg_welcome.bmp"
+!define MUI_WELCOMEFINISHPAGE_BITMAP_STRETCH FitControl
+# the finish page check boxes: themed ones ignore the text color (white on dark needs classic ones)
+!define MUI_FORCECLASSICCONTROLS
+# </MG>
 !insertmacro MUI_FUNCTION_GUIINIT
 
 UninstallText $(UninstallTextMsg)
 DirText $(DirectoryChooseTitle) $(DirectoryChooseSetup)
+# <MG> welcome page first
+!define MUI_WELCOMEPAGE_TITLE "$(MgWelcomeTitle)"
+!define MUI_WELCOMEPAGE_TEXT "$(MgWelcomeText)"
+!define MUI_PAGE_CUSTOMFUNCTION_PRE mgWizardImage
+!insertmacro MUI_PAGE_WELCOME
+# </MG>
+!define MUI_PAGE_CUSTOMFUNCTION_PRE mgSkipOnUpdate # <MG/>
 !insertmacro MUI_PAGE_LICENSE "VivoxAUP.txt"
 ##!insertmacro MULTIUSER_PAGE_INSTALLMODE
 !define MUI_PAGE_CUSTOMFUNCTION_PRE dirPre
 !define MUI_PAGE_CUSTOMFUNCTION_LEAVE dirLeave # <FS:Ansariel> Optional start menu entry
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
+# <MG> finish page: "Launch" and "Open secondlife:// links" are checkboxes, not popups
+!define MUI_FINISHPAGE_TITLE "$(MgFinishTitle)"
+!define MUI_FINISHPAGE_TEXT "$(MgFinishText)"
+!define MUI_FINISHPAGE_BUTTON "$(MgFinishButton)"
+!define MUI_FINISHPAGE_NOREBOOTSUPPORT
+!define MUI_FINISHPAGE_RUN
+!define MUI_FINISHPAGE_RUN_TEXT "$(MgFinishRun)"
+!define MUI_FINISHPAGE_RUN_FUNCTION mgLaunch
+!define MUI_FINISHPAGE_SHOWREADME
+!define MUI_FINISHPAGE_SHOWREADME_TEXT "$(MgFinishUrls)"
+!define MUI_FINISHPAGE_SHOWREADME_FUNCTION mgRegisterUrls
+!define MUI_FINISHPAGE_LINK "mastergate.io/viewer"
+!define MUI_FINISHPAGE_LINK_LOCATION "https://mastergate.io/viewer/"
+!define MUI_FINISHPAGE_LINK_COLOR 00D4FF
+!define MUI_PAGE_CUSTOMFUNCTION_PRE mgWizardImage
+!insertmacro MUI_PAGE_FINISH
+# </MG>
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Variables
@@ -159,6 +196,8 @@ Var SKIP_DIALOGS        # Set from command line in  .onInit. autoinstall GUI and
 # Var SKIP_AUTORUN		# Skip automatic launch of the viewer after install -- <FS:PP> Commented out: Disable autorun
 Var DO_UNINSTALL_V2     # If non-null, path to a previous Viewer 2 installation that will be uninstalled.
 Var NO_STARTMENU        # <FS:Ansariel> Optional start menu entry
+Var MG_UPDATE         # <MG/> "true": /MGUPDATE, the viewer's "Install and restart" (mgphoneupdate.cpp)
+Var MG_PID            # <MG/> the viewer process the update waits for
 Var FRIENDLY_APP_NAME   # <FS:Ansariel> FIRE-30446: Set FriendlyAppName for protocols
 
 # Function definitions should go before file includes, because calls to
@@ -358,7 +397,7 @@ FunctionEnd
 Function dirLeave
     StrCmp $SKIP_DIALOGS "true" label_create_start_menu
 	
-    MessageBox MB_YESNO|MB_ICONQUESTION $(CreateStartMenuEntry) IDYES label_create_start_menu
+    Goto label_create_start_menu # <MG/> no popup: the Start menu entry is always made (was a MessageBox)
     StrCpy $NO_STARTMENU "true"
 
 label_create_start_menu:
@@ -414,11 +453,8 @@ Call CheckCPUFlags							# Make sure we have SSE2 support
 # Two checks here, if we are an AVX2 build we want to abort if no AVX2 support on this CPU.
 # If we are not an AVX2 build but the CPU can support it then we want to prompt them to download the AVX2 version
 # but also allow them to override.
-${If} ${ISAVX2} == 1
-  Call CheckCPUFlagsAVX2
-${Else}
-  Call CheckCPUFlagsAVX2_Prompt
-${EndIf}
+# <MG> No AVX2 checks: MasterGate Viewer ships one build that runs on every 64-bit CPU
+# (upstream sent users to firestormviewer.org for an "AVX2 version"). </MG>
 
 Call CheckWindowsVersion					# Don't install On unsupported systems
     Push $0
@@ -431,6 +467,19 @@ Call CheckWindowsVersion					# Don't install On unsupported systems
     IfErrors +3 0	# If error jump past setting SKIP_DIALOGS
       StrCpy $SKIP_DIALOGS "true"
         SetAutoClose true
+    # <MG> /MGUPDATE /MGPID=<pid>: an update started from the viewer. No pages and no
+    # questions, the same folder; it waits for that viewer to close and opens the new one.
+    ClearErrors
+    ${GetOptions} $COMMANDLINE "/MGUPDATE" $0
+    IfErrors mg_not_update 0
+      StrCpy $MG_UPDATE "true"
+      StrCpy $SKIP_DIALOGS "true"
+      SetAutoClose true
+      ClearErrors
+      ${GetOptions} $COMMANDLINE "/MGPID=" $MG_PID
+    mg_not_update:
+    ClearErrors
+    # </MG>
     # </FS:Ansariel>
 
 	# <FS:PP> Disable autorun
@@ -570,7 +619,11 @@ StrCpy $VIEWER_EXE "${VIEWER_EXE}"
 StrCpy $INSTSHORTCUT "${SHORTCUT}"
 
 Call CheckIfAdministrator		# Make sure the user can install/uninstall
+${If} $MG_UPDATE == "true"		# <MG> an update: wait for the viewer that started it
+  Call mgWaitForViewer
+${Else}
 Call CloseSecondLife			# Make sure Second Life not currently running
+${EndIf}					# </MG>
 Call CheckWillUninstallV2		# Check if Second Life is already installed
 
 StrCmp $DO_UNINSTALL_V2 "" PRESERVE_DONE
@@ -622,7 +675,7 @@ CreateShortCut	"$SMPROGRAMS\$INSTSHORTCUT\$INSTSHORTCUT.lnk" \
 
 WriteINIStr		"$SMPROGRAMS\$INSTSHORTCUT\SL Create Account.url" \
 				"InternetShortcut" "URL" \
-				"https://www.firestormviewer.org/join-secondlife/"
+				"https://join.secondlife.com/"
 WriteINIStr		"$SMPROGRAMS\$INSTSHORTCUT\SL Your Account.url" \
 				"InternetShortcut" "URL" \
 				"https://www.secondlife.com/account/"
@@ -664,10 +717,10 @@ WriteRegStr SHELL_CONTEXT "${INSTNAME_KEY}" "" "$INSTDIR"
 WriteRegStr SHELL_CONTEXT "${INSTNAME_KEY}" "Version" "${VERSION_LONG}"
 WriteRegStr SHELL_CONTEXT "${INSTNAME_KEY}" "Shortcut" "$INSTSHORTCUT"
 WriteRegStr SHELL_CONTEXT "${INSTNAME_KEY}" "Exe" "$VIEWER_EXE"
-WriteRegStr SHELL_CONTEXT "${MSUNINSTALL_KEY}" "Publisher" "The Phoenix Firestorm Project, Inc."
-WriteRegStr SHELL_CONTEXT "${MSUNINSTALL_KEY}" "URLInfoAbout" "https://www.firestormviewer.org"
-WriteRegStr SHELL_CONTEXT "${MSUNINSTALL_KEY}" "URLUpdateInfo" "https://www.firestormviewer.org/downloads"
-WriteRegStr SHELL_CONTEXT "${MSUNINSTALL_KEY}" "HelpLink" "https://www.firestormviewer.org/support"
+WriteRegStr SHELL_CONTEXT "${MSUNINSTALL_KEY}" "Publisher" "MasterGate" # <MG/> was "The Phoenix Firestorm Project, Inc."
+WriteRegStr SHELL_CONTEXT "${MSUNINSTALL_KEY}" "URLInfoAbout" "https://mastergate.io/viewer/" # <MG/>
+WriteRegStr SHELL_CONTEXT "${MSUNINSTALL_KEY}" "URLUpdateInfo" "https://mastergate.io/viewer/" # <MG/>
+WriteRegStr SHELL_CONTEXT "${MSUNINSTALL_KEY}" "HelpLink" "https://mastergate.io/viewer/support/" # <MG/>
 WriteRegStr SHELL_CONTEXT "${MSUNINSTALL_KEY}" "DisplayName" "$INSTNAME"
 WriteRegStr SHELL_CONTEXT "${MSUNINSTALL_KEY}" "UninstallString" '"$INSTDIR\uninst.exe"'
 WriteRegStr SHELL_CONTEXT "${MSUNINSTALL_KEY}" "DisplayVersion" "${VERSION_LONG}"
@@ -697,45 +750,15 @@ WriteRegDWORD SHELL_CONTEXT "${MSUNINSTALL_KEY}" "NoModify" 1
 WriteRegDWORD SHELL_CONTEXT "${MSUNINSTALL_KEY}" "NoRepair" 1
 
 # <FS:Ansariel> Ask before creating protocol registry entries
-MessageBox MB_YESNO|MB_ICONQUESTION $(CreateUrlRegistryEntries) IDNO skip_create_url_registry_entries
-
-# Write URL registry info
-WriteRegStr HKEY_CLASSES_ROOT "${URLNAME}" "(default)" "URL:Second Life"
-WriteRegStr HKEY_CLASSES_ROOT "${URLNAME}" "URL Protocol" ""
-WriteRegStr HKEY_CLASSES_ROOT "${URLNAME}\DefaultIcon" "" '"$INSTDIR\$VIEWER_EXE"'
-
-# URL param must be last item passed to viewer, it ignores subsequent params to avoid parameter injection attacks.
-# MAINT-8305: On SLURL click, directly invoke the viewer, not the launcher.
-WriteRegExpandStr HKEY_CLASSES_ROOT "${URLNAME}\shell\open\command" "" '"$INSTDIR\$VIEWER_EXE" -url "%1"'
-# <FS:Ansariel> FIRE-30446: Set FriendlyAppName for protocols
-WriteRegStr HKEY_CLASSES_ROOT "${URLNAME}\shell\open" "FriendlyAppName" "$FRIENDLY_APP_NAME"
-
-WriteRegStr HKEY_CLASSES_ROOT "x-grid-location-info" "(default)" "URL:Hypergrid"
-WriteRegStr HKEY_CLASSES_ROOT "x-grid-location-info" "URL Protocol" ""
-WriteRegStr HKEY_CLASSES_ROOT "x-grid-location-info\DefaultIcon" "" '"$INSTDIR\$VIEWER_EXE"'
-
-# URL param must be last item passed to viewer, it ignores subsequent params to avoid parameter injection attacks.
-WriteRegExpandStr HKEY_CLASSES_ROOT "x-grid-location-info\shell\open\command" "" '"$INSTDIR\$VIEWER_EXE" -url "%1"'
-# <FS:Ansariel> FIRE-30446: Set FriendlyAppName for protocols
-WriteRegStr HKEY_CLASSES_ROOT "x-grid-location-info\shell\open" "FriendlyAppName" "$FRIENDLY_APP_NAME"
-
-# <FS:Ansariel> FIRE-30446: Register x-grid-info hypergrid protocol
-WriteRegStr HKEY_CLASSES_ROOT "x-grid-info" "(default)" "URL:Hypergrid"
-WriteRegStr HKEY_CLASSES_ROOT "x-grid-info" "URL Protocol" ""
-WriteRegStr HKEY_CLASSES_ROOT "x-grid-info\DefaultIcon" "" '"$INSTDIR\$VIEWER_EXE"'
-WriteRegExpandStr HKEY_CLASSES_ROOT "x-grid-info\shell\open\command" "" '"$INSTDIR\$VIEWER_EXE" -url "%1"'
-WriteRegStr HKEY_CLASSES_ROOT "x-grid-info\shell\open" "FriendlyAppName" "$FRIENDLY_APP_NAME"
-
-# <FS:CR> Register hop:// protocol registry info
-${If} ${ISOPENSIM} == "1"
-  WriteRegStr HKEY_CLASSES_ROOT "hop" "(default)" "URL:Hypergrid"
-  WriteRegStr HKEY_CLASSES_ROOT "hop" "URL Protocol" ""
-  WriteRegStr HKEY_CLASSES_ROOT "hop\DefaultIcon" "" '"$INSTDIR\$VIEWER_EXE"'
-  WriteRegExpandStr HKEY_CLASSES_ROOT "hop\shell\open\command" "" '"$INSTDIR\$VIEWER_EXE" -url "%1"'
-  WriteRegStr HKEY_CLASSES_ROOT "hop\shell\open" "FriendlyAppName" "$FRIENDLY_APP_NAME"
+# <MG> Asked with a checkbox on the finish page now (mgRegisterUrls, checked by default);
+# silent and automatic installs have no finish page, so they register here.
+${If} $MG_UPDATE != "true"		# an update keeps the choice made at the first install
+${If} ${Silent}
+${OrIf} $SKIP_DIALOGS == "true"
+  Call mgRegisterUrls
 ${EndIf}
-# </FS:CR>
-
+${EndIf}
+# </MG>
 # <FS:Ansariel> Ask before creating protocol registry entries
 skip_create_url_registry_entries:
 
@@ -744,6 +767,21 @@ WriteRegStr HKEY_CLASSES_ROOT "Applications\$INSTEXE" "IsHostApp" ""
 
 # Write out uninstaller
 WriteUninstaller "$INSTDIR\uninst.exe"
+
+# <MG> Windows Firewall: allow the viewer's network parts up front (the viewer itself, voice,
+# the web / media renderer), so nobody gets "allow access?" popups on first use.
+# One rule name for all of them, removed again by the uninstaller.
+nsExec::Exec 'netsh advfirewall firewall delete rule name="MasterGate Viewer"'
+Pop $0
+nsExec::Exec 'netsh advfirewall firewall add rule name="MasterGate Viewer" dir=in action=allow enable=yes profile=any program="$INSTDIR\$VIEWER_EXE"'
+Pop $0
+nsExec::Exec 'netsh advfirewall firewall add rule name="MasterGate Viewer" dir=in action=allow enable=yes profile=any program="$INSTDIR\SLVoice.exe"'
+Pop $0
+nsExec::Exec 'netsh advfirewall firewall add rule name="MasterGate Viewer" dir=in action=allow enable=yes profile=any program="$INSTDIR\SLPlugin.exe"'
+Pop $0
+nsExec::Exec 'netsh advfirewall firewall add rule name="MasterGate Viewer" dir=in action=allow enable=yes profile=any program="$INSTDIR\llplugin\dullahan_host.exe"'
+Pop $0
+# </MG>
 
 # Uninstall existing "Second Life Viewer 2" install if needed.
 StrCmp $DO_UNINSTALL_V2 "" REMOVE_SLV2_DONE
@@ -765,6 +803,11 @@ StrCpy $INSTNAME "${INSTNAME}"
 StrCpy $INSTEXE "${INSTEXE}"
 StrCpy $VIEWER_EXE "${VIEWER_EXE}"
 StrCpy $INSTSHORTCUT "${SHORTCUT}"
+
+# <MG> our Windows Firewall rules go with the viewer
+nsExec::Exec 'netsh advfirewall firewall delete rule name="MasterGate Viewer"'
+Pop $0
+# </MG>
 
 # SetShellVarContext per the mode saved at install time in registry at
 # MULTIUSER_INSTALLMODE_DEFAULT_REGISTRY_KEY
@@ -1011,30 +1054,26 @@ Push $2
 # Required since ProfileImagePath is of type REG_EXPAND_SZ
     ExpandEnvStrings $2 $2
 
-# Delete files in \Users\<User>\AppData\Roaming\Firestorm
+# <MG> Our own folders only. Upstream deleted ...\Firestorm*, which would wipe a
+# user's real Firestorm settings/cache. The viewer is 64-bit only, so the settings
+# folder is MasterGateViewer_x64 (APP_NAME + "_x64" in llappviewer.cpp).
+# Delete files in \Users\<User>\AppData\Roaming\MasterGateViewer_x64
 # Remove all settings files but leave any other .txt files to preserve the chat logs
-    RMDir /r "$2\AppData\Roaming\Firestorm\logs"
-    RMDir /r "$2\AppData\Roaming\Firestorm\browser_profile"
-    RMDir /r "$2\AppData\Roaming\Firestorm\user_settings"
-    Delete  "$2\AppData\Roaming\Firestorm\*.xml"
-    Delete  "$2\AppData\Roaming\Firestorm\*.bmp"
-    Delete  "$2\AppData\Roaming\Firestorm\search_history.txt"
-    Delete  "$2\AppData\Roaming\Firestorm\plugin_cookies.txt"
-    Delete  "$2\AppData\Roaming\Firestorm\typed_locations.txt"
-# Delete files in \Users\<User>\AppData\Local\Firestorm
+    RMDir /r "$2\AppData\Roaming\MasterGateViewer_x64\logs"
+    RMDir /r "$2\AppData\Roaming\MasterGateViewer_x64\browser_profile"
+    RMDir /r "$2\AppData\Roaming\MasterGateViewer_x64\user_settings"
+    Delete  "$2\AppData\Roaming\MasterGateViewer_x64\*.xml"
+    Delete  "$2\AppData\Roaming\MasterGateViewer_x64\*.bmp"
+    Delete  "$2\AppData\Roaming\MasterGateViewer_x64\search_history.txt"
+    Delete  "$2\AppData\Roaming\MasterGateViewer_x64\plugin_cookies.txt"
+    Delete  "$2\AppData\Roaming\MasterGateViewer_x64\typed_locations.txt"
+# Delete the cache in \Users\<User>\AppData\Local (lldir.cpp: APP_NAME + "_x64" / "OS_x64")
     ${If} ${ISOPENSIM} == "0"
-        ${If} ${IS64BIT} == "0"
-            RMDir /r "$2\AppData\Local\Firestorm"				#Delete the Havok cache folder
-        ${Else}
-            RMDir /r "$2\AppData\Local\Firestorm_x64"			#Delete the OpenSim cache folder
-        ${EndIf}
+        RMDir /r "$2\AppData\Local\MasterGateViewer_x64"
     ${Else}
-        ${If} ${IS64BIT} == "0"
-            RMDir /r "$2\AppData\Local\FirestormOS"			#Delete the Havok cache folder
-        ${Else}
-            RMDir /r "$2\AppData\Local\FirestormOS_x64"		#Delete the OpenSim cache folder
-        ${EndIf}
+        RMDir /r "$2\AppData\Local\MasterGateViewerOS_x64"
     ${EndIf}
+# </MG>
 
   CONTINUE:
     IntOp $0 $0 + 1
@@ -1045,11 +1084,11 @@ Pop $2
 Pop $1
 Pop $0
 
-# Delete files in ProgramData\Firestorm
+# Delete files in ProgramData\MasterGateViewer  <MG/> was ProgramData\Firestorm
 Push $0
   ReadRegStr $0 SHELL_CONTEXT "${MSCURRVER_KEY}\Explorer\Shell Folders" "Common AppData"
   StrCmp $0 "" +2
-  RMDir /r "$0\Firestorm"
+  RMDir /r "$0\MasterGateViewer"
 Pop $0
 
 Keep:
@@ -1141,8 +1180,90 @@ FunctionEnd
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; After install completes, launch app
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+# <MG> finish page: launch the viewer as the user (through explorer, not as admin)
+# welcome / finish pages: our artwork (see MUI_PAGE_CUSTOMFUNCTION_PRE above)
+Function mgWizardImage
+        StrCmp $MG_UPDATE "true" 0 +2
+        Abort
+        InitPluginsDir
+        File "/oname=$PLUGINSDIR\modern-wizard.bmp" "%%SOURCE%%\installers\windows\mg_welcome.bmp"
+FunctionEnd
+
+# updates (/MGUPDATE): no license page, it was accepted at the first install
+Function mgSkipOnUpdate
+        StrCmp $MG_UPDATE "true" 0 +2
+        Abort
+FunctionEnd
+
+# updates: wait (up to 5 minutes) for the viewer process that started the update to exit
+Function mgWaitForViewer
+        Push $0
+        Push $1
+        StrCmp $MG_PID "" mg_wait_done
+        DetailPrint "Waiting for MasterGate Viewer to close..."
+        System::Call 'kernel32::OpenProcess(i 0x00100000, i 0, i $MG_PID) p .r0'
+        StrCmp $0 0 mg_wait_done
+        System::Call 'kernel32::WaitForSingleObject(p r0, i 300000) i .r1'
+        System::Call 'kernel32::CloseHandle(p r0)'
+    mg_wait_done:
+        Sleep 1000
+        Pop $1
+        Pop $0
+FunctionEnd
+
+Function mgLaunch
+        Exec '"$WINDIR\explorer.exe" "$INSTDIR\$INSTSHORTCUT.lnk"'
+FunctionEnd
+
+# finish page / silent installs: make the viewer open secondlife:// (and grid) links
+Function mgRegisterUrls
+
+# Write URL registry info
+WriteRegStr HKEY_CLASSES_ROOT "${URLNAME}" "(default)" "URL:Second Life"
+WriteRegStr HKEY_CLASSES_ROOT "${URLNAME}" "URL Protocol" ""
+WriteRegStr HKEY_CLASSES_ROOT "${URLNAME}\DefaultIcon" "" '"$INSTDIR\$VIEWER_EXE"'
+
+# URL param must be last item passed to viewer, it ignores subsequent params to avoid parameter injection attacks.
+# MAINT-8305: On SLURL click, directly invoke the viewer, not the launcher.
+WriteRegExpandStr HKEY_CLASSES_ROOT "${URLNAME}\shell\open\command" "" '"$INSTDIR\$VIEWER_EXE" -url "%1"'
+# <FS:Ansariel> FIRE-30446: Set FriendlyAppName for protocols
+WriteRegStr HKEY_CLASSES_ROOT "${URLNAME}\shell\open" "FriendlyAppName" "$FRIENDLY_APP_NAME"
+
+WriteRegStr HKEY_CLASSES_ROOT "x-grid-location-info" "(default)" "URL:Hypergrid"
+WriteRegStr HKEY_CLASSES_ROOT "x-grid-location-info" "URL Protocol" ""
+WriteRegStr HKEY_CLASSES_ROOT "x-grid-location-info\DefaultIcon" "" '"$INSTDIR\$VIEWER_EXE"'
+
+# URL param must be last item passed to viewer, it ignores subsequent params to avoid parameter injection attacks.
+WriteRegExpandStr HKEY_CLASSES_ROOT "x-grid-location-info\shell\open\command" "" '"$INSTDIR\$VIEWER_EXE" -url "%1"'
+# <FS:Ansariel> FIRE-30446: Set FriendlyAppName for protocols
+WriteRegStr HKEY_CLASSES_ROOT "x-grid-location-info\shell\open" "FriendlyAppName" "$FRIENDLY_APP_NAME"
+
+# <FS:Ansariel> FIRE-30446: Register x-grid-info hypergrid protocol
+WriteRegStr HKEY_CLASSES_ROOT "x-grid-info" "(default)" "URL:Hypergrid"
+WriteRegStr HKEY_CLASSES_ROOT "x-grid-info" "URL Protocol" ""
+WriteRegStr HKEY_CLASSES_ROOT "x-grid-info\DefaultIcon" "" '"$INSTDIR\$VIEWER_EXE"'
+WriteRegExpandStr HKEY_CLASSES_ROOT "x-grid-info\shell\open\command" "" '"$INSTDIR\$VIEWER_EXE" -url "%1"'
+WriteRegStr HKEY_CLASSES_ROOT "x-grid-info\shell\open" "FriendlyAppName" "$FRIENDLY_APP_NAME"
+
+# <FS:CR> Register hop:// protocol registry info
+${If} ${ISOPENSIM} == "1"
+  WriteRegStr HKEY_CLASSES_ROOT "hop" "(default)" "URL:Hypergrid"
+  WriteRegStr HKEY_CLASSES_ROOT "hop" "URL Protocol" ""
+  WriteRegStr HKEY_CLASSES_ROOT "hop\DefaultIcon" "" '"$INSTDIR\$VIEWER_EXE"'
+  WriteRegExpandStr HKEY_CLASSES_ROOT "hop\shell\open\command" "" '"$INSTDIR\$VIEWER_EXE" -url "%1"'
+  WriteRegStr HKEY_CLASSES_ROOT "hop\shell\open" "FriendlyAppName" "$FRIENDLY_APP_NAME"
+${EndIf}
+# </FS:CR>
+
+FunctionEnd
+# </MG>
+
 Function .onInstSuccess
         Push $0
+        # <MG> an update from the viewer: open the new version (as the user, like the finish page)
+        StrCmp $MG_UPDATE "true" 0 +2
+        Call mgLaunch
+        # </MG>
         FileOpen $0 "$INSTDIR\InstallMode.txt" w
         # No newline -- this is for our use, not for users to read.
         FileWrite $0 "$MultiUser.InstallMode"
@@ -1184,7 +1305,7 @@ Function .onInstSuccess
 label_ask_launch:
         # Don't launch by default when silent
         IfSilent label_no_launch
-        MessageBox MB_YESNO $(InstSuccesssQuestion) IDYES label_launch IDNO label_no_launch
+        Goto label_no_launch # <MG/> the finish page's "Launch" checkbox does it (was a MessageBox)
 
 label_launch:
         # <FS:TJ> Exec the viewer through explorer.exe so it's not ran as admin causing issues

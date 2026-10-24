@@ -1,0 +1,217 @@
+<textures version="101">
+
+	<!-- new-old icons :D -->
+	<texture name="Inv_Alpha"				file_name="legacy/inv_item_alpha.tga" />
+	<texture name="Inv_Animation"			file_name="legacy/inv_item_animation.tga" />
+	<texture name="Inv_BodyShape"			file_name="legacy/inv_item_shape.tga" />
+	<texture name="Inv_CallingCard"			file_name="legacy/inv_item_callingcard_online.tga" />
+	<texture name="Inv_CallingCardOffline"	file_name="legacy/inv_item_callingcard_offline.tga" />
+	<texture name="Inv_Clothing"			file_name="legacy/inv_item_clothing.tga" />
+	<texture name="Inv_Eye"					file_name="legacy/inv_item_eyes.tga" />
+	<texture name="Inv_Gesture"				file_name="legacy/inv_item_gesture.tga" />
+	<texture name="Inv_Gloves"				file_name="legacy/inv_item_gloves.tga" />
+	<texture name="Inv_Hair"				file_name="legacy/inv_item_hair.tga" />
+	<texture name="Inv_Jacket"				file_name="legacy/inv_item_jacket.tga" />
+	<texture name="Inv_Landmark"			file_name="legacy/inv_item_landmark.tga" />
+	<texture name="Inv_LandmarkVisited"		file_name="legacy/inv_item_landmark_visited.tga" />
+	<texture name="Inv_Mesh"				file_name="legacy/inv_item_mesh.tga" />
+	<texture name="Inv_Notecard"			file_name="legacy/inv_item_notecard.tga" />
+	<texture name="Inv_Object"				file_name="legacy/inv_item_object.tga" />
+	<texture name="Inv_Object_Multi"		file_name="legacy/inv_item_object_multi.tga" />
+	<texture name="Inv_Pants"				file_name="legacy/inv_item_pants.tga" />
+	<texture name="Inv_Script"				file_name="legacy/inv_item_script.tga" />
+	<texture name="Inv_Shirt"				file_name="legacy/inv_item_shirt.tga" />
+	<texture name="Inv_Shoe"				file_name="legacy/inv_item_shoes.tga" />
+	<texture name="Inv_Skin"				file_name="legacy/inv_item_skin.tga" />
+	<texture name="Inv_Skirt"				file_name="legacy/inv_item_skirt.tga" />
+	<texture name="Inv_Snapshot"			file_name="legacy/inv_item_snapshot.tga" />
+	<texture name="Inv_Socks"				file_name="legacy/inv_item_socks.tga" />
+	<texture name="Inv_Sound"				file_name="legacy/inv_item_sound.tga" />
+	<texture name="Inv_Tattoo"				file_name="legacy/inv_item_tattoo.tga" />
+	<texture name="Inv_Texture"				file_name="legacy/inv_item_texture.tga" />
+	<texture name="Inv_Underpants"			file_name="legacy/inv_item_underpants.tga" />
+	<texture name="Inv_Undershirt"			file_name="legacy/inv_item_undershirt.tga" />
+	<texture name="Inv_Universal"			file_name="legacy/inv_item_universal.tga" />
+
+	<texture name="Inv_TexturesOpen"		file_name="legacy/inv_folder_texture.tga" />
+	<texture name="Inv_TexturesClosed"		file_name="legacy/inv_folder_texture.tga" />
+	<texture name="Inv_SoundOpen"			file_name="legacy/inv_folder_sound.tga" />
+	<texture name="Inv_SoundClosed"			file_name="legacy/inv_folder_sound.tga" />
+	<texture name="Inv_CallingCardOpen"		file_name="legacy/inv_folder_callingcard.tga" />
+	<texture name="Inv_CallingCardClosed"	file_name="legacy/inv_folder_callingcard.tga" />
+	<texture name="Inv_LandmarksOpen"		file_name="legacy/inv_folder_landmark.tga" />
+	<texture name="Inv_LandmarksClosed"		file_name="legacy/inv_folder_landmark.tga" />
+	<texture name="Inv_ClothingOpen"		file_name="legacy/inv_folder_clothing.tga" />
+	<texture name="Inv_ClothingClosed"		file_name="legacy/inv_folder_clothing.tga" />
+	<texture name="Inv_ObjectsOpen"			file_name="legacy/inv_folder_object.tga" />
+	<texture name="Inv_ObjectsClosed"		file_name="legacy/inv_folder_object.tga" />
+	<texture name="Inv_MeshesOpen"			file_name="legacy/inv_folder_meshes.tga" />
+	<texture name="Inv_MeshesClosed"		file_name="legacy/inv_folder_meshes.tga" />
+	<texture name="Inv_NotecardsOpen"		file_name="legacy/inv_folder_notecard.tga" />
+	<texture name="Inv_NotecardsClosed"		file_name="legacy/inv_folder_notecard.tga" />
+	<texture name="Inv_SysClosed"			file_name="legacy/inv_folder_plain_closed.tga" />
+	<texture name="Inv_SysOpen"				file_name="legacy/inv_folder_plain_open.tga" />
+	<texture name="Inv_ScriptsOpen"			file_name="legacy/inv_folder_script.tga" />
+	<texture name="Inv_ScriptsClosed"		file_name="legacy/inv_folder_script.tga" />
+	<texture name="Inv_BodyPartsOpen"		file_name="legacy/inv_folder_bodypart.tga" />
+	<texture name="Inv_BodyPartsClosed"		file_name="legacy/inv_folder_bodypart.tga" />
+	<texture name="Inv_TrashClosed"			file_name="legacy/inv_folder_trash.tga" />
+	<texture name="Inv_TrashOpen"			file_name="legacy/inv_folder_trash.tga" />
+	<texture name="Inv_SnapshotsOpen"		file_name="legacy/inv_folder_snapshot.tga" />
+	<texture name="Inv_SnapshotsClosed"		file_name="legacy/inv_folder_snapshot.tga" />
+	<texture name="Inv_LostClosed"			file_name="legacy/inv_folder_lostandfound.tga" />
+	<texture name="Inv_LostOpen"			file_name="legacy/inv_folder_lostandfound.tga" />
+	<texture name="Inv_AnimationsOpen"		file_name="legacy/inv_folder_animation.tga" />
+	<texture name="Inv_AnimationsClosed"	file_name="legacy/inv_folder_animation.tga" />
+	<texture name="Inv_GesturesOpen"		file_name="legacy/inv_folder_gesture.tga" />
+	<texture name="Inv_GesturesClosed"		file_name="legacy/inv_folder_gesture.tga" />
+	<texture name="Inv_FavoritesOpen"		file_name="legacy/inv_folder_favorite.tga" />
+	<texture name="Inv_FavoritesClosed"		file_name="legacy/inv_folder_favorite.tga" />
+	<texture name="Inv_LookFolderOpen"		file_name="legacy/inv_folder_outfit.tga" />
+	<texture name="Inv_LookFolderClosed"	file_name="legacy/inv_folder_outfit.tga" />
+	<texture name="Inv_InboxOpen"			file_name="legacy/inv_folder_inbox.tga" />
+	<texture name="Inv_InboxClosed"			file_name="legacy/inv_folder_inbox.tga" />
+	<texture name="Inv_OutboxOpen"			file_name="legacy/inv_folder_plain_open.tga" />
+	<texture name="Inv_OutboxClosed"		file_name="legacy/inv_folder_plain_closed.tga" />
+	<texture name="Inv_SettingsOpen"        file_name="legacy/inv_folder_settings.tga" />
+	<texture name="Inv_SettingsClosed"      file_name="legacy/inv_folder_settings.tga" />
+	<texture name="Inv_MaterialsClosed"		file_name="legacy/inv_folder_materials.tga" />
+	<texture name="Inv_MaterialsOpen"		file_name="legacy/inv_folder_materials.tga" />
+	<texture name="Inv_FolderClosed"		file_name="legacy/inv_folder_plain_closed.tga" />
+	<texture name="Inv_FolderOpen"			file_name="legacy/inv_folder_plain_open.tga" />
+
+	<!-- Firstorm virtual system folders -->
+	<texture name="Inv_FirestormOpen"		file_name="legacy/inv_folder_firestorm.tga" />
+	<texture name="Inv_FirestormClosed"		file_name="legacy/inv_folder_firestorm.tga" />
+	<texture name="Inv_PhoenixOpen"			file_name="legacy/inv_folder_phoenix.tga" />
+	<texture name="Inv_PhoenixClosed"		file_name="legacy/inv_folder_phoenix.tga" />
+	<texture name="Inv_RLVOpen"			file_name="legacy/inv_folder_RLVa.tga" />
+	<texture name="Inv_RLVClosed"			file_name="legacy/inv_folder_RLVa.tga" />
+
+	<texture name="Inv_SuitcaseOpen"		file_name="legacy/inv_folder_suitcase.tga" />
+	<texture name="Inv_SuitcaseClosed"		file_name="legacy/inv_folder_suitcase.tga" />
+
+	<!-- Marketplace Listings folders -->
+	<texture name="Inv_StockFolderClosed"	file_name="legacy/inv_folder_stock_closed.tga" />
+	<texture name="Inv_StockFolderOpen" 	file_name="legacy/inv_folder_stock_open.tga" />
+	<texture name="Inv_VersionFolderClosed"	file_name="legacy/inv_folder_version_closed.tga" />
+	<texture name="Inv_VersionFolderOpen" 	file_name="legacy/inv_folder_version_open.tga" />
+
+	<texture name="Parcel_Build_Dark"		file_name="legacy/status_build.png" />
+	<texture name="Parcel_BuildNo_Dark"		file_name="legacy/status_no_build.tga" />
+	<texture name="Parcel_Damage_Dark"		file_name="icons/Parcel_Damage_Dark.png" />
+	<texture name="Parcel_DamageNo_Dark"	file_name="icons/Parcel_DamageNo_Dark.png" />
+	<texture name="Parcel_Fly_Dark"			file_name="legacy/status_fly.png" />
+	<texture name="Parcel_FlyNo_Dark"		file_name="legacy/status_no_fly.tga" />
+	<texture name="Parcel_Health_Dark"		file_name="legacy/status_health.tga" />
+	<texture name="Parcel_Push_Dark"		file_name="legacy/status_push.png" />
+	<texture name="Parcel_PushNo_Dark"		file_name="legacy/status_no_push.tga" />
+	<texture name="Parcel_Scripts_Dark"		file_name="legacy/status_scripts.png" />
+	<texture name="Parcel_ScriptsNo_Dark"	file_name="legacy/status_no_scripts.tga" />
+	<texture name="Parcel_Voice_Dark"		file_name="legacy/status_voice.png" />
+	<texture name="Parcel_VoiceNo_Dark"		file_name="legacy/status_no_voice.png" />
+	
+	<texture name="Parcel_BuildNo_Light"	file_name="legacy/status_no_build.tga" />
+	<texture name="Parcel_FlyNo_Light"		file_name="legacy/status_no_fly.tga" />
+	<texture name="Parcel_ForSale_Light"	file_name="legacy/status_buy_land.tga" />
+	<texture name="Parcel_PushNo_Light"		file_name="legacy/status_no_push.tga" />
+	<texture name="Parcel_ScriptsNo_Light"	file_name="legacy/status_no_scripts.tga" />
+	<texture name="Parcel_Voice_Light"		file_name="legacy/status_voice.png" />
+	<texture name="Parcel_VoiceNo_Light"	file_name="legacy/status_no_voice.png" />
+	<texture name="Parcel_SeeAVsOff_Dark"	file_name="legacy/status_SeeAVsOff.tga" />
+
+	<texture name="Pathfinding_Dirty_Light" file_name="legacy/Pathfinding_Dirty_Light.png" preload="false" />
+	<texture name="Pathfinding_Disabled_Light" file_name="legacy/Pathfinding_Disabled_Light.png" preload="false" />
+
+	<texture name="Contacts_Online_Status_Button"			file_name="legacy/ff_online_status_button.tga" />
+	<texture name="Permission_Visible_Online_Mine_Button"	file_name="legacy/ff_visible_online_button.tga" />
+	<texture name="Permission_Visible_Online_Theirs_Button"	file_name="legacy/ff_visible_online_button_theirs.tga" />
+	<texture name="Permission_Visible_Map_Mine_Button"		file_name="legacy/ff_visible_map_button.tga" />
+	<texture name="Permission_Visible_Map_Theirs_Button"	file_name="legacy/ff_visible_map_button_theirs.tga" />
+	<texture name="Permission_Edit_Objects_Mine_Button"		file_name="legacy/ff_edit_mine_button.tga" />
+	<texture name="Permission_Edit_Objects_Theirs_Button"	file_name="legacy/ff_edit_theirs_button.tga" />
+	<!-- from firestorm/themes/dark -->
+	<texture name="Parcel_SeeAVsOff_Light"	file_name="icons/Parcel_SeeAVsOff_Dark.png" />
+	<texture name="Pathfinding_Disabled" file_name="icons/Pathfinding_Disabled_Light.png" preload="false" />
+	<!-- MasterGate -->
+	<texture name="login_mg_logo"	file_name="mastergate/login_mg_logo.png" preload="true" />
+	<texture name="Command_MGPhone_Icon"	file_name="toolbar_icons/mg_phone.png" preload="true" />
+	<!-- MG-WIDGETS BEGIN (generated by raw/Viewer/tools/make_widgets.py) -->
+	<texture name="PushButton_Off" file_name="widgets/PushButton_Off.png" preload="true" scale.left="8" scale.top="16" scale.right="24" scale.bottom="8" />
+	<texture name="PushButton_Over" file_name="widgets/PushButton_Over.png" preload="true" scale.left="8" scale.top="16" scale.right="24" scale.bottom="8" />
+	<texture name="PushButton_Press" file_name="widgets/PushButton_Press.png" preload="true" scale.left="8" scale.top="16" scale.right="24" scale.bottom="8" />
+	<texture name="PushButton_Disabled" file_name="widgets/PushButton_Disabled.png" preload="true" scale.left="8" scale.top="16" scale.right="24" scale.bottom="8" />
+	<texture name="PushButton_Selected" file_name="widgets/PushButton_Selected.png" preload="true" scale.left="8" scale.top="16" scale.right="24" scale.bottom="8" />
+	<texture name="PushButton_Selected_Press" file_name="widgets/PushButton_Selected_Press.png" preload="true" scale.left="8" scale.top="16" scale.right="24" scale.bottom="8" />
+	<texture name="PushButton_Selected_Disabled" file_name="widgets/PushButton_Selected_Disabled.png" preload="true" scale.left="8" scale.top="16" scale.right="24" scale.bottom="8" />
+	<texture name="PushButton_Login" file_name="widgets/PushButton_Login.png" preload="true" scale.left="12" scale.top="32" scale.right="52" scale.bottom="12" />
+	<texture name="PushButton_Login_Over" file_name="widgets/PushButton_Login_Over.png" preload="true" scale.left="12" scale.top="32" scale.right="52" scale.bottom="12" />
+	<texture name="PushButton_Login_Pressed" file_name="widgets/PushButton_Login_Pressed.png" preload="true" scale.left="12" scale.top="32" scale.right="52" scale.bottom="12" />
+	<texture name="TextField_Off" file_name="widgets/TextField_Off.png" preload="true" scale.left="8" scale.top="18" scale.right="56" scale.bottom="8" />
+	<texture name="TextField_Active" file_name="widgets/TextField_Active.png" preload="true" scale.left="8" scale.top="18" scale.right="56" scale.bottom="8" />
+	<texture name="TextField_Disabled" file_name="widgets/TextField_Disabled.png" preload="true" scale.left="8" scale.top="18" scale.right="56" scale.bottom="8" />
+	<texture name="DropDown_Off" file_name="widgets/DropDown_Off.png" preload="true" scale.left="8" scale.top="18" scale.right="98" scale.bottom="8" />
+	<texture name="DropDown_On" file_name="widgets/DropDown_On.png" preload="true" scale.left="8" scale.top="18" scale.right="98" scale.bottom="8" />
+	<texture name="DropDown_Press" file_name="widgets/DropDown_Press.png" preload="true" scale.left="8" scale.top="18" scale.right="98" scale.bottom="8" />
+	<texture name="DropDown_Disabled" file_name="widgets/DropDown_Disabled.png" preload="true" scale.left="8" scale.top="18" scale.right="98" scale.bottom="8" />
+	<texture name="ComboButton_Off" file_name="widgets/ComboButton_Off.png" preload="true" scale.left="8" scale.top="18" scale.right="16" scale.bottom="8" />
+	<texture name="ComboButton_Selected" file_name="widgets/ComboButton_Selected.png" preload="true" scale.left="8" scale.top="18" scale.right="16" scale.bottom="8" />
+	<texture name="ComboButton_Disabled" file_name="widgets/ComboButton_Disabled.png" preload="true" scale.left="8" scale.top="18" scale.right="16" scale.bottom="8" />
+	<texture name="ComboButton_UpOff" file_name="widgets/ComboButton_UpOff.png" preload="true" scale.left="8" scale.top="18" scale.right="16" scale.bottom="8" />
+	<texture name="ComboButton_UpSelected" file_name="widgets/ComboButton_UpSelected.png" preload="true" scale.left="8" scale.top="18" scale.right="16" scale.bottom="8" />
+	<texture name="MG_Chevron_Down" file_name="mastergate/MG_Chevron_Down.png" preload="true" />
+	<texture name="MG_Chevron_Up" file_name="mastergate/MG_Chevron_Up.png" preload="true" />
+	<texture name="Checkbox_Off" file_name="widgets/Checkbox_Off.png" preload="true" />
+	<texture name="Checkbox_On" file_name="widgets/Checkbox_On.png" preload="true" />
+	<texture name="Checkbox_Press" file_name="widgets/Checkbox_Press.png" preload="true" />
+	<texture name="Checkbox_On_Press" file_name="widgets/Checkbox_On_Press.png" preload="true" />
+	<texture name="Checkbox_Off_Disabled" file_name="widgets/Checkbox_Off_Disabled.png" preload="true" />
+	<texture name="Checkbox_On_Disabled" file_name="widgets/Checkbox_On_Disabled.png" preload="true" />
+	<texture name="RadioButton_Off" file_name="widgets/RadioButton_Off.png" preload="true" />
+	<texture name="RadioButton_On" file_name="widgets/RadioButton_On.png" preload="true" />
+	<texture name="RadioButton_Press" file_name="widgets/RadioButton_Press.png" preload="true" />
+	<texture name="RadioButton_Disabled" file_name="widgets/RadioButton_Disabled.png" preload="true" />
+	<texture name="RadioButton_On_Disabled" file_name="widgets/RadioButton_On_Disabled.png" preload="true" />
+	<texture name="ScrollThumb_Vert" file_name="widgets/ScrollThumb_Vert.png" preload="true" scale.left="4" scale.top="51" scale.right="10" scale.bottom="6" />
+	<texture name="ScrollThumb_Horiz" file_name="widgets/ScrollThumb_Horiz.png" preload="true" scale.left="6" scale.top="10" scale.right="51" scale.bottom="4" />
+	<texture name="ScrollTrack_Vert" file_name="widgets/ScrollTrack_Vert.png" preload="true" scale.left="2" scale.top="38" scale.right="13" scale.bottom="2" />
+	<texture name="ScrollTrack_Horiz" file_name="widgets/ScrollTrack_Horiz.png" preload="true" scale.left="2" scale.top="13" scale.right="38" scale.bottom="2" />
+	<texture name="SliderTrack_Horiz" file_name="widgets/SliderTrack_Horiz.png" preload="true" scale.left="3" scale.top="4" scale.right="101" scale.bottom="2" />
+	<texture name="SliderTrack_Vert" file_name="widgets/SliderTrack_Vert.png" preload="true" scale.left="2" scale.top="101" scale.right="4" scale.bottom="3" />
+	<texture name="SliderThumb_Off" file_name="widgets/SliderThumb_Off.png" preload="true" />
+	<texture name="SliderThumb_Press" file_name="widgets/SliderThumb_Press.png" preload="true" />
+	<texture name="SliderThumb_Disabled" file_name="widgets/SliderThumb_Disabled.png" preload="true" />
+	<texture name="TabTop_Left_Off" file_name="containers/TabTop_Left_Off.png" preload="true" scale.left="8" scale.top="23" scale.right="62" scale.bottom="9" />
+	<texture name="TabTop_Left_Selected" file_name="containers/TabTop_Left_Selected.png" preload="true" scale.left="8" scale.top="23" scale.right="62" scale.bottom="9" />
+	<texture name="Toolbar_Left_Off" file_name="containers/Toolbar_Left_Off.png" preload="true" scale.left="7" scale.top="18" scale.right="24" scale.bottom="7" />
+	<texture name="Toolbar_Left_Over" file_name="containers/Toolbar_Left_Over.png" preload="true" scale.left="7" scale.top="18" scale.right="24" scale.bottom="7" />
+	<texture name="Toolbar_Left_Selected" file_name="containers/Toolbar_Left_Selected.png" preload="true" scale.left="7" scale.top="18" scale.right="24" scale.bottom="7" />
+	<texture name="Toolbar_Left_Flash" file_name="containers/Toolbar_Left_Flash.png" preload="true" scale.left="7" scale.top="18" scale.right="24" scale.bottom="7" />
+	<texture name="TabTop_Middle_Off" file_name="containers/TabTop_Middle_Off.png" preload="true" scale.left="8" scale.top="23" scale.right="62" scale.bottom="9" />
+	<texture name="TabTop_Middle_Selected" file_name="containers/TabTop_Middle_Selected.png" preload="true" scale.left="8" scale.top="23" scale.right="62" scale.bottom="9" />
+	<texture name="Toolbar_Middle_Off" file_name="containers/Toolbar_Middle_Off.png" preload="true" scale.left="7" scale.top="18" scale.right="24" scale.bottom="7" />
+	<texture name="Toolbar_Middle_Over" file_name="containers/Toolbar_Middle_Over.png" preload="true" scale.left="7" scale.top="18" scale.right="24" scale.bottom="7" />
+	<texture name="Toolbar_Middle_Selected" file_name="containers/Toolbar_Middle_Selected.png" preload="true" scale.left="7" scale.top="18" scale.right="24" scale.bottom="7" />
+	<texture name="Toolbar_Middle_Flash" file_name="containers/Toolbar_Middle_Flash.png" preload="true" scale.left="7" scale.top="18" scale.right="24" scale.bottom="7" />
+	<texture name="TabTop_Right_Off" file_name="containers/TabTop_Right_Off.png" preload="true" scale.left="8" scale.top="23" scale.right="62" scale.bottom="9" />
+	<texture name="TabTop_Right_Selected" file_name="containers/TabTop_Right_Selected.png" preload="true" scale.left="8" scale.top="23" scale.right="62" scale.bottom="9" />
+	<texture name="Toolbar_Right_Off" file_name="containers/Toolbar_Right_Off.png" preload="true" scale.left="7" scale.top="18" scale.right="24" scale.bottom="7" />
+	<texture name="Toolbar_Right_Over" file_name="containers/Toolbar_Right_Over.png" preload="true" scale.left="7" scale.top="18" scale.right="24" scale.bottom="7" />
+	<texture name="Toolbar_Right_Selected" file_name="containers/Toolbar_Right_Selected.png" preload="true" scale.left="7" scale.top="18" scale.right="24" scale.bottom="7" />
+	<texture name="Toolbar_Right_Flash" file_name="containers/Toolbar_Right_Flash.png" preload="true" scale.left="7" scale.top="18" scale.right="24" scale.bottom="7" />
+	<texture name="Window_Foreground" file_name="windows/Window_Foreground.png" preload="true" scale.left="9" scale.top="33" scale.right="21" scale.bottom="9" />
+	<texture name="Window_Background" file_name="windows/Window_Background.png" preload="true" scale.left="9" scale.top="33" scale.right="21" scale.bottom="9" />
+	<texture name="Window_NoTitle_Foreground" file_name="windows/Window_NoTitle_Foreground.png" preload="true" scale.left="9" scale.top="51" scale.right="21" scale.bottom="9" />
+	<texture name="Window_NoTitle_Background" file_name="windows/Window_NoTitle_Background.png" preload="true" scale.left="9" scale.top="51" scale.right="21" scale.bottom="9" />
+	<texture name="ProgressBar" file_name="widgets/ProgressBar.png" preload="true" scale.left="5" scale.top="5" scale.right="59" scale.bottom="5" />
+	<texture name="ProgressBarSolid" file_name="widgets/ProgressBarSolid.png" preload="true" scale.left="5" scale.top="5" scale.right="59" scale.bottom="5" />
+	<texture name="ProgressTrack" file_name="widgets/ProgressTrack.png" preload="true" scale.left="5" scale.top="5" scale.right="59" scale.bottom="5" />
+	<texture name="MG_Card" file_name="mastergate/MG_Card.png" preload="true" scale.left="18" scale.top="46" scale.right="46" scale.bottom="18" />
+	<texture name="MG_Scrim" file_name="mastergate/MG_Scrim.png" preload="true" scale.left="2" scale.top="6" scale.right="6" scale.bottom="2" />
+	<texture name="MG_PhoneBezel" file_name="mastergate/MG_PhoneBezel.png" preload="true" scale.left="46" scale.top="82" scale.right="82" scale.bottom="46" />
+	<texture name="MG_PhoneScreenMask" file_name="mastergate/MG_PhoneScreenMask.png" preload="true" scale.left="36" scale.top="60" scale.right="60" scale.bottom="36" />
+	<texture name="MG_PhoneGrip" file_name="mastergate/MG_PhoneGrip.png" preload="true" />
+	<texture name="Tooltip" file_name="widgets/Tooltip.png" preload="true" scale.left="6" scale.top="11" scale.right="96" scale.bottom="6" />
+	<texture name="Inspector_Background" file_name="windows/Inspector_Background.png" preload="true" scale.left="11" scale.top="21" scale.right="53" scale.bottom="11" />
+	<!-- MG-WIDGETS END -->
+</textures>

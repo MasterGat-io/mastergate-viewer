@@ -4,7 +4,7 @@
 		<panel label="情報" name="support_panel">
 			<text name="support_intro">
 Firestormの最新情報については下記サイトにて
-https://www.firestormviewer.org
+https://mastergate.io/viewer/
 			</text>
 			<button label="コピー" name="copy_btn"/>
 		</panel>

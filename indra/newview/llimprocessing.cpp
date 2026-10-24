@@ -38,6 +38,7 @@
 #include "fsfloaternearbychat.h"
 // </FS:Ansariel> [FS communication UI]
 #include "llimview.h"
+#include "mgphoneauth.h" // <MG/>
 #include "llinventoryobserver.h"
 #include "llinventorymodel.h"
 #include "llmutelist.h"
@@ -721,6 +722,14 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
     LLChat chat;
     std::string buffer;
     std::string name = agentName;
+
+    // <MG> MasterGate sign-in code IMs (MGV-AUTH:...) are consumed silently and
+    // never shown: they only prove to MasterGate that this viewer is this avatar.
+    if (dialog == IM_NOTHING_SPECIAL && MGPhoneAuth::consumeIM(from_id, message))
+    {
+        return;
+    }
+    // </MG>
 
     // NaCl - Antispam Registry
     if (dialog != IM_TYPING_START && dialog != IM_TYPING_STOP &&                                            // Typing notifications

@@ -25,6 +25,13 @@ set(media_plugin_cef_HEADER_FILES
 
 add_compile_definitions(LL_VOLUME_CATCHER)
 
+# <MG> the developer-only DevTools switch (MGV_CEF_REMOTE_DEBUG_PORT) exists in
+# day-to-day builds only, never in a packaged release (configure --package)
+if (NOT PACKAGE)
+  add_compile_definitions(MGV_CEF_DEV_DEBUG=1)
+endif ()
+# </MG>
+
 # Select which VolumeCatcher implementation to use
 if (LINUX)
 #  message(FATAL_ERROR "CEF plugin has been enabled for a Linux compile.\n"

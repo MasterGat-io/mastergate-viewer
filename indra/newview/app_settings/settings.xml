@@ -947,7 +947,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>grey</string>
+      <string></string>
     </map>
 
     <key>ShowSearchTopBar</key>
@@ -6049,7 +6049,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>https://wiki.firestormviewer.org/[TOPIC]</string>
+      <string>https://mastergate.io/viewer/help/?topic=[TOPIC]</string>
       <key>Backup</key>
       <integer>0</integer>
     </map>
@@ -6062,7 +6062,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>https://wiki.firestormviewer.org/start#basic_functions</string>
+      <string>https://mastergate.io/viewer/help/?topic=basic_functions</string>
       <key>Backup</key>
       <integer>0</integer>
     </map>    
@@ -13865,7 +13865,7 @@ Change of this parameter will affect the layout of buttons in notification toast
 			<key>Type</key>
 			<string>String</string>
 			<key>Value</key>
-			<string>https://phoenixviewer.com/app/file-a-jira/?environment=[ENVIRONMENT]</string>
+			<string>https://mastergate.io/viewer/support/?environment=[ENVIRONMENT]</string>
 		</map>
 	<key>RevokePermsOnStopAnimation</key>
     <map>
@@ -15188,7 +15188,7 @@ Change of this parameter will affect the layout of buttons in notification toast
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>firestorm</string>
+      <string>mastergate</string>
     </map>
     <key>SkinningSettingsFile</key>
     <map>
@@ -21842,7 +21842,7 @@ Change of this parameter will affect the layout of buttons in notification toast
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>Firestorm</string>
+      <string>MasterGate</string>
     </map>
   <key>FSSkinCurrentThemeReadableName</key>
     <map>
@@ -21855,7 +21855,7 @@ Change of this parameter will affect the layout of buttons in notification toast
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>Grey</string>
+      <string>Dark</string>
     </map>
     <key>FSStatusbarShowSimulatorVersion</key>
     <map>
@@ -24943,7 +24943,7 @@ Change of this parameter will affect the layout of buttons in notification toast
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>https://phoenixviewer.com/app/loginV3/secondlifegrid.xml</string>
+      <string>https://status.secondlifegrid.net/history.rss</string>
     </map>
     <key>FSIgnoreAdHocSessions</key>
     <map>
@@ -26899,13 +26899,13 @@ Change of this parameter will affect the layout of buttons in notification toast
     <key>FSShowWhitelistReminder</key>
     <map>
       <key>Comment</key>
-      <string>Show the whitelist reminder on first install.</string>
+      <string>Show the whitelist reminder on first install. MasterGate: off, it scared new users into thinking the viewer was unsafe (the installer adds the Windows Firewall rules instead).</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>1</integer>
+      <integer>0</integer>
     </map>
     <key>FSLimitTextureVRAMUsage</key>
     <map>
@@ -27469,5 +27469,137 @@ Change of this parameter will affect the layout of buttons in notification toast
       <key>Value</key>
       <integer>0</integer>
     </map>
-  </map>
+    <key>MGPhoneURL</key>
+    <map>
+      <key>Comment</key>
+      <string>MasterGate: entry page of the native MG Phone panel (mgfloaterphone.cpp). dest= and lang= are appended.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>https://mastergate.io/modules/boonex/mastergateos/viewer_launch.php</string>
+    </map>
+      <key>MGPhoneAuthURL</key>
+    <map>
+      <key>Comment</key>
+      <string>MasterGate: automatic MG Phone sign-in endpoint (mgphoneauth.cpp).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>https://mastergate.io/modules/boonex/mastergateos/viewer_auth.php</string>
+    </map>
+    <key>MGPhoneAutoSignIn</key>
+    <map>
+      <key>Comment</key>
+      <string>MasterGate: sign the avatar into MasterGate automatically at login (one hidden code IM the first time).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>MGPhoneNativeNotifications</key>
+    <map>
+      <key>Comment</key>
+      <string>MasterGate: show MG Phone notifications as viewer toasts while the phone panel is closed.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>MGPhoneHandlesCalls</key>
+    <map>
+      <key>Comment</key>
+      <string>MasterGate: voice calls ring in the MG Phone (incoming and outgoing call screens) instead of the call dialogs (mgphonecalls.cpp).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>MGPhoneOpenOnCall</key>
+    <map>
+      <key>Comment</key>
+      <string>MasterGate: an incoming voice call opens the MG Phone when it is closed (the normal call dialog shows if the phone cannot start).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>MGPhoneKeepCallsVoice</key>
+    <map>
+      <key>Comment</key>
+      <string>MasterGate: with voice chat turned off, keep a voice line for MG Phone calls (calls ring and connect; nearby voice stays off).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>MGPhoneVolume</key>
+    <map>
+      <key>Comment</key>
+      <string>MasterGate: volume of the MG Phone (ringtone, sounds), independent of the media and master volumes and their mutes (0-1).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>1.0</real>
+    </map>
+    <key>MGCameraFolder</key>
+    <map>
+      <key>Comment</key>
+      <string>MasterGate: folder where the MG Phone Camera saves shots to the computer (empty = Pictures/MasterGate).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string />
+    </map>
+    <key>MGPhoneCallVolume</key>
+    <map>
+      <key>Comment</key>
+      <string>MasterGate: volume of the other side in MG Phone calls, independent of the voice and master volumes and their mutes (0-1).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.7</real>
+    </map>
+    <key>MGPhoneCallOpensMic</key>
+    <map>
+      <key>Comment</key>
+      <string>MasterGate: during a call the MG Phone's Mute button controls the microphone (open by default), whatever push-to-talk, disable-mic or mute-when-minimized say.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>MGPhoneCssWidth</key>
+    <map>
+      <key>Comment</key>
+      <string>MasterGate: layout width (CSS px) of the MG Phone page in portrait. Lower = bigger text (300-512, default 390).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>390</real>
+    </map>
+</map>
 </llsd>

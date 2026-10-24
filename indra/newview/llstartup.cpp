@@ -28,6 +28,7 @@
 
 #include "llappviewer.h"
 #include "llstartup.h"
+#include "mgphoneauth.h" // <MG/>
 
 #if LL_VELOPACK && LL_WINDOWS
 #include "llvelopack.h"
@@ -3360,6 +3361,8 @@ bool idle_startup()
 
         LLStartUp::setStartupState( STATE_STARTED );
         do_startup_frame();
+
+        MGPhoneAuth::onLogin(); // <MG/> silent MG Phone sign-in + native notifications
 
         // <FS:Ansariel> Draw Distance stepping; originally based on SpeedRez by Henri Beauchamp, licensed under LGPL
         if (gSavedSettings.getBOOL("FSRenderFarClipStepping"))

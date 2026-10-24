@@ -32,6 +32,7 @@
 #include "llappviewer.h"
 #include "lldeferredsounds.h"
 #include "llvieweraudio.h"
+#include "mgphonecalls.h" // <MG/>
 #include "llviewercamera.h"
 #include "llviewercontrol.h"
 #include "llviewerwindow.h"
@@ -543,8 +544,20 @@ void audio_update_volume(bool force_update)
         static LLCachedControl<F32> voice_mic_setting(gSavedSettings, "AudioLevelMic");
         F32 voice_volume = mute_volume * master_volume() * voice_volume_setting();
         LLVoiceClient *voice_inst = LLVoiceClient::getInstance();
+        // <MG> an MG Phone call has its own volume: heard even with voice, the master
+        // volume or "mute when minimized" turned off
+        F32 call_speaker = 0.f, call_mic = 0.f;
+        if (MGPhoneCalls::callVolume(call_speaker, call_mic))
+        {
+            voice_inst->setVoiceVolume(call_speaker);
+            voice_inst->setMicGain(call_mic);
+        }
+        else
+        // </MG>
+        {
         voice_inst->setVoiceVolume(voice_mute() ? 0.f : voice_volume);
         voice_inst->setMicGain(voice_mute() ? 0.f : voice_mic_setting());
+        }
 
         if (!gViewerWindow->getActive() && mute_when_minimized())
         {

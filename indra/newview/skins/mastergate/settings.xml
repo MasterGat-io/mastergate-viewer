@@ -1,0 +1,27 @@
+<llsd>
+<!-- MasterGate skin defaults (loaded as the "CurrentSkin" settings layer, before user settings). -->
+<map>
+    <key>InactiveFloaterTransparency</key>
+	<map>
+		<key>Comment</key>
+			<string>Transparency of inactive floaters (floaters that have no focus). MasterGate: opaque, so text stays readable.</string>
+		<key>Persist</key>
+			<integer>1</integer>
+		<key>Type</key>
+			<string>F32</string>
+		<key>Value</key>
+			<real>1.0</real>
+	</map>
+    <key>ActiveFloaterTransparency</key>
+	<map>
+		<key>Comment</key>
+			<string>Transparency of active floaters (floaters that have focus).</string>
+		<key>Persist</key>
+			<integer>1</integer>
+		<key>Type</key>
+			<string>F32</string>
+		<key>Value</key>
+			<real>1.0</real>
+	</map>
+</map>
+</llsd>

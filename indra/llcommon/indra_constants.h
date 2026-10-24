@@ -32,7 +32,9 @@
 class LLUUID;
 
 // <FS:Ansariel> Centralize definition of application name
-const std::string APP_NAME = "Firestorm";
+// <MG> One word: drives %APPDATA%/%LOCALAPPDATA% folder names and log names.
+// The display name ("MasterGate Viewer") is APP_NAME in strings.xml.
+const std::string APP_NAME = "MasterGateViewer";
 
 static constexpr F32 REGION_WIDTH_METERS = 256.f;
 static constexpr S32 REGION_WIDTH_UNITS = 256;

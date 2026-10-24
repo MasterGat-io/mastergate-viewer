@@ -36,6 +36,7 @@
 #include "llviewercontrol.h"
 #include "llviewerregion.h"
 #include "llvoicechannel.h"
+#include "mgphonecalls.h" // <MG/>
 #include "llcorehttputil.h"
 
 LLVoiceChannel::voice_channel_map_t LLVoiceChannel::sVoiceChannelMap;
@@ -368,7 +369,7 @@ void LLVoiceChannel::resume()
     if (sSuspended)
     {
         sSuspended = false; // needs to be before activate() so that observers will be able to read state
-        if (LLVoiceClient::getInstance()->voiceEnabled())
+        if (MGPhoneCalls::voiceLineWanted()) // <MG/> a phone call survives with voice chat off
         {
             bool currentStateConnected = false; // <FS:TJ/> Fix nearby voice after changing audio device settings
             if (sSuspendedVoiceChannel)

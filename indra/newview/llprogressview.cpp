@@ -51,6 +51,7 @@
 #include "llappviewer.h"
 #include "llweb.h"
 #include "lluictrlfactory.h"
+#include "lltrans.h" // <MG/> progress title
 // <FS:Ansariel> [FS Login Panel]
 //#include "llpanellogin.h"
 #include "fspanellogin.h"
@@ -157,7 +158,10 @@ bool LLProgressView::postBuild()
     mLayoutMOTD = getChild<LLView>("panel_motd");
     mLayoutMOTDRectInitial = mLayoutMOTD->getRect();
 
-    getChild<LLTextBox>("title_text")->setText(LLStringExplicit(LLAppViewer::instance()->getSecondLifeTitle()));
+    // <MG> Display name ("MasterGate Viewer"), not the window/folder title with "_x64".
+    //getChild<LLTextBox>("title_text")->setText(LLStringExplicit(LLAppViewer::instance()->getSecondLifeTitle()));
+    getChild<LLTextBox>("title_text")->setText(LLTrans::getString("APP_NAME"));
+    // </MG>
 
     getChild<LLTextBox>("message_text")->setClickedCallback(onClickMessage, this);
 

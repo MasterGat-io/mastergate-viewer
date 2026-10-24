@@ -57,6 +57,7 @@
 #include "llsliderctrl.h"
 #include "lltextbox.h"
 #include "rlvcommon.h"
+#include "mgphonecalls.h" // <MG/>
 
 static void get_voice_participants_uuids(uuid_vec_t& speakers_uuids);
 
@@ -282,6 +283,12 @@ void FSFloaterVoiceControls::updateSession()
         FSFloaterIM* im_floater = FSFloaterIM::findInstance(session_id);
         // </FS:Ansariel> [FS communication UI]
         bool show_me = !(im_floater && im_floater->getVisible());
+        // <MG> the MG Phone shows the call (mute, end, ...) itself
+        if (MGPhoneCalls::handlesCallUi())
+        {
+            show_me = false;
+        }
+        // </MG>
         if (show_me)
         {
             setVisible(true);

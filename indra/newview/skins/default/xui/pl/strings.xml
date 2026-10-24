@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <strings>
 	<string name="SUPPORT_SITE">
-		Portal Pomocy Firestorma
+		Portal Pomocy MasterGatea
 	</string>
 	<string name="StartupLoading">
 		Ładowanie przeglądarki [APP_NAME]...
@@ -213,7 +213,7 @@ Wersja serwera głosu (Voice Server): [VOICE_VERSION]
 	</string>
 	<string name="LoginFailedViewerNotPermitted">
 		Przeglądarka używana przez Ciebie nie ma już dostępu do Second Life. Proszę przejść na poniższą stronę i pobrać nową:
-https://www.firestormviewer.org/choose-your-platform/
+https://mastergate.io/viewer/
 
 Więcej informacji w naszym FAQ:
 http://secondlife.com/viewer-access-faq
@@ -841,7 +841,7 @@ są dozwolone.
 	</string>
 	<string name="AssetUploadRequestInvalid">
 		Błąd podczas przesyłania. Odwiedź
-https://www.firestormviewer.org/support aby uzyskać pomoc.
+https://mastergate.io/viewer/support/ aby uzyskać pomoc.
 	</string>
 	<string name="SettingValidationError">
 		Walidacja nie powiodła się - importowanie ustawień [NAME]

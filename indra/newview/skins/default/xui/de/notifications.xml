@@ -82,7 +82,7 @@ Fehlerdetails: The notification called &apos;[_NAME]&apos; was not found in noti
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="BadInstallation">
-		Installation von [APP_NAME] ist defekt. Bitte [https://www.firestormviewer.org/downloads laden Sie neue Kopie des Viewers herunter] und installieren Sie erneut.
+		Installation von [APP_NAME] ist defekt. Bitte [https://mastergate.io/viewer/ laden Sie neue Kopie des Viewers herunter] und installieren Sie erneut.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="LoginFailedNoNetwork">
@@ -738,7 +738,7 @@ Das Objekt ist möglicherweise außer Reichweite oder wurde gelöscht.
 
 Weitere Informationen finden Sie auf [_URL].
 		<url name="url" option="0">
-			https://wiki.firestormviewer.org/fs_system_requirements
+			https://mastergate.io/viewer/help/?topic=fs_system_requirements
 		</url>
 		<usetemplate ignoretext="Meine Hardware wird nicht unterstützt" name="okcancelignore" notext="Nein" yestext="Ja"/>
 	</notification>
@@ -1579,7 +1579,7 @@ Falls Sie [CURRENT_GRID] zum ersten Mal verwenden, müssen Sie zuerst ein Konto 
 
 Überprüfen Sie Ihre Internetverbindung und versuchen Sie es dann erneut, oder klicken Sie auf Hilfe, um zu [SUPPORT_SITE] zu gelangen, oder klicken Sie auf Teleportieren, um nach Hause zu teleportieren.
 		<url name="url">
-			https://www.firestormviewer.org/support/
+			https://mastergate.io/viewer/support/
 		</url>
 		<form name="form">
 			<button name="OK" text="OK"/>
@@ -1592,7 +1592,7 @@ Falls Sie [CURRENT_GRID] zum ersten Mal verwenden, müssen Sie zuerst ein Konto 
 
 Überprüfen Sie Ihre Internetverbindung und versuchen Sie es dann erneut, oder klicken Sie auf Hilfe, um zu [SUPPORT_SITE] zu gelangen.
 		<url name="url">
-			https://www.firestormviewer.org/support/
+			https://mastergate.io/viewer/support/
 		</url>
 		<form name="form">
 			<button name="OK" text="OK"/>
@@ -3798,12 +3798,12 @@ Die Schaltfläche wird angezeigt, wenn genügend Platz vorhanden ist.
 	<notification name="MeshUploadErrorDetails">
 		[LABEL] konnte nicht hochgeladen werden: [MESSAGE]
 
-[DETAILS] Siehe Firestorm.log für Details.
+[DETAILS] Siehe MasterGateViewer.log für Details.
 	</notification>
 	<notification name="MeshUploadError">
 		[LABEL] konnte nicht hochgeladen werden: [MESSAGE]
 
-Siehe Firestorm.log für Details.
+Siehe MasterGateViewer.log für Details.
 	</notification>
 	<notification name="MeshUploadPermError">
 		Fehler beim Anfordern der Berechtigungen zum Hochladen des Netzes
@@ -3906,7 +3906,7 @@ Bitte prüfen Sie Ihre Netzwerk- und Firewall-Konfiguration.
 Deaktivieren Sie alle SIP ALG-Funktionen in Ihrem Router. 
 
 Voice-Kommunikation ist leider nicht verfügbar.
-https://wiki.firestormviewer.org/fs_voice
+https://mastergate.io/viewer/help/?topic=fs_voice
 		<usetemplate name="okignore" yestext="OK" ignoretext="Warnen, wenn keine Verbindung zum Voice-Server hergestellt werden kann."/>
 	</notification>
 	<notification name="NoVoiceConnect-GIAB">
@@ -3914,7 +3914,7 @@ https://wiki.firestormviewer.org/fs_voice
 
 Voice-Kommunikation ist leider nicht verfügbar.
 Bitte überprüfen Sie Ihr Netzwerk- und Firewall-Setup.
-[https://wiki.firestormviewer.org/fs_voice]
+[https://mastergate.io/viewer/help/?topic=fs_voice]
 		<usetemplate name="okignore" yestext="OK"/>
 	</notification>
 	<notification name="AvatarRezLeftNotification">
@@ -5891,8 +5891,8 @@ Diese Einstellung ist für den Fall gedacht, wenn die VRAM-Erkennung inkorrekte 
 	</notification>
 	<notification name="CurrencyURIOverrideReceived">
 Diese Region hat sich dazu entschieden, das Währungsportal eines Drittanbieters zu nutzen.
-Bitte beachten Sie, dass es sich bei Käufen von Währung innerhalb des Firestorm Viewers um Transaktionen zwischen Ihnen (dem Nutzer) und den Anbietern oder Verkäufern der Währung handelt.
-Weder Firestorm Viewer, Phoenix Firestorm Viewer Project Inc. noch dessen Team können für jegliche Kosten oder Schäden haftbar gemacht werden, die direkt oder indirekt aus solchen Transaktionen entstehen.
+Bitte beachten Sie, dass es sich bei Käufen von Währung innerhalb des MasterGate Viewers um Transaktionen zwischen Ihnen (dem Nutzer) und den Anbietern oder Verkäufern der Währung handelt.
+Weder MasterGate Viewer, Phoenix Firestorm Viewer Project Inc. noch dessen Team können für jegliche Kosten oder Schäden haftbar gemacht werden, die direkt oder indirekt aus solchen Transaktionen entstehen.
 Falls Sie diesen Nutzungsbestimmungen nicht zustimmen, sollten keinerlei finanzielle Transaktionen im Rahmen der Nutzung dieses Viewers durchgeführt werden.
 		<usetemplate ignoretext="Warnen, wenn eine Region die URL zum Währungsportal ändert" name="okignore" yestext="OK"/>
 	</notification>
@@ -5930,7 +5930,7 @@ Einige Antivirus-Programme können fälschlicherweise Teile von [APP_NAME] block
 
 Detaillierte Instruktionen zum whitelisten von [APP_NAME] - inklusive einer Liste von Dateien und Verzeichnissen - finden Sie in unserem Ratgeber:
 
-https://wiki.firestormviewer.org/antivirus_whitelisting
+https://mastergate.io/viewer/help/?topic=antivirus_whitelisting
 	</notification>
 	<notification name="ConfirmPoserOverwrite">
 		Bestehende Pose „[POSE_NAME]“ überschreiben?

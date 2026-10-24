@@ -1027,6 +1027,21 @@ void LLMediaCtrl::convertInputCoords(S32& x, S32& y)
         coords_opengl = mMediaSource->getMediaPlugin()->getTextureCoordsOpenGL();
     }
 
+    // <MG> With decouple_texture_size the page is laid out at mTextureWidth x
+    // mTextureHeight and drawn scaled into width x height (letterboxed), so mouse
+    // coordinates must be scaled onto the page too. Upstream only applied the UI
+    // scale factor, which sent clicks to the wrong place on any stretched page
+    // (used by the MG Phone panel; the other decoupled controls are previews).
+    if (mDecoupleTextureSize && width > 0 && height > 0)
+    {
+        const F32 sx = (F32)mTextureWidth / (F32)width;
+        const F32 sy = (F32)mTextureHeight / (F32)height;
+        x = ll_round((F32)x * sx);
+        y = coords_opengl ? ll_round((F32)(height - y) * sy) : ll_round((F32)y * sy);
+        return;
+    }
+    // </MG>
+
     x = ll_round((F32)x * LLUI::getScaleFactor().mV[VX]);
     if ( ! coords_opengl )
     {
