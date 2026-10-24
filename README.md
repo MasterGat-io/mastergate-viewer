@@ -1,36 +1,56 @@
-<img align="left" width="100" height="100" src="doc/firestorm_256.png" alt="Logo of Firestorm viewer"/>
+<img align="left" width="100" height="100" src="indra/newview/icons/release/firestorm_256.png" alt="MasterGate Viewer logo"/>
 
-**[Firestorm](https://www.firestormviewer.org) is a free client for 3D virtual worlds such as Second Life and various OpenSim worlds where users can create, connect and chat with others from around the world.**
+**[MasterGate Viewer](https://mastergate.io/viewer/) is a free third-party viewer for Second Life with the MasterGate phone (MG Phone) built in.**
 
-This repository contains the official source code for the Firestorm viewer.
-
-## Open Source
-
-Firestorm is a third party viewer derived from the official [Second Life](https://github.com/secondlife/viewer) client. The client codebase has been open source since 2007 and is available under the LGPL license.
+This repository contains its full source code. MasterGate Viewer is made by [MasterGate](https://mastergate.io) and based on [Firestorm](https://github.com/FirestormViewer/phoenix-firestorm) and the [Second Life viewer](https://github.com/secondlife/viewer). It is **not provided or supported by Linden Lab** or by The Phoenix Firestorm Project.
 
 ## Download
 
-Pre-built versions of the viewer releases for Windows, Mac and Linux can be downloaded from the [official website](https://www.firestormviewer.org/choose-your-platform/).
+Windows, macOS (beta) and Linux (beta) builds: **https://mastergate.io/viewer/** (also attached to the [releases](../../releases) here, with SHA-256 checksums).
+Installing over an older version keeps your settings, and the viewer offers updates itself when a new release is out.
 
-## Build Instructions
+## What it adds
 
-Build instructions for each operating system can be found using the links below and in the official [wiki](https://wiki.firestormviewer.org).
+The MG Phone lives inside the viewer as a panel, so there is no HUD to wear. Besides the MasterGate apps (messages, feeds, photos, estates and more), it has viewer-only apps:
 
-- [Windows](doc/building_windows.md)
-- [Mac](doc/building_macos.md)
-- [Linux](doc/building_linux.md)
+- **Calls**: Second Life voice calls ring and run in the phone; contacts, nearby residents, recents and favorites.
+- **Camera Pro**: framing guides, exposure, time of day, full-size shots with color looks and an editor.
+- **Textures & Materials**: your inventory textures and PBR materials as a photo library; preview, apply, edit and organize.
+- **Animations**: animations and gestures on a 3D mannequin before anyone sees them; AO integration.
+- **Wardrobe**: clothes, body parts and outfits as picture cards, each item viewable in 3D.
 
-> [!NOTE]
-> We do not provide support for compiling the viewer or issues resulting from using a self-compiled viewer. However, there is a self-compilers group within Second Life that can be joined to ask questions related to compiling the viewer: [Firestorm Self Compilers](https://tinyurl.com/firestorm-self-compilers)
+Phone pages never receive asset UUIDs: thumbnails and 3D views are rendered by the viewer. See the [privacy policy](https://mastergate.io/viewer/privacy/) for what the phone sends to mastergate.io.
 
-## Contribute
+## Source layout
 
-Help make Firestorm better! You can get involved with improvements by filing bugs and suggesting enhancements via [JIRA](https://jira.firestormviewer.org) or [creating pull requests](CONTRIBUTING.md).
+- Branch **`mastergate/main`**, started from Firestorm's official release tag `Firestorm_Release_7.2.4.80712`.
+- MasterGate code is in new files (`indra/newview/mg*.cpp`, `mg*.h`) or in edits marked `<MG>` … `</MG>`, so Firestorm releases can be merged in.
+- The MG Phone panel and bridge: `mgfloaterphone.cpp`. Apps: `mgphonecalls.cpp`, `mgphonecamera.cpp`, `mgphoneinventory.cpp`, `mgphoneanims.cpp`, `mgphonewardrobe.cpp`, `mgphoneupdate.cpp`; sign-in: `mgphoneauth.cpp`.
+- The interface skin: `indra/newview/skins/mastergate`.
 
-## Community respect
+## Building
 
-This section is guided by the [TPV Policy](https://secondlife.com/corporate/third-party-viewers) and the [Second Life Code of Conduct](https://github.com/secondlife/viewer?tab=coc-ov-file).
+Follow Firestorm's build instructions for [Windows](doc/building_windows.md), [macOS](doc/building_macos.md) and [Linux](doc/building_linux.md), with the open-source configuration and OpenAL:
 
-Firestorm code is made available during ongoing development, with the **master** branch representing the current nightly build. Developers and self-compilers are encouraged to work on their own forks and contribute back via pull requests, as detailed in the [contributing guide](CONTRIBUTING.md).
+```
+autobuild configure -A 64 -c ReleaseFS_open -- --chan Release --no-opensim --openal
+autobuild build -A 64 -c ReleaseFS_open --no-configure
+```
 
-If you intend to use our code for your own viewer beyond personal use, please only use code from official release branches (for example, `Firestorm_7.1.13`), rather than from pre-release/preview or nightly builds.
+Add `--package` to the configure options to produce the installer.
+- The version's last number comes from `indra/newview/MGV_REVISION.txt`.
+- [`.github/workflows/mastergate_build.yml`](.github/workflows/mastergate_build.yml) builds all three platforms on GitHub. A `mgv-<version>` tag also drafts a release.
+
+Self-compiled builds are not supported. Please use the official downloads.
+
+## Support
+
+Open a ticket at **https://mastergate.io/m/ticket/add**, or use Help in the viewer. Please do not ask Linden Lab or the Firestorm team for help with MasterGate Viewer.
+
+## License and credits
+
+- The viewer code is available under the **GNU LGPL 2.1** ([LICENSE](doc/LGPL-license.txt)), like the Second Life and Firestorm viewers it is based on.
+- Thanks to Linden Lab and to The Phoenix Firestorm Project and its contributors, whose work this viewer builds on.
+- Second Life is a trademark of Linden Research, Inc. Firestorm is a project of The Phoenix Firestorm Project, Inc.
+- MasterGate and the MasterGate Viewer name and logo belong to MasterGate.
+- This viewer follows Linden Lab's [Policy on Third-Party Viewers](https://secondlife.com/corporate/third-party-viewers).
