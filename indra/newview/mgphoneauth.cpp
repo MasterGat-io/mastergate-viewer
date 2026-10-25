@@ -290,23 +290,42 @@ namespace
         LLFloaterReg::showInstance("mg_phone", key, true);
     }
 
-    // Polls viewer_auth.php?a=notif every 30 s and shows MasterGate notifications as
-    // viewer toasts while the phone panel is closed (when it is open, the phone shows
-    // them itself). The server only peeks at the queue; the phone still gets everything.
+    // Polls viewer_auth.php?a=notif and shows MasterGate notifications as viewer toasts
+    // while the phone panel is closed. The server only peeks at the queue; the phone
+    // still gets everything. To keep the server load low with many viewers online:
+    //   - no checks while the phone is open (the phone shows notifications itself); when
+    //     it closes, the next check starts from "now" (since=0: cursor only, missed calls
+    //     excepted) so nothing already seen in the phone pops up again;
+    //   - the interval comes from the server ("next", default 15 s), at least 60 s
+    //     while the avatar is away, and 60 s after an error.
     class MGNotifyPoller : public LLEventTimer
     {
     public:
-        MGNotifyPoller() : LLEventTimer(15.f), mCursor("0"), mBusy(false) { }
+        MGNotifyPoller() : LLEventTimer(5.f), mCursor("0"), mBusy(false), mPhoneWasOpen(false), mNextDue(0.0) { }
 
         bool tick() override
         {
+            LLFloater* phone = LLFloaterReg::findInstance("mg_phone");
+            if (phone && phone->getVisible())
+            {
+                mPhoneWasOpen = true;   // the open phone shows its own notifications
+                return false;
+            }
+            if (mPhoneWasOpen)
+            {
+                mPhoneWasOpen = false;
+                mCursor = "0";          // resync: do not toast what the phone already showed
+                mNextDue = 0.0;
+            }
+            const F64 now = LLTimer::getTotalSeconds();
             std::string ts, sig;
-            if (mBusy || gAgentID.isNull() || !gSavedSettings.getBOOL("MGPhoneNativeNotifications")
+            if (mBusy || now < mNextDue || gAgentID.isNull() || !gSavedSettings.getBOOL("MGPhoneNativeNotifications")
                 || !MGPhoneAuth::getToken(ts, sig))
             {
                 return false;
             }
             mBusy = true;
+            mNextDue = now + 60.0;      // until the answer says otherwise (errors: 60 s)
             std::string url = gSavedSettings.getString("MGPhoneAuthURL");
             url += (url.find('?') == std::string::npos) ? "?" : "&";
             url += "a=notif&u=" + gAgentID.asString() + "&t=" + LLURI::escape(ts) + "&s=" + LLURI::escape(sig)
@@ -320,6 +339,12 @@ namespace
                     {
                         return;
                     }
+                    F64 every = body.has("next") ? llclamp(body["next"].asReal(), 10.0, 600.0) : 15.0;
+                    if (gAgent.getAFK())
+                    {
+                        every = llmax(every, 60.0);   // away: nobody is looking
+                    }
+                    mNextDue = LLTimer::getTotalSeconds() + every;
                     mCursor = body["cursor"].asString();
                     LLFloater* phone = LLFloaterReg::findInstance("mg_phone");
                     if (phone && phone->getVisible())
@@ -363,6 +388,8 @@ namespace
     private:
         std::string mCursor;
         bool mBusy;
+        bool mPhoneWasOpen;
+        F64 mNextDue;
     };
 
     MGNotifyPoller* sPoller = nullptr;
