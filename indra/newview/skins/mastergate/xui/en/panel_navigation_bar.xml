@@ -2,8 +2,9 @@
 
 <!-- <FS:Zi> top="19" starts right below the status bar (menu bar) -->
 <!-- <FS:Zi> visible="false" to hide the panel on the login screen -->
-<!-- <MG> a solid dark bar (MgTopBarBg): the navigation and favorites rows are white text,
-     unreadable over a bright sky when the bar is see-through (default skin) -->
+<!-- <MG> main_view.xml includes this panel with background_visible="false", which overrides the
+     root attributes below: the solid background (MgTopBarBg) is on the navigation row's layout_panel.
+     The favorites row is not shown (the Places app on the MG Phone organizes landmarks). -->
 <panel
  mouse_opaque="false"
  background_visible="true"
@@ -36,6 +37,10 @@
 <!-- Navigation Bar visibility panel -->
 <layout_panel
  mouse_opaque="false"
+ background_visible="true"
+ background_opaque="true"
+ bg_opaque_color="MgTopBarBg"
+ bg_alpha_color="MgTopBarBg"
  height="22"
  layout="topleft"
  name="navigation_bar_visibility_panel"
@@ -222,7 +227,7 @@
  height="15"
  layout="topleft"
  name="favorites_bar_visibility_panel"
- visibility_control="FSInternalShowNavbarFavoritesPanel"
+ visible="false"
  auto_resize="false">
 
   <favorites_bar

@@ -792,6 +792,10 @@ bool idle_startup()
         gSavedSettings.setString("FSInternalSkinCurrentTheme", gSavedSettings.getString("FSSkinCurrentThemeReadableName"));
         // </FS:Ansariel>
 
+        // <MG> no Favorites bar under the navigation bar: the MG Phone's Places app organizes
+        // landmarks (the skin hides the row; off here too, so script dialogs are placed for it)
+        gSavedSettings.setBOOL("ShowNavbarFavoritesPanel", false);
+        // </MG>
         // <FS:Ansariel> Notification not showing if hiding the UI
         gSavedSettings.setBOOL("FSInternalShowNavbarNavigationPanel", gSavedSettings.getBOOL("ShowNavbarNavigationPanel"));
         gSavedSettings.setBOOL("FSInternalShowNavbarFavoritesPanel", gSavedSettings.getBOOL("ShowNavbarFavoritesPanel"));
