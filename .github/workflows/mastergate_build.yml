@@ -33,7 +33,7 @@ permissions:
 
 env:
   AUTOBUILD_VARIABLES_FILE: ${{ github.workspace }}/build-variables/variables
-  MG_ARGS: --chan Release --no-opensim --openal -DLL_TESTS:BOOL=FALSE
+  MG_ARGS: --chan Release --no-opensim -DLL_TESTS:BOOL=FALSE
   XZ_DEFAULTS: -T0
 
 jobs:

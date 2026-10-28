@@ -851,7 +851,10 @@ namespace MGPhoneAnims
                 {
                     const AOSet::AOState* state = set->getState(i);
                     if (!state) continue;
-                    states.append(LLSD().with("i", i).with("name", state->mName).with("n", (S32)state->mAnimations.size()));
+                    // 7.2.5: a state is a list of steps, each one animation or a group of them
+                    S32 n = 0;
+                    for (const auto& step : state->mSteps) n += (S32)step.mMembers.size();
+                    states.append(LLSD().with("i", i).with("name", state->mName).with("n", n));
                 }
                 sets.append(LLSD().with("name", set->getName()).with("current", set == current).with("states", states));
             }
