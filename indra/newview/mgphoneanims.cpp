@@ -873,6 +873,23 @@ namespace MGPhoneAnims
             return result;
         }
 
+        // <MG> a first AO set from the phone (the AO engine then makes its state folders and
+        // loads it on its reload timer; the page asks anim_ao again until it shows up)
+        if (cmd == "anim_ao_newset")
+        {
+            std::string name = args["name"].asString();
+            LLStringUtil::trim(name);
+            if (name.empty()) name = "My AO";
+            if (name.size() > 63) name.resize(63);
+            if (AOEngine::instance().getSetByName(name)) return LLSD().with("ok", false).with("error", "a set has this name");
+            AOEngine::instance().addSet(name, [name](const LLUUID&)
+                {
+                    push(LLSD().with("type", "anim_ao_changed").with("name", name));
+                });
+            result["pending"] = true;
+            return result;
+        }
+
         if (cmd == "anim_ao_enable")
         {
             gSavedPerAccountSettings.setBOOL("UseAO", args["on"].asBoolean());
