@@ -788,4 +788,10 @@
 	<color name="PieMenuTextColor" value="0.878 0.890 0.918 1" />
 	<color name="PieMenuSelectedColor" value="0.000 0.831 1.000 1" />
 	<color name="PieMenuSelectedColorOverride" value="0.000 0.831 1.000 1" />
+	<!-- MG: script dialogs (llDialog / llTextBox menus): dark like the floaters, not Firestorm blue -->
+	<color name="ScriptDialog" value="0.071 0.078 0.094 0.97" />
+	<color name="ScriptDialogFg" value="0.918 0.925 0.941 1" />
+	<!-- MG: navigation + favorites bars under the menu bar (panel_navigation_bar.xml): solid, so their
+	     white text stays readable over a bright sky -->
+	<color name="MgTopBarBg" value="0.071 0.071 0.078 0.96" />
 </colors>
