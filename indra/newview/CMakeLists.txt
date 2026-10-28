@@ -155,6 +155,7 @@ set(viewer_SOURCE_FILES
     mgphoneanims.cpp # <MG/> the MG Phone Animations app
     mgphonewardrobe.cpp # <MG/> the MG Phone Wardrobe app
     mgphoneupdate.cpp # <MG/> install a new release from the MG Phone
+    mgphoneplaces.cpp # <MG/> the MG Phone Places app (landmarks)
     mgphoneinventory.cpp # <MG/> the MG Phone Textures app
     fsjointpose.cpp
     fskeywords.cpp
@@ -1031,6 +1032,7 @@ set(viewer_HEADER_FILES
     mgphoneanims.h # <MG/>
     mgphonewardrobe.h # <MG/>
     mgphoneupdate.h # <MG/>
+    mgphoneplaces.h # <MG/>
     mgphoneinventory.h # <MG/>
     fsjointpose.h
     fsgridhandler.h

@@ -54,6 +54,7 @@
 #include "mgphoneinventory.h" // <MG/>
 #include "mgphonewardrobe.h" // <MG/>
 #include "mgphoneupdate.h" // <MG/>
+#include "mgphoneplaces.h" // <MG/>
 
 namespace
 {
@@ -444,6 +445,11 @@ void MGFloaterPhone::runCommand(const std::string& cmd, const LLSD& args, S32 se
     {
         result = MGPhoneWardrobe::runCommand(cmd, args);
     }
+    // the Places app: landmarks, favorites, teleport history, the place here (place_*)
+    else if (MGPhonePlaces::isCommand(cmd))
+    {
+        result = MGPhonePlaces::runCommand(cmd, args);
+    }
     // a new release: download, check, install over this one (update_*)
     else if (MGPhoneUpdate::isCommand(cmd))
     {
@@ -709,6 +715,7 @@ void MGFloaterPhone::draw()
     MGPhoneInventory::idle(); // <MG/> the Textures app's thumbnail jobs
     MGPhoneAnims::idle(); // <MG/> the Animations app's preview photos, gestures
     MGPhoneWardrobe::idle(); // <MG/> the Wardrobe app's peeks, cards, outfit photos
+    MGPhonePlaces::idle(); // <MG/> the Places app's landmark / parcel lookups
 
     // live data for the shell: balance / region, checked once a second
     if (mLoaded && mInfoTimer.getElapsedTimeF32() > 1.f)
