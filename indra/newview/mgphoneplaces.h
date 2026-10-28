@@ -41,7 +41,13 @@
 //   place_edit     {id, name, desc}     rename / notes
 //   place_move     {ids, folder}        place_trash {ids}   place_folder_new {parent, name}
 //   place_fav      {id, on}             add to / remove from the Favorites bar (a link)
+//   place_give     {ids, to}            send landmarks to a resident (transferable ones)
+//   place_friends                       the friends list (with online state), for sharing;
+//                                       search / nearby use inv_people (mgphoneinventory.cpp)
+//   place_folder_rename {id, name} / place_folder_trash {id}   user folders only
 //   place_home_set / place_home_go      set home here / teleport home
+// place_list rows carry "dup": a per-session hash of the landmark asset (exact copies share
+// it, the asset stays in the viewer) and "nt" for no-transfer landmarks.
 // Events: place_info, place_slurl, place_changed, place_folder_new.
 namespace MGPhonePlaces
 {

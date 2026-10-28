@@ -29,9 +29,12 @@
 #include <set>
 
 #include "llagent.h"
+#include "llavatarnamecache.h"
+#include "llcallingcard.h"
 #include "llclipboard.h"
 #include "llfloaterreg.h"
 #include "llfloaterworldmap.h"
+#include "llgiveinventory.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
 #include "llinventorymodelbackgroundfetch.h"
@@ -40,6 +43,7 @@
 #include "lllandmarkactions.h"
 #include "lllandmarklist.h"
 #include "llparcel.h"
+#include "llmd5.h"
 #include "llremoteparcelrequest.h"
 #include "llstartup.h"
 #include "llteleporthistorystorage.h"
@@ -81,6 +85,24 @@ namespace
         if (id != gInventory.getRootFolderID() && !gInventory.isObjectDescendentOf(id, gInventory.getRootFolderID())) return false;
         const LLUUID trash = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
         return id != trash && !gInventory.isObjectDescendentOf(id, trash);
+    }
+
+    // exact copies are matched by their landmark asset, without telling the page the asset
+    std::string sSalt;
+    std::string dupKey(const LLUUID& asset)
+    {
+        if (sSalt.empty())
+        {
+            LLUUID r; r.generate();
+            sSalt = r.asString();
+        }
+        LLMD5 md5;
+        const std::string s = sSalt + asset.asString();
+        md5.update((const unsigned char*)s.data(), s.size());
+        md5.finalize();
+        char hex[33] = { 0 };
+        md5.hex_digest(hex);
+        return std::string(hex, 12);
     }
 
     struct CollectLandmarks : public LLInventoryCollectFunctor
@@ -396,6 +418,8 @@ namespace MGPhonePlaces
                     .with("f", item->getParentUUID().asString()).with("t", (S32)item->getCreationDate());
                 if (!item->getDescription().empty()) row["d"] = item->getDescription();
                 if (favs.count(item->getUUID())) row["fav"] = true;
+                row["dup"] = dupKey(item->getAssetUUID());
+                if (!item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgentID)) row["nt"] = true;   // no transfer
                 const auto info = sInfo.find(item->getUUID().asString());
                 if (info != sInfo.end()) row["info"] = withDistance(info->second);
                 rows.append(row);
@@ -688,6 +712,77 @@ namespace MGPhonePlaces
                 }
                 for (const LLUUID& id : drop) remove_inventory_object(id, nullptr);
             }
+            return result;
+        }
+
+        if (cmd == "place_give")
+        {
+            // {ids, to}: send landmarks to a resident (an inventory offer). Transferable ones only.
+            const LLUUID to(args["to"].asString());
+            if (to.isNull() || to == gAgentID) return fail("bad resident");
+            S32 given = 0, skipped = 0;
+            for (const auto& v : llsd::inArray(args["ids"]))
+            {
+                if (given + skipped >= 25) break;
+                LLViewerInventoryItem* it = ownLandmark(LLUUID(v.asString()));
+                if (!it || !it->getPermissions().allowOperationBy(PERM_TRANSFER, gAgentID) || !LLGiveInventory::isInventoryGiveAcceptable(it))
+                {
+                    ++skipped;
+                    continue;
+                }
+                if (LLGiveInventory::doGiveInventoryItem(to, it)) ++given;
+                else ++skipped;
+            }
+            if (!given) return fail("not transferable");
+            result["given"] = given;
+            result["skipped"] = skipped;
+            return result;
+        }
+
+        if (cmd == "place_friends")
+        {
+            // the friends list, for sharing (names that are not cached yet come with "pending")
+            LLAvatarTracker::buddy_map_t buddies;
+            LLAvatarTracker::instance().copyBuddyList(buddies);
+            LLSD people = LLSD::emptyArray();
+            bool pending = false;
+            for (const auto& kv : buddies)
+            {
+                LLSD p = LLSD().with("id", kv.first.asString()).with("on", kv.second && kv.second->isOnline());
+                LLAvatarName av;
+                if (LLAvatarNameCache::get(kv.first, &av))
+                {
+                    p["name"] = av.getDisplayName();
+                    p["user"] = av.getUserName();
+                }
+                else
+                {
+                    LLAvatarNameCache::get(kv.first, [](const LLUUID&, const LLAvatarName&) {});
+                    pending = true;
+                }
+                people.append(p);
+            }
+            result["people"] = people;
+            result["pending"] = pending;
+            return result;
+        }
+
+        if (cmd == "place_folder_rename" || cmd == "place_folder_trash")
+        {
+            const LLUUID id(args["id"].asString());
+            LLViewerInventoryCategory* cat = gInventory.getCategory(id);
+            if (!cat || !userFolder(id) || id == gInventory.getRootFolderID() || LLFolderType::lookupIsProtectedType(cat->getPreferredType()))
+                return fail("not allowed");
+            if (cmd == "place_folder_trash")
+            {
+                gInventory.removeCategory(id);
+                gInventory.notifyObservers();
+                return result;
+            }
+            std::string name = args["name"].asString();
+            LLStringUtil::trim(name);
+            if (name.empty() || name.size() > 63) return fail("bad name");
+            rename_category(&gInventory, id, name, nullptr);
             return result;
         }
 
