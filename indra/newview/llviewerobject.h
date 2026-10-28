@@ -657,6 +657,11 @@ public:
     void setPhysicsDensity(F32 density);
     void setPhysicsRestitution(F32 restitution);
 
+    static void markObjectsForUpdate(const LLUUID& owner_id);
+    static void removeObjectFromPendingUpdate(LLViewerObject* obj);
+    static bool isObjectInPendingUpdate(const LLUUID& owner_id, LLViewerObject* obj);
+    void requestObjectUpdate();
+
     virtual void dump() const;
     static U32      getNumZombieObjects()           { return sNumZombieObjects; }
 
@@ -718,17 +723,26 @@ private:
     bool isAssetInInventory(LLViewerInventoryItem* item, LLAssetType::EType type);
 
     ExtraParameter* createNewParameterEntry(U16 param_type);
+
+    static bool isValidExtraParamType(U16 param_type)
+    {
+        return param_type >= LLNetworkData::PARAMS_FLEXIBLE
+            && param_type <= LLNetworkData::PARAMS_MAX
+            && (param_type & 0xF) == 0;
+    }
     const ExtraParameter& getExtraParameterEntry(U16 param_type) const
     {
+        llassert(isValidExtraParamType(param_type));
         return mExtraParameterList[U32(param_type >> 4) - 1];
     }
     ExtraParameter& getExtraParameterEntry(U16 param_type)
     {
+        llassert(isValidExtraParamType(param_type));
         return mExtraParameterList[U32(param_type >> 4) - 1];
     }
     ExtraParameter* getExtraParameterEntryCreate(U16 param_type)
     {
-        if (param_type <= LLNetworkData::PARAMS_MAX)
+        if (isValidExtraParamType(param_type))
         {
             ExtraParameter& param = getExtraParameterEntry(param_type);
             if (!param.is_invalid)
@@ -831,6 +845,7 @@ private:
     std::unique_ptr<LLReflectionProbeParams> mReflectionProbeParams;
 
     static std::map<std::string, U32> sObjectDataMap;
+    static std::unordered_map<LLUUID, std::vector<LLViewerObject*>> sPendingUpdatesByOwner;
 public:
     // Sent to sim in UPDATE_FLAGS, received in ObjectPhysicsProperties
     U8              mPhysicsShapeType;

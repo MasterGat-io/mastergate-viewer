@@ -1,5 +1,5 @@
 <llsd>
-  <!-- <MG> MasterGate Viewer ships a single skin. The upstream skins (AnsaStorm, Firestorm,
+  <!-- <MG> MasterGate Viewer ships a single skin. The upstream skins (AnsaStorm, AnsaStorm Modern, Firestorm,
        MetaHarper, StarLight, StarLight CUI, Vintage) stay in the source tree for clean
        merges but are not listed here and are not packaged (viewer_manifest.py). -->
   <array>

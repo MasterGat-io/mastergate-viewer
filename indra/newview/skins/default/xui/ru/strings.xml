@@ -1716,6 +1716,9 @@ https://mastergate.io/viewer/support/ за помощь в решении это
 	<string name="InventoryNoMatchingFavorites">
 		Вы не отметили ни один элемент как избранный.
 	</string>
+	<string name="FSInventoryCustomTabDefaultName">
+		Свой
+	</string>
 	<string name="PlacesNoMatchingItems">
 		Чтобы добавить место в список достопримечательностей, нажмите на звездочку справа от названия местоположения.
 	</string>
@@ -3155,7 +3158,7 @@ https://mastergate.io/viewer/support/ за помощь в решении это
 		Воспроизведение/Пауза медиа
 	</string>
 	<string name="StreamtitleNowPlaying">
-		Сейчас играет:
+		Сейчас играет: [TITLE]
 	</string>
 	<string name="IntelDriverPage">
 		http://www.intel.com/p/ru_RU/support/detect/graphics

@@ -1663,6 +1663,9 @@ https://mastergate.io/viewer/support/ per avere aiuto nella soluzione.
 	<string name="InventoryNoMatchingRecentItems">
 		Non riesci a trovare quello che cerchi? Mostra i [secondlife:///app/inventory/filters Filtri].
 	</string>
+	<string name="FSInventoryCustomTabDefaultName">
+		Filtro
+	</string>
 	<string name="PlacesNoMatchingItems">
 		Non riesci a trovare quello che cerchi? Prova [secondlife:///app/search/places/[SEARCH_TERM] Cerca].
 	</string>
@@ -3040,7 +3043,7 @@ Tipi conosciuti .WAV .TGA .BMP .JPG .JPEG .ANIM
 		Riproduci media
 	</string>
 	<string name="StreamtitleNowPlaying">
-		In esecuzione:
+		In esecuzione: [TITLE]
 	</string>
 	<string name="MBCmdLineError">
 		Un errore è stato riscontrato analizzando la linea di comando.
@@ -4770,9 +4773,6 @@ Scopri di più su https://second.life/scripted-agents.
 	</string>
 	<string name="share_alert">
 		Trascinare qui oggetti da inventario
-	</string>
-	<string name="facebook_post_success">
-		Hai pubblicato su Facebook.
 	</string>
 	<string name="flickr_post_success">
 		Hai pubblicato su Flickr.

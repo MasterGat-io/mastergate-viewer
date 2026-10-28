@@ -142,6 +142,25 @@ bool isMarketplaceSendAction(const std::string& action)
     return ("send_to_marketplace" == action);
 }
 
+// <FS:PP> Submenus grouping
+namespace
+{
+    constexpr bool is_context_submenu_branch(std::string_view name)
+    {
+        return (name == "More") || (name == "create_new") || (name == INVENTORY_SUBMENU_MARKETPLACE);
+    }
+}
+
+void add_context_submenu_entry(menuentry_vec_t& items, std::string_view submenu, std::string_view item)
+{
+    if (std::ranges::find(items, submenu) == std::ranges::end(items))
+    {
+        items.emplace_back(submenu);
+    }
+    items.emplace_back(item);
+}
+// </FS:PP>
+
 bool isPanelActive(const std::string& panel_name)
 {
     LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel(false);
@@ -763,7 +782,10 @@ void disable_context_entries_if_present(LLMenuGL& menu,
 
         // descend into split menus:
         LLMenuItemBranchGL* branchp = dynamic_cast<LLMenuItemBranchGL*>(menu_item);
-        if ((name == "More") && branchp)
+        // <FS:PP> Submenus grouping
+        // if ((name == "More") && branchp)
+        if (is_context_submenu_branch(name) && branchp)
+        // </FS:PP>
         {
             disable_context_entries_if_present(*branchp->getBranch(), disabled_entries);
         }
@@ -809,7 +831,10 @@ void hide_context_entries(LLMenuGL& menu,
 
         // descend into split menus:
         LLMenuItemBranchGL* branchp = dynamic_cast<LLMenuItemBranchGL*>(menu_item);
-        if (((name == "More") || (name == "create_new")) && branchp)
+        // <FS:PP> Submenus grouping
+        // if (((name == "More") || (name == "create_new")) && branchp)
+        if (is_context_submenu_branch(name) && branchp)
+        // </FS:PP>
         {
             hide_context_entries(*branchp->getBranch(), entries_to_show, disabled_entries);
         }
@@ -890,6 +915,7 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
             items.push_back(std::string("Copy Separator"));
         }
         items.push_back(std::string("Copy"));
+        items.push_back(std::string("Copy Name")); // <FS:MJR> [FIRE-36793] - Inventory Context Menu - Add "Copy Name"
 // [SL:KB] - Patch: Inventory-Links | Checked: 2010-04-12 (Catznip-2.0)
         if (!isItemCopyable() && !isItemLinkable())
 // [/SL:KB]
@@ -999,12 +1025,17 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 
             if (canListOnMarketplace() && !isMarketplaceListingsFolder() && !isInboxFolder())
             {
-                items.push_back(std::string("Marketplace Separator"));
+                // <FS:PP> Submenus grouping (line commented out)
+                // items.push_back(std::string("Marketplace Separator"));
 
                 if (gMenuHolder->getChild<LLView>("MarketplaceListings")->getVisible())
                 {
-                    items.push_back(std::string("Marketplace Copy"));
-                    items.push_back(std::string("Marketplace Move"));
+                    // <FS:PP> Submenus grouping
+                    // items.push_back(std::string("Marketplace Copy"));
+                    // items.push_back(std::string("Marketplace Move"));
+                    add_context_submenu_entry(items, INVENTORY_SUBMENU_MARKETPLACE, "Marketplace Copy");
+                    add_context_submenu_entry(items, INVENTORY_SUBMENU_MARKETPLACE, "Marketplace Move");
+                    // </FS:PP>
                     if (!canListOnMarketplaceNow())
                     {
                         disabled_items.push_back(std::string("Marketplace Copy"));
@@ -1191,6 +1222,7 @@ void LLInvFVBridge::addMarketplaceContextMenuOptions(U32 flags,
                                                 menuentry_vec_t &items,
                                                 menuentry_vec_t &disabled_items)
 {
+    items.emplace_back(INVENTORY_SUBMENU_MARKETPLACE); // <FS:PP> Submenus grouping
     S32 depth = depth_nesting_in_marketplace(mUUID);
     if (depth == 1)
     {
@@ -1309,7 +1341,8 @@ void LLInvFVBridge::addMarketplaceContextMenuOptions(U32 flags,
     }
 
     // Separator
-    items.push_back(std::string("Marketplace Listings Separator"));
+    // <FS:PP> Submenus grouping (line commented out)
+    // items.push_back(std::string("Marketplace Listings Separator"));
 }
 
 void LLInvFVBridge::addLinkReplaceMenuOption(menuentry_vec_t& items, menuentry_vec_t& disabled_items)
@@ -1964,6 +1997,18 @@ void LLItemBridge::performAction(LLInventoryModel* model, std::string action)
         gViewerWindow->getWindow()->copyTextToClipboard(utf8str_to_wstring(buffer));
         return;
     }
+    // <FS:MJR> [FIRE-36793] - Inventory Context Menu - Add "Copy Name"
+    else if ("copy_name" == action)
+    {
+        // Single item only
+        LLViewerInventoryItem* item = static_cast<LLViewerInventoryItem*>(getItem());
+        if (item)
+        {
+            gViewerWindow->getWindow()->copyTextToClipboard(utf8str_to_wstring(item->getName()));
+        }
+        return;
+    }
+    // </FS:MJR> [FIRE-36793]
     else if ("show_in_main_panel" == action)
     {
         LLInventoryPanel::openInventoryPanelAndSetSelection(true, mUUID, true);
@@ -2073,14 +2118,11 @@ void LLItemBridge::doShowOnMap(LLLandmark* landmark)
 
 void copy_slurl_to_clipboard_callback_inv(const std::string& slurl)
 {
-    // <FS:Zi> FIRE-31645 - Copy SLURL can fail, let the user know
     if (slurl.empty())
     {
         LLNotificationsUtil::add("LandmarkLocationUnknown");
         return;
     }
-    // </FS:Zi>
-
     gViewerWindow->getWindow()->copyTextToClipboard(utf8str_to_wstring(slurl));
     LLSD args;
     args["SLURL"] = slurl;
@@ -3863,6 +3905,18 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
         pasteLinkFromClipboard();
         return;
     }
+    // <FS:MJR> [FIRE-36793] - Inventory Context Menu - Add "Copy Name"
+    else if ("copy_name" == action)
+    {
+        // Single item only
+        LLFolderViewFolder* f = dynamic_cast<LLFolderViewFolder*>(mInventoryPanel.get()->getItemByID(mUUID));
+        if (f)
+        {
+            gViewerWindow->getWindow()->copyTextToClipboard(utf8str_to_wstring(f->getName()));
+        }
+        return;
+    }
+    // </FS:MJR> [FIRE-36793]
     else if ("properties" == action)
     {
         showProperties();
@@ -5131,6 +5185,7 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
                     getClipboardEntries(false, items, disabled_items, flags);
                 }
             }
+            items.push_back(std::string("Copy Name")); // <FS:MJR> [FIRE-36793] - Inventory Context Menu - Add "Copy Name"
         }
 
         if (model->findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT) == mUUID)
@@ -5201,6 +5256,7 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
                 disabled_items.push_back(std::string("Copy"));
             }
         }
+        items.push_back(std::string("Copy Name")); // <FS:MJR> [FIRE-36793] - Inventory Context Menu - Add "Copy Name"
     }
 
     // Preemptively disable system folder removal if more than one item selected.
@@ -9336,10 +9392,14 @@ public:
             switch (type)
             {
             case LLSettingsType::ST_SKY:
-                LLFloaterReg::showInstance("env_fixed_environmentent_sky", LLSDMap("inventory_id", item->getUUID()), TAKE_FOCUS_YES);
+                // <FS:Ansariel> Compact environment edit floater option
+                //LLFloaterReg::showInstance("env_fixed_environmentent_sky", LLSDMap("inventory_id", item->getUUID()), TAKE_FOCUS_YES);
+                LLFloaterReg::showInstance(gSavedSettings.getBOOL("FSUseCompactEnvironmentFloaters") ? "fs_env_fixed_environmentent_sky" : "env_fixed_environmentent_sky", LLSDMap("inventory_id", item->getUUID()), TAKE_FOCUS_YES);
                 break;
             case LLSettingsType::ST_WATER:
-                LLFloaterReg::showInstance("env_fixed_environmentent_water", LLSDMap("inventory_id", item->getUUID()), TAKE_FOCUS_YES);
+                // <FS:Ansariel> Compact environment edit floater option
+                //LLFloaterReg::showInstance("env_fixed_environmentent_water", LLSDMap("inventory_id", item->getUUID()), TAKE_FOCUS_YES);
+                LLFloaterReg::showInstance(gSavedSettings.getBOOL("FSUseCompactEnvironmentFloaters") ? "fs_env_fixed_environmentent_water" : "env_fixed_environmentent_water", LLSDMap("inventory_id", item->getUUID()), TAKE_FOCUS_YES);
                 break;
             case LLSettingsType::ST_DAYCYCLE:
                 LLFloaterReg::showInstance("env_edit_extdaycycle", LLSDMap("inventory_id", item->getUUID())("edit_context", "inventory"), TAKE_FOCUS_YES);

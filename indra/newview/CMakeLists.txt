@@ -116,9 +116,11 @@ set(viewer_SOURCE_FILES
     fsexportperms.cpp
     fsfloateraddtocontactset.cpp
     fsfavoritegroups.cpp
+    fsinventorycustomtabs.cpp
     fsfloaterassetblacklist.cpp
     fsfloateravataralign.cpp
     fsfloateravatarrendersettings.cpp
+    fsfloaterbigpreview.cpp
     fsfloaterblocklist.cpp
     fsfloatercontacts.cpp
     fsfloatercontactsetconfiguration.cpp
@@ -168,6 +170,7 @@ set(viewer_SOURCE_FILES
     fsnearbychatcontrol.cpp
     fsnearbychathub.cpp
     fsnearbychatvoicemonitor.cpp
+    fsnewitemctrl.cpp
     fspanelblocklist.cpp
     fspanelcontactsets.cpp
     fspanelface.cpp
@@ -179,7 +182,7 @@ set(viewer_SOURCE_FILES
     fsparticipantlist.cpp
     fspose.cpp
     fsposeranimator.cpp
-	fsposestate.cpp
+    fsposestate.cpp
     fsposingmotion.cpp
     fsprimfeedauth.cpp
     fsradar.cpp
@@ -333,7 +336,6 @@ set(viewer_SOURCE_FILES
     llfloateravatartextures.cpp
     llfloaterbanduration.cpp
     llfloaterbeacons.cpp
-    llfloaterbigpreview.cpp
     llfloaterbuildoptions.cpp
     llfloaterbulkpermission.cpp
     llfloaterbulkupload.cpp
@@ -417,7 +419,6 @@ set(viewer_SOURCE_FILES
     # llfloaterperformance.cpp
     fsfloaterperformance.cpp # <FS:Beq> restore fs perf floater
     llfloaterperms.cpp
-    llfloaterpostprocess.cpp
     llfloaterprofile.cpp
     llfloaterpreference.cpp
     # llfloaterpreferencesgraphicsadvanced.cpp
@@ -445,7 +446,6 @@ set(viewer_SOURCE_FILES
     llfloatersidepanelcontainer.cpp
     llfloaterslapptest.cpp
     llfloatersnapshot.cpp
-    llfloatersounddevices.cpp
     llfloaterspellchecksettings.cpp
     llfloatertelehub.cpp
     llfloatertestinspectors.cpp
@@ -457,7 +457,6 @@ set(viewer_SOURCE_FILES
     llfloatertranslationsettings.cpp
     llfloateruipreview.cpp
     llfloaterurlentry.cpp
-    llfloatervoiceeffect.cpp
     llfloatervoicevolume.cpp
     llfloaterwebcontent.cpp
     llfloaterwhitelistentry.cpp
@@ -560,6 +559,7 @@ set(viewer_SOURCE_FILES
     llfloaterimnearbychat.cpp
     llfloaterimnearbychathandler.cpp
     llfloaterimnearbychatlistener.cpp
+    llnearbyvoicemoderation.cpp
     llnetmap.cpp
     llnotificationalerthandler.cpp
     llnotificationgrouphandler.cpp
@@ -653,7 +653,6 @@ set(viewer_SOURCE_FILES
     llpanelsnapshotprofile.cpp
     llpanelteleporthistory.cpp
     llpaneltiptoast.cpp
-    llpanelvoiceeffect.cpp
     #llpaneltopinfobar.cpp # <FS:Zi> unused
     llpanelpulldown.cpp
     llpanelvoicedevicesettings.cpp
@@ -732,6 +731,7 @@ set(viewer_SOURCE_FILES
     #llslurl.cpp #<FS:AW optional opensim support>
     llsnapshotlivepreview.cpp
     llspatialpartition.cpp
+    llstatslistener.cpp
     llspeakers.cpp
     llspeakingindicatormanager.cpp
     llsplitbutton.cpp
@@ -869,7 +869,6 @@ set(viewer_SOURCE_FILES
     llvoicechannel.cpp
     llvoiceclient.cpp
     llvoicevisualizer.cpp
-    llvoicevivox.cpp
     llvoicewebrtc.cpp
     llvoinventorylistener.cpp
     llvopartgroup.cpp
@@ -920,6 +919,14 @@ set(viewer_SOURCE_FILES
     NACLantispam.cpp
     NACLfloaterexploresounds.cpp
     )
+
+# <FS:TJ> Keep Vivox only for OpenSim viewers
+if (OPENSIM)
+    list(APPEND viewer_SOURCE_FILES
+        llvoicevivox.cpp
+        )
+endif ()
+# </FS:TJ>
 
 # <FS:Ansariel> Group GLTF files into their subfolders
 set(viewer_GLTF_SOURCE_FILES
@@ -985,8 +992,10 @@ set(viewer_HEADER_FILES
     fsexportperms.h
     fsfloateraddtocontactset.h
     fsfavoritegroups.h
+    fsinventorycustomtabs.h
     fsfloaterassetblacklist.h
     fsfloateravatarrendersettings.h
+    fsfloaterbigpreview.h
     fsfloaterblocklist.h
     fsfloatercontacts.h
     fsfloatercontactsetconfiguration.h
@@ -1038,6 +1047,7 @@ set(viewer_HEADER_FILES
     fsnearbychatcontrol.h
     fsnearbychathub.h
     fsnearbychatvoicemonitor.h
+    fsnewitemctrl.h
     fspanelblocklist.h
     fspanelcontactsets.h
     fspanelface.h
@@ -1206,7 +1216,6 @@ set(viewer_HEADER_FILES
     llfloateravatartextures.h
     llfloaterbanduration.h
     llfloaterbeacons.h
-    llfloaterbigpreview.h
     llfloaterbuildoptions.h
     llfloaterbulkpermission.h
     llfloaterbulkupload.h
@@ -1294,7 +1303,6 @@ set(viewer_HEADER_FILES
     # llfloaterperformance.h <FS:Beq/> replaced with fs version due to large changes and likelihood that LL version will not release.
     fsfloaterperformance.h
     llfloaterperms.h
-    llfloaterpostprocess.h
     llfloaterprofile.h
     llfloaterpreference.h
     # llfloaterpreferencesgraphicsadvanced.h
@@ -1322,7 +1330,6 @@ set(viewer_HEADER_FILES
     llfloatersidepanelcontainer.h
     llfloaterslapptest.h
     llfloatersnapshot.h
-    llfloatersounddevices.h
     llfloaterspellchecksettings.h
     llfloatertelehub.h
     llfloatertestinspectors.h
@@ -1334,7 +1341,6 @@ set(viewer_HEADER_FILES
     llfloatertranslationsettings.h
     llfloateruipreview.h
     llfloaterurlentry.h
-    llfloatervoiceeffect.h
     llfloatervoicevolume.h
     llfloaterwebcontent.h
     llfloaterwhitelistentry.h
@@ -1431,6 +1437,7 @@ set(viewer_HEADER_FILES
     llnameeditor.h
     llnamelistctrl.h
     llnavigationbar.h
+    llnearbyvoicemoderation.h
     llnetmap.h
     llnotificationhandler.h
     llnotificationlistitem.h
@@ -1516,7 +1523,6 @@ set(viewer_HEADER_FILES
     llpaneltiptoast.h
     llpanelpulldown.h
     llpanelvoicedevicesettings.h
-    llpanelvoiceeffect.h
     #llpaneltopinfobar.h # <FS:Zi> unused
     llpanelvolume.h
     llpanelvolumepulldown.h
@@ -1595,6 +1601,7 @@ set(viewer_HEADER_FILES
     llsnapshotlivepreview.h
     llsnapshotmodel.h
     llspatialpartition.h
+    llstatslistener.h
     llspeakers.h
     llspeakingindicatormanager.h
     llsplitbutton.h
@@ -1734,7 +1741,6 @@ set(viewer_HEADER_FILES
     llvoicechannel.h
     llvoiceclient.h
     llvoicevisualizer.h
-    llvoicevivox.h
     llvoicewebrtc.h
     llvoinventorylistener.h
     llvopartgroup.h
@@ -1790,6 +1796,14 @@ set(viewer_HEADER_FILES
     NACLantispam.h
     NACLfloaterexploresounds.h
     )
+
+# <FS:TJ> Keep Vivox only for OpenSim viewers
+if (OPENSIM)
+    list(APPEND viewer_HEADER_FILES
+        llvoicevivox.h
+        )
+endif ()
+# </FS:TJ>
 
   list(APPEND viewer_SOURCE_FILES llperfstats.cpp)
   list(APPEND viewer_HEADER_FILES llperfstats.h)
@@ -2204,6 +2218,7 @@ set(viewer_APPSETTINGS_FILES
     app_settings/scriptlibrary_preproc.xml
     app_settings/settings_firestorm.xml
     app_settings/settings_hybrid.xml
+    app_settings/settings_modern.xml
     app_settings/settings_phoenix.xml
     app_settings/settings_v3.xml
     app_settings/settings_text.xml
@@ -2351,9 +2366,11 @@ if (WINDOWS)
       ${CMAKE_SOURCE_DIR}/../scripts/messages/message_template.msg
       #${SHARED_LIB_STAGING_DIR}/openjp2.dll # <FS:Ansariel> Only copy OpenJPEG dll if needed
       ${SHARED_LIB_STAGING_DIR}/llwebrtc.dll
-      #${SHARED_LIB_STAGING_DIR}/${LL_INTDIR}/SLVoice.exe
       #${SHARED_LIB_STAGING_DIR}/${LL_INTDIR}/libsndfile-1.dll
+      # <FS:TJ> Keep Vivox only for OpenSim viewers
+      #${SHARED_LIB_STAGING_DIR}/${LL_INTDIR}/SLVoice.exe
       #${SHARED_LIB_STAGING_DIR}/${LL_INTDIR}/vivoxoal.dll
+      # </FS:TJ>
       ${AUTOBUILD_INSTALL_DIR}/ca-bundle.crt
       ${CMAKE_CURRENT_SOURCE_DIR}/licenses-win32.txt
       ${CMAKE_CURRENT_SOURCE_DIR}/featuretable.txt
@@ -2374,17 +2391,21 @@ if (WINDOWS)
     endif (NOT USE_KDU)
     # </FS:Ansariel>
 
-    if (ADDRESS_SIZE EQUAL 64)
-       list(APPEND COPY_INPUT_DEPENDENCIES
-               ${SHARED_LIB_STAGING_DIR}/vivoxsdk_x64.dll
-               ${SHARED_LIB_STAGING_DIR}/ortp_x64.dll
-               )
-    else (ADDRESS_SIZE EQUAL 64)
-       list(APPEND COPY_INPUT_DEPENDENCIES
-               ${SHARED_LIB_STAGING_DIR}/vivoxsdk.dll
-               ${SHARED_LIB_STAGING_DIR}/ortp.dll
-               )
-    endif (ADDRESS_SIZE EQUAL 64)
+    # <FS:TJ> Keep Vivox only for OpenSim viewers
+    if (OPENSIM)
+        if (ADDRESS_SIZE EQUAL 64)
+           list(APPEND COPY_INPUT_DEPENDENCIES
+                   ${SHARED_LIB_STAGING_DIR}/vivoxsdk_x64.dll
+                   ${SHARED_LIB_STAGING_DIR}/ortp_x64.dll
+                   )
+        else (ADDRESS_SIZE EQUAL 64)
+           list(APPEND COPY_INPUT_DEPENDENCIES
+                   ${SHARED_LIB_STAGING_DIR}/vivoxsdk.dll
+                   ${SHARED_LIB_STAGING_DIR}/ortp.dll
+                   )
+        endif (ADDRESS_SIZE EQUAL 64)
+    endif ()
+    # </FS:TJ>
 
     if (TARGET ll::discord_sdk)
         list(APPEND COPY_INPUT_DEPENDENCIES

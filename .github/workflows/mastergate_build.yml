@@ -1,7 +1,7 @@
 # <MG> MasterGate Viewer: Linux / macOS / Windows packages on GitHub's runners.
 # Same settings as raw/Viewer/mgv-build.cmd: open build (ReleaseFS_open, no FMOD /
 # KDU / Havok), OpenAL audio, Second Life only, channel "Release". No private 3p
-# bundles. The version is 7.2.4.<indra/newview/MGV_REVISION.txt>, as in local builds.
+# bundles. The version is <VIEWER_VERSION_FS.txt>.<indra/newview/MGV_REVISION.txt>, as in local builds.
 #
 # Run it from the Actions tab ("Run workflow"), or push a tag mgv-<version>
 # (e.g. mgv-7.2.4.80714): a tag builds every platform and attaches the packages and
