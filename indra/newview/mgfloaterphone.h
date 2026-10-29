@@ -27,7 +27,7 @@
 class LLMediaCtrl;
 class LLTextBox;
 
-// Hosts the MGOS shell (hud_view.php with embed=viewer).
+// Hosts the MGOS web shell (the MG Phone page, opened in viewer mode).
 //  * Phone-shaped window: a bezel around a screen with the page's exact aspect; the
 //    page lays out at its logical size (512x1024 phone, 1024x512 landscape,
 //    1024x1024 tablet) and is scaled into the screen.
@@ -35,7 +35,7 @@ class LLTextBox;
 //  * Native bridge (only the phone's own top document can use it):
 //      page -> viewer: document.title = "mgos:<seq>:<json {cmd,args}>"
 //      viewer -> page: MGOSNative._recv({...}) / MGOSNative._ack(seq) via executeJavaScript
-//    See raw/my-website/modules/boonex/mastergateos/js/mgos.js (MGOSNative).
+//    The page side is window.MGOSNative in the MGOS shell script.
 class MGFloaterPhone : public LLFloater, public LLViewerMediaObserver
 {
 public:

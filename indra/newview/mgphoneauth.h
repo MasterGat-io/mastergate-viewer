@@ -1,6 +1,6 @@
 /**
  * @file mgphoneauth.h
- * @brief MasterGate Viewer: automatic MG Phone sign-in (viewer_auth.php).
+ * @brief MasterGate Viewer: automatic MG Phone sign-in (MGPhoneAuthURL).
  *
  * $LicenseInfo:firstyear=2026&license=viewerlgpl$
  * MasterGate Viewer, based on the Firestorm Viewer and the Second Life Viewer.
@@ -31,7 +31,7 @@ class LLUUID;
 //   1. a saved 30-day viewer token (per account) is exchanged for a fresh SSO link;
 //   2. otherwise the server IMs the avatar a one-time code through MasterBots, the
 //      viewer consumes that IM silently and exchanges the code for the SSO link + token.
-// The SSO link is sso.php with embed=viewer (unknown avatars get the in-phone sign-up).
+// The SSO link opens the phone in viewer mode (unknown avatars get the in-phone sign-up).
 namespace MGPhoneAuth
 {
     // cb receives the SSO URL, or "" when sign-in is not possible (the caller then

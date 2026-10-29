@@ -136,7 +136,7 @@ SetOverwrite on							# Overwrite files by default
 !include MultiUser.nsh
 !include MUI2.nsh
 # <MG> Modern dark look: dark header, welcome and finish pages with our artwork
-# (made by raw/Viewer/tools/make_installer_art.py), no popup questions. Was MUI_BGCOLOR FFFFFF.
+# (generated MasterGate art), no popup questions. Upstream uses MUI_BGCOLOR FFFFFF.
 !define MUI_BGCOLOR 0D0D0D
 !define MUI_TEXTCOLOR EDEDED
 !define MUI_HEADERIMAGE
@@ -401,7 +401,7 @@ FunctionEnd
 Function dirLeave
     StrCmp $SKIP_DIALOGS "true" label_create_start_menu
 	
-    Goto label_create_start_menu # <MG/> no popup: the Start menu entry is always made (was a MessageBox)
+    Goto label_create_start_menu # <MG/> no popup: the Start menu entry is always made (upstream asks with a MessageBox)
     StrCpy $NO_STARTMENU "true"
 
 label_create_start_menu:
@@ -1309,7 +1309,7 @@ Function .onInstSuccess
 label_ask_launch:
         # Don't launch by default when silent
         IfSilent label_no_launch
-        Goto label_no_launch # <MG/> the finish page's "Launch" checkbox does it (was a MessageBox)
+        Goto label_no_launch # <MG/> the finish page's "Launch" checkbox does it (upstream asks with a MessageBox)
 
 label_launch:
         # <FS:TJ> Exec the viewer through explorer.exe so it's not ran as admin causing issues

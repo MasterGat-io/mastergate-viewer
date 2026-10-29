@@ -10,6 +10,8 @@
 *.j2k binary
 *.jpg binary
 *.png binary
+# <MG/> README screenshots (doc/mastergate)
+*.webp binary
 *.tga binary
 *.tif binary
 

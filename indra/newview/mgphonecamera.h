@@ -24,7 +24,7 @@
 
 class LLImageRaw;
 
-// The Camera app's capture console (raw/my-website/.../apps/camera/client.js)
+// The MG Phone Camera app's capture console
 // drives these through the MG Phone bridge ("cam_*" commands):
 //   cam_state                               sizes, exposure, time of day, guides...
 //   cam_guides   {aspect, grid}             framing guides over the 3D view

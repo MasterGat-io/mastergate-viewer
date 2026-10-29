@@ -25,11 +25,11 @@
 #include "llsd.h"
 
 // The MG Phone shell (mgos.js checkViewerUpdate) offers a newer release when the server
-// has one (viewer/releases.php). Nothing happens without the user (TPV Policy 1.d):
+// has one (the release list under https://mastergate.io/viewer/). Nothing happens without the user (TPV Policy 1.d):
 //   update_state                              what the viewer can do / is doing
 //   update_start   {url, sha256, version}     download the Setup in the background
 //                                             (https://mastergate.io/viewer/ only), then
-//                                             check its SHA-256 against releases.php
+//                                             check its SHA-256 against the release list
 //   update_install                            run the checked Setup in update mode
 //                                             (/MGUPDATE: no questions, same folder,
 //                                             settings kept) and close the viewer; the

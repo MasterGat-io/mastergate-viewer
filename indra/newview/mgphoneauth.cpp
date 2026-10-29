@@ -1,6 +1,6 @@
 /**
  * @file mgphoneauth.cpp
- * @brief MasterGate Viewer: automatic MG Phone sign-in (viewer_auth.php).
+ * @brief MasterGate Viewer: automatic MG Phone sign-in (MGPhoneAuthURL).
  *
  * $LicenseInfo:firstyear=2026&license=viewerlgpl$
  * MasterGate Viewer, based on the Firestorm Viewer and the Second Life Viewer.
@@ -290,7 +290,7 @@ namespace
         LLFloaterReg::showInstance("mg_phone", key, true);
     }
 
-    // Polls viewer_auth.php?a=notif and shows MasterGate notifications as viewer toasts
+    // Polls MGPhoneAuthURL?a=notif and shows MasterGate notifications as viewer toasts
     // while the phone panel is closed. The server only peeks at the queue; the phone
     // still gets everything. To keep the server load low with many viewers online:
     //   - no checks while the phone is open (the phone shows notifications itself); when

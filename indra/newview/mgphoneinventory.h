@@ -23,7 +23,7 @@
 #include "llsd.h"
 #include "lluuid.h"
 
-// The Textures app (raw/my-website/.../apps/textures/client.js) browses and
+// The MG Phone Textures app browses and
 // organizes the avatar's textures and snapshots through "inv_*" bridge commands.
 //
 // PRIVACY RULE: the page never receives a texture's asset UUID. It works with

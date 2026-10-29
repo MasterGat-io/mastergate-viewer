@@ -130,7 +130,7 @@ class FSViewerManifest:
     # Firestorm's Azure Trusted Signing above. Public code signing keys live on hardware
     # (USB token, or a cloud HSM such as Certum SimplySign whose desktop app shows the
     # certificate in the Windows store), so signtool picks the certificate by thumbprint.
-    # Set in raw/Viewer/mgv-sign.cmd (called by mgv-env.cmd), never in the repository:
+    # Set in the local build environment (a signing script kept outside the repository):
     #   MGV_SIGN_THUMBPRINT  SHA-1 thumbprint of the certificate (certmgr.msc > Personal)
     #   MGV_SIGN_TIMESTAMP   RFC 3161 timestamp server (default: Certum's)
     # Without MGV_SIGN_THUMBPRINT nothing changes: the build stays unsigned. With it, a

@@ -198,7 +198,7 @@ namespace
         return dir;
     }
     std::string shapeFile(const LLUUID& item) { return cacheDir() + gDirUtilp->getDirDelimiter() + item.asString() + ".shape3"; }
-    // before 2026-10-24 shapes were stored unsealed: converted when first read
+    // unsealed shape files from older releases: converted when first read
     std::string plainShapeFile(const LLUUID& item) { return cacheDir() + gDirUtilp->getDirDelimiter() + item.asString() + ".shape2"; }
 
     // ---- sealed shape files --------------------------------------------------------

@@ -22,7 +22,7 @@
 
 #include "llsd.h"
 
-// The Places app (raw/my-website/.../apps/places/client.js) shows the avatar's
+// The MG Phone Places app shows the avatar's
 // landmarks as places: the parcel's picture, region, rating, traffic, distance,
 // favorites (the Favorites bar), the teleport history, and the place the avatar is in.
 // The page works with inventory item ids; the landmark asset never reaches it. Parcel

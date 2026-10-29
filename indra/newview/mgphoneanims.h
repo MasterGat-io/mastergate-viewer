@@ -22,7 +22,7 @@
 
 #include "llsd.h"
 
-// The Animations app (raw/my-website/.../apps/animations/client.js). Listing,
+// The MG Phone Animations app. Listing,
 // folders, moving, renaming, permissions and giving go through the inv_*
 // commands (mgphoneinventory.cpp, inv_index / inv_folders with kind "anim");
 // these are the animation and gesture specific ones. Same privacy rule as the

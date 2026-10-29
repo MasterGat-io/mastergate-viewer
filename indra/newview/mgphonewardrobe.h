@@ -24,7 +24,7 @@
 #include "llsd.h"
 #include "lluuid.h"
 
-// The Wardrobe app (raw/my-website/.../apps/wardrobe/client.js) organizes the
+// The MG Phone Wardrobe app organizes the
 // avatar's clothes, body parts and wearable objects; the index, folders, moves,
 // renames, permissions and gifts are the Textures app's inv_* commands
 // (inv_index {kind: "wear"}).

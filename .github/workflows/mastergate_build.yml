@@ -1,5 +1,5 @@
 # <MG> MasterGate Viewer: Linux / macOS / Windows packages on GitHub's runners.
-# Same settings as raw/Viewer/mgv-build.cmd: open build (ReleaseFS_open, no FMOD /
+# Same settings as the local Windows build (mgv-build.cmd): open build (ReleaseFS_open, no FMOD /
 # KDU / Havok), OpenAL audio, Second Life only, channel "Release". No private 3p
 # bundles. The version is <VIEWER_VERSION_FS.txt>.<indra/newview/MGV_REVISION.txt>, as in local builds.
 #
@@ -14,7 +14,7 @@
 #          MGV_NOTARIZE_PASSWORD (app-specific password), MGV_NOTARIZE_TEAM_ID.
 #          Without them the app is signed ad hoc: users open it once through
 #          System Settings > Privacy & Security > Open Anyway (macOS 15+).
-#   Windows the published Setup is built and signed on the owner's PC (mgv-sign.cmd);
+#   Windows the published Setup is built and signed locally (mgv-sign.cmd);
 #          the Windows package made here is unsigned.
 name: MasterGate Viewer build
 on:

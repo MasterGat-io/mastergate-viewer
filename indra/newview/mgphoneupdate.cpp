@@ -139,8 +139,8 @@ namespace
         d->state = 2;
     }
 
-    // the worker: WinINet (follows download.php's redirect to viewer/files/), streamed to
-    // disk while the SHA-256 is computed, then compared with the one releases.php gave
+    // the worker: WinINet (follows the download link's redirect), streamed to disk while
+    // the SHA-256 is computed, then compared with the one from the release list
     void run(std::shared_ptr<Download> d)
     {
         const std::wstring agent = ll_convert_string_to_wide("MasterGateViewer/" + LLVersionInfo::getInstance()->getVersion(), CP_UTF8);
@@ -194,7 +194,7 @@ namespace
 
     bool allowedUrl(const std::string& url)
     {
-        // our own server only (download.php counts it, then redirects to viewer/files/)
+        // MasterGate's download links only
         return url.rfind("https://mastergate.io/viewer/", 0) == 0 && url.find_first_of(" \"\r\n") == std::string::npos;
     }
 }

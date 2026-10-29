@@ -63,8 +63,8 @@ namespace
     constexpr S32 BEZEL_TOP = 30;    // includes the drag/close strip
     constexpr S32 BEZEL_BOTTOM = 14;
 
-    // Logical page sizes and on-screen widths, as in
-    // raw/my-website/modules/boonex/mastergateos/phone-launcher.js modeConfig().
+    // Logical page sizes and on-screen widths; they match the web shell's phone modes
+    // (portrait, landscape, tablet).
     struct PhoneMode
     {
         S32 page_w;
@@ -240,7 +240,7 @@ void MGFloaterPhone::loadPhone(const std::string& dest)
             std::string url = sso;
             if (url.empty())
             {
-                // automatic sign-in unavailable: website login (viewer_launch.php)
+                // automatic sign-in unavailable: website login (MGPhoneURL)
                 url = gSavedSettings.getString("MGPhoneURL");
                 url += (url.find('?') == std::string::npos) ? "?" : "&";
                 url += "dest=" + LLURI::escape(dest);
