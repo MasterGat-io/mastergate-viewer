@@ -15203,6 +15203,12 @@ Error message:
    tag="fail"
    type="alertmodal">
 Could not write to file:
+[FILE_NAME]
+
+Error message:
+[ERROR_MESSAGE] ([ERROR_CODE])
+  </notification>
+
   <!-- <MG> MasterGate Viewer: MG Phone notifications shown natively (mgfloaterphone.cpp, mgphonenotify.cpp) -->
   <notification
    icon="notify.tga"
@@ -15224,11 +15230,6 @@ Could not write to file:
     </form>
   </notification>
   <!-- </MG> -->
-[FILE_NAME]
-
-Error message:
-[ERROR_MESSAGE] ([ERROR_CODE])
-  </notification>
 <!-- </FS:Zi> -->
   <!-- <FS:TJ>-->
   <notification
