@@ -840,12 +840,22 @@ namespace MGPhoneAnims
 
         if (cmd == "anim_ao")
         {
+            // every set with its options and states; {detail: set name} adds each state's steps
+            // (an animation, or a group of them played as one) for the AO manager
+            AOEngine& ao = AOEngine::instance();
             result["on"] = gSavedPerAccountSettings.getBOOL("UseAO");
-            const AOSet* current = AOEngine::instance().getCurrentSet();
+            result["stands"] = gSavedPerAccountSettings.getBOOL("UseAOStands");
+            const AOSet* current = ao.getCurrentSet();
+            const AOSet* def = ao.getDefaultSet();
+            const AOSet::AOState* playing = ao.getCurrentState();
+            if (playing) result["state_now"] = playing->mName;
+            result["ready"] = ao.getAOFolder().notNull();
+            const std::string detail = args["detail"].asString();
             LLSD sets = LLSD::emptyArray();
-            for (AOSet* set : AOEngine::instance().getSetList())
+            for (AOSet* set : ao.getSetList())
             {
                 if (!set) continue;
+                const bool full = !detail.empty() && set->getName() == detail;
                 LLSD states = LLSD::emptyArray();
                 for (S32 i = 0; i < AOSet::AOSTATES_MAX; ++i)
                 {
@@ -854,11 +864,104 @@ namespace MGPhoneAnims
                     // 7.2.5: a state is a list of steps, each one animation or a group of them
                     S32 n = 0;
                     for (const auto& step : state->mSteps) n += (S32)step.mMembers.size();
-                    states.append(LLSD().with("i", i).with("name", state->mName).with("n", n));
+                    LLSD st = LLSD().with("i", i).with("name", state->mName).with("n", n);
+                    if (full)
+                    {
+                        st["cycle"] = state->mCycle;
+                        st["random"] = state->mRandom;
+                        st["time"] = state->mCycleTime;
+                        LLSD steps = LLSD::emptyArray();
+                        for (const auto& step : state->mSteps)
+                        {
+                            LLSD members = LLSD::emptyArray();
+                            for (const auto& m : step.mMembers) members.append(m.mName);
+                            steps.append(LLSD().with("name", step.mName).with("group", step.mIsGroup).with("members", members));
+                        }
+                        st["steps"] = steps;
+                    }
+                    states.append(st);
                 }
-                sets.append(LLSD().with("name", set->getName()).with("current", set == current).with("states", states));
+                sets.append(LLSD().with("name", set->getName()).with("current", set == current).with("def", set == def)
+                    .with("sit", set->getSitOverride()).with("smart", set->getSmart()).with("mlook", set->getMouselookStandDisable())
+                    .with("states", states));
             }
             result["sets"] = sets;
+            return result;
+        }
+
+        // <MG> the AO manager (Animations app): sets, set options, state options, steps
+        if (cmd == "anim_ao_set")
+        {
+            // {set, do: select | default | rename | clone | delete, name} or {set, sit / smart / mlook}
+            AOEngine& ao = AOEngine::instance();
+            AOSet* set = ao.getSetByName(args["set"].asString());
+            if (!set) return LLSD().with("ok", false).with("error", "no such AO set");
+            const std::string what = args["do"].asString();
+            std::string name = args["name"].asString();
+            LLStringUtil::trim(name);
+            if (what == "select") ao.selectSet(set);
+            else if (what == "default") ao.setDefaultSet(set);
+            else if (what == "rename")
+            {
+                if (name.empty() || name.size() > 63 || ao.getSetByName(name)) return LLSD().with("ok", false).with("error", "bad name");
+                if (!ao.renameSet(set, name)) return LLSD().with("ok", false).with("error", "could not rename");
+            }
+            else if (what == "clone")
+            {
+                if (name.empty() || name.size() > 63 || ao.getSetByName(name)) return LLSD().with("ok", false).with("error", "bad name");
+                if (!ao.cloneSet(set, name)) return LLSD().with("ok", false).with("error", "could not copy");
+            }
+            else if (what == "delete")
+            {
+                if (!ao.removeSet(set)) return LLSD().with("ok", false).with("error", "could not delete");
+            }
+            if (args.has("sit")) ao.setOverrideSits(set, args["sit"].asBoolean());
+            if (args.has("smart")) ao.setSmart(set, args["smart"].asBoolean());
+            if (args.has("mlook")) ao.setDisableMouselookStands(set, args["mlook"].asBoolean());
+            return result;
+        }
+
+        if (cmd == "anim_ao_state")
+        {
+            // {set, state, cycle / random / time} or {set, state, step, member?, do: up | down | remove}
+            AOEngine& ao = AOEngine::instance();
+            AOSet* set = ao.getSetByName(args["set"].asString());
+            AOSet::AOState* state = set ? set->getState(args["state"].asInteger()) : nullptr;
+            if (!set || !state) return LLSD().with("ok", false).with("error", "no such AO set or state");
+            if (args.has("cycle")) ao.setCycle(state, args["cycle"].asBoolean());
+            if (args.has("random")) ao.setRandomize(state, args["random"].asBoolean());
+            if (args.has("time")) ao.setCycleTime(state, llclamp((F32)args["time"].asReal(), 0.f, 3600.f));
+            const std::string what = args["do"].asString();
+            if (!what.empty())
+            {
+                const S32 step = args["step"].asInteger();
+                const S32 member = args.has("member") ? args["member"].asInteger() : -1;
+                if (step < 0 || step >= (S32)state->mSteps.size()) return LLSD().with("ok", false).with("error", "no such animation");
+                bool ok = true;
+                if (what == "up") ok = ao.swapWithPrevious(state, step, member);
+                else if (what == "down") ok = ao.swapWithNext(state, step, member);
+                else if (what == "remove") ok = ao.removeAnimation(set, state, step, member);
+                if (!ok) return LLSD().with("ok", false).with("error", "not possible");
+            }
+            return result;
+        }
+
+        if (cmd == "anim_ao_cycle")
+        {
+            // {dir: next | prev}: the next / previous animation of the state playing now
+            AOEngine::instance().cycle(args["dir"].asString() == "prev" ? AOEngine::CyclePrevious : AOEngine::CycleNext);
+            return result;
+        }
+
+        if (cmd == "anim_ao_stands")
+        {
+            gSavedPerAccountSettings.setBOOL("UseAOStands", args["on"].asBoolean());
+            return result;
+        }
+
+        if (cmd == "anim_ao_reload")
+        {
+            AOEngine::instance().reload(false);
             return result;
         }
 

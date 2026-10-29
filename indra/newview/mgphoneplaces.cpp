@@ -175,6 +175,9 @@ namespace
         bool mHavePos = false;
         Stage mStage = LOAD;
         F64 mStarted = 0.0, mHandleAsked = 0.0;
+        Stage mSeen = DONE;        // the stage at the last idle(), to time each stage
+        F64 mStageAt = 0.0;
+        bool mPartialSent = false; // the position was sent before the parcel details
         LLSD mOut;
 
         void processParcelInfo(const LLParcelData& d) override
@@ -210,8 +213,10 @@ namespace
 
     std::deque<std::unique_ptr<InfoRequest>> sQueue;
     std::vector<std::unique_ptr<InfoRequest>> sActive;
-    constexpr size_t MAX_ACTIVE = 3;
-    constexpr F64 REQUEST_TIMEOUT = 25.0;
+    // several at a time: each step mostly waits on the network (asset, region handle, cap, UDP)
+    constexpr size_t MAX_ACTIVE = 6;
+    constexpr F64 REQUEST_TIMEOUT = 30.0;   // the whole request
+    constexpr F64 STAGE_TIMEOUT = 12.0;     // one step (a landmark that never loads, a region that is down)
 
     bool queued(const std::string& key)
     {
@@ -220,19 +225,34 @@ namespace
         return false;
     }
 
+    LLSD placeOf(const LLVector3d& p)
+    {
+        return LLSD().with("pos", vec(p)).with("gx", (S32)(p.mdV[VX] / REGION_WIDTH_METERS)).with("gy", (S32)(p.mdV[VY] / REGION_WIDTH_METERS))
+            .with("x", ll_round((F32)fmod(p.mdV[VX], (F64)REGION_WIDTH_METERS))).with("y", ll_round((F32)fmod(p.mdV[VY], (F64)REGION_WIDTH_METERS)))
+            .with("z", ll_round((F32)p.mdV[VZ]));
+    }
+
+    // the position as soon as it is known: the page shows the region's map tile at once
+    void sendPartial(InfoRequest* r)
+    {
+        LLSD ev = placeOf(r->mPos);
+        ev["type"] = "place_info";
+        ev["key"] = r->mKey;
+        ev["ok"] = true;
+        ev["partial"] = true;
+        if (gAgent.getRegion()) ev["dist"] = ll_round((F32)(r->mPos - gAgent.getPositionGlobal()).magVec());
+        push(ev);
+        r->mPartialSent = true;
+    }
+
     void finish(InfoRequest* r)
     {
         LLSD out = r->mOut;
         out["ok"] = r->mHavePos;
         if (r->mHavePos)
         {
-            const LLVector3d& p = r->mPos;
-            out["pos"] = vec(p);
-            out["gx"] = (S32)(p.mdV[VX] / REGION_WIDTH_METERS);
-            out["gy"] = (S32)(p.mdV[VY] / REGION_WIDTH_METERS);
-            out["x"] = ll_round((F32)fmod(p.mdV[VX], (F64)REGION_WIDTH_METERS));
-            out["y"] = ll_round((F32)fmod(p.mdV[VY], (F64)REGION_WIDTH_METERS));
-            out["z"] = ll_round((F32)p.mdV[VZ]);
+            const LLSD place = placeOf(r->mPos);
+            for (const auto& kv : llsd::inMap(place)) out[kv.first] = kv.second;
         }
         else if (!out.has("error")) out["error"] = "unknown position";
         out["at"] = (S32)LLDate::now().secondsSinceEpoch();
@@ -292,7 +312,7 @@ namespace
                 r->mHavePos = true;
                 r->mStage = InfoRequest::PARCEL;
             }
-            else if (now - r->mHandleAsked > 10.0)
+            else if (now - r->mHandleAsked > 8.0)
             {
                 r->mOut["error"] = "region not found";
                 r->mStage = InfoRequest::DONE;
@@ -321,7 +341,7 @@ namespace
         r->mKey = key;
         r->mItem = id;
         r->mAsset = item->getAssetUUID();
-        sQueue.push_back(std::move(r));
+        sQueue.push_front(std::move(r));   // newest first: what is on screen now
     }
 
     void enqueuePoint(const std::string& key, const LLVector3d& pos)
@@ -332,7 +352,7 @@ namespace
         r->mPos = pos;
         r->mHavePos = true;
         r->mStage = InfoRequest::PARCEL;
-        sQueue.push_back(std::move(r));
+        sQueue.push_front(std::move(r));
     }
 
     bool positionOf(const LLSD& args, LLVector3d& pos, LLViewerInventoryItem*& item)
@@ -379,9 +399,11 @@ namespace MGPhonePlaces
         {
             InfoRequest* r = it->get();
             step(r);
-            if (r->mStage != InfoRequest::DONE && now - r->mStarted > REQUEST_TIMEOUT)
+            if (r->mStage != r->mSeen) { r->mSeen = r->mStage; r->mStageAt = now; }
+            if (r->mHavePos && !r->mPartialSent && r->mStage != InfoRequest::DONE) sendPartial(r);
+            if (r->mStage != InfoRequest::DONE && (now - r->mStarted > REQUEST_TIMEOUT || now - r->mStageAt > STAGE_TIMEOUT))
             {
-                r->mOut["error"] = r->mHavePos ? "no parcel details" : "timeout";
+                r->mOut["error"] = r->mHavePos ? "no parcel details" : (r->mStage == InfoRequest::LOAD ? "landmark not loaded" : "timeout");
                 r->mStage = InfoRequest::DONE;
             }
             if (r->mStage == InfoRequest::DONE)
@@ -471,9 +493,11 @@ namespace MGPhonePlaces
         if (cmd == "place_info")
         {
             LLSD cached = LLSD::emptyArray();
-            for (const auto& v : llsd::inArray(args["ids"]))
+            // the queue is newest-first: walk each list backwards so its first one comes first
+            const LLSD& ids = args["ids"];
+            for (S32 k = (S32)ids.size() - 1; k >= 0; --k)
             {
-                const std::string key = v.asString();
+                const std::string key = ids[k].asString();
                 const auto it = sInfo.find(key);
                 if (it != sInfo.end() && !args["fresh"].asBoolean())
                 {
@@ -483,8 +507,10 @@ namespace MGPhonePlaces
                 }
                 else enqueueItem(LLUUID(key));
             }
-            for (const auto& p : llsd::inArray(args["points"]))
+            const LLSD& points = args["points"];
+            for (S32 k = (S32)points.size() - 1; k >= 0; --k)
             {
+                const LLSD& p = points[k];
                 const std::string key = p["key"].asString();
                 const auto it = sInfo.find(key);
                 if (it != sInfo.end())
