@@ -50,6 +50,7 @@
 #include "lldrawable.h"
 #include "llface.h"
 #include "llfilepicker.h"
+#include "fsyspath.h"
 #include "lljoint.h"
 #include "llrender2dutils.h"
 #include "llfontgl.h" // <MG/> bone names on the skeleton overlay
@@ -6401,7 +6402,7 @@ namespace
     std::time_t fileTime(const std::string& path)
     {
         std::error_code ec;
-        const auto t = std::filesystem::last_write_time(std::filesystem::path(ll_convert<std::wstring>(path)), ec);
+        const auto t = std::filesystem::last_write_time(fsyspath(path), ec);
         if (ec) return 0;
         return (std::time_t)std::chrono::duration_cast<std::chrono::seconds>(t.time_since_epoch()).count();
     }
@@ -6416,7 +6417,7 @@ namespace
     std::vector<std::vector<std::string>> lookDaeNames(const std::string& path)
     {
         std::vector<std::vector<std::string>> out;
-        std::ifstream in(ll_convert<std::wstring>(path), std::ios::binary);
+        llifstream in(path, std::ios::binary); // <MG/> UTF-8 path on every platform
         if (!in) return out;
         std::string t((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
         auto attr = [&](size_t at, size_t end, const char* name)
@@ -6683,7 +6684,7 @@ namespace
             if (f.stamps[src] != ts || fileTime(dst) == 0)
             {
                 std::error_code ec;
-                std::filesystem::copy_file(std::filesystem::path(ll_convert<std::wstring>(src)), std::filesystem::path(ll_convert<std::wstring>(dst)),
+                std::filesystem::copy_file(fsyspath(src), fsyspath(dst),
                                            std::filesystem::copy_options::overwrite_existing, ec);
                 f.stamps[src] = ts;
                 changed = true;
