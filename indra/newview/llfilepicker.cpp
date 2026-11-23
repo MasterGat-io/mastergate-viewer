@@ -769,6 +769,16 @@ std::unique_ptr<std::vector<std::string>> LLFilePicker::navOpenFilterProc(ELoadF
             //allowedv->push_back("hpa");
             break;
         // </FS:CR>
+        // <MG> Creator Lab: models to rig or convert
+        case FFLOAD_CHARACTER:
+            allowedv->push_back("dae");
+            allowedv->push_back("fbx");
+            allowedv->push_back("obj");
+            allowedv->push_back("glb");
+            allowedv->push_back("gltf");
+            allowedv->push_back("vrm");
+            break;
+        // </MG>
         default:
             LL_WARNS() << "Unsupported format." << LL_ENDL;
     }
@@ -2003,6 +2013,13 @@ bool LLFilePicker::openFileDialog( int32_t filter, bool blocking, EType aType )
                 file_type = "backup_files";
                 file_dialog_filter = "*.oxp";
                 break;
+
+            // <MG> Creator Lab: models to rig or convert
+            case FFLOAD_CHARACTER:
+                file_type = "model_files";
+                file_dialog_filter = "*.{dae,fbx,obj,glb,gltf,vrm}";
+                break;
+            // </MG>
 
 #ifdef _CORY_TESTING
             case FFLOAD_GEOMETRY:
