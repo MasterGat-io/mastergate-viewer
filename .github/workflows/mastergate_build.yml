@@ -11,7 +11,10 @@
 #   macOS  MGV_MAC_CERT (base64 .p12 of the "Developer ID Application" certificate),
 #          MGV_MAC_CERT_PASS, MGV_MAC_SIGNING_IDENTITY ("Developer ID Application:
 #          Name (TEAMID)"), and for notarization MGV_NOTARIZE_APPLE_ID,
-#          MGV_NOTARIZE_PASSWORD (app-specific password), MGV_NOTARIZE_TEAM_ID.
+#          MGV_NOTARIZE_PASSWORD (app-specific password), MGV_NOTARIZE_TEAM_ID;
+#          or, instead of the Apple ID, an App Store Connect API key (Developer access is
+#          enough): MGV_NOTARIZE_KEY (base64 of AuthKey_XXXX.p8), MGV_NOTARIZE_KEY_ID,
+#          MGV_NOTARIZE_ISSUER.
 #          Without them the app is signed ad hoc: users open it once through
 #          System Settings > Privacy & Security > Open Anyway (macOS 15+).
 #   Windows the published Setup is built and signed locally (mgv-sign.cmd);
@@ -128,6 +131,9 @@ jobs:
           APPLE_ID: ${{ secrets.MGV_NOTARIZE_APPLE_ID }}
           APPLE_PASS: ${{ secrets.MGV_NOTARIZE_PASSWORD }}
           TEAM_ID: ${{ secrets.MGV_NOTARIZE_TEAM_ID }}
+          ASC_KEY: ${{ secrets.MGV_NOTARIZE_KEY }}
+          ASC_KEY_ID: ${{ secrets.MGV_NOTARIZE_KEY_ID }}
+          ASC_ISSUER: ${{ secrets.MGV_NOTARIZE_ISSUER }}
         run: |
           secrets_dir="${{ github.workspace }}/signing"
           mkdir -p "$secrets_dir/code-signing-osx"
@@ -142,7 +148,10 @@ jobs:
           security set-key-partition-list -S apple-tool:,apple:, -s -k "$keychain_pass" -t private ~/Library/Keychains/viewer.keychain
           security list-keychain -d user -s ~/Library/Keychains/viewer.keychain
           rm -f "$secrets_dir/code-signing-osx/cert.p12"
-          if [ -n "$APPLE_ID" ] && [ -n "$APPLE_PASS" ] && [ -n "$TEAM_ID" ]; then
+          if [ -n "$ASC_KEY" ] && [ -n "$ASC_KEY_ID" ] && [ -n "$ASC_ISSUER" ]; then
+            echo -n "$ASC_KEY" | base64 --decode > "$secrets_dir/code-signing-osx/notary_key.p8"
+            printf 'ASC_KEY_PATH=%q\nASC_KEY_ID=%q\nASC_ISSUER=%q\n' "$secrets_dir/code-signing-osx/notary_key.p8" "$ASC_KEY_ID" "$ASC_ISSUER" > "$secrets_dir/code-signing-osx/notarize_creds.sh"
+          elif [ -n "$APPLE_ID" ] && [ -n "$APPLE_PASS" ] && [ -n "$TEAM_ID" ]; then
             printf 'USERNAME=%q\nPASSWORD=%q\nASC_PROVIDER=%q\n' "$APPLE_ID" "$APPLE_PASS" "$TEAM_ID" > "$secrets_dir/code-signing-osx/notarize_creds.sh"
           else
             echo "SKIP_NOTARIZATION=true" >> $GITHUB_ENV
@@ -181,7 +190,9 @@ jobs:
 
       - name: Clean up the keychain (macOS)
         if: always() && runner.os == 'macOS' && env.MGV_MAC_CERT != ''
-        run: security delete-keychain ~/Library/Keychains/viewer.keychain || true
+        run: |
+          security delete-keychain ~/Library/Keychains/viewer.keychain || true
+          rm -rf "${{ github.workspace }}/signing"
 
   release:
     if: startsWith(github.ref, 'refs/tags/mgv-')

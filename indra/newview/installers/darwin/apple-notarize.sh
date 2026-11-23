@@ -15,11 +15,21 @@ if [[ -f "$CONFIG_FILE" ]]; then
         #                         viewer.profile \
         #                         --verbose 2>*1)
         # echo $res
+        # <MG> an App Store Connect API key (ASC_KEY_PATH / ASC_KEY_ID / ASC_ISSUER) or an Apple ID
+        if [[ -n "$ASC_KEY_ID" ]]; then
+            res=$(xcrun notarytool submit "$zip_file" \
+                                --key "$ASC_KEY_PATH" \
+                                --key-id "$ASC_KEY_ID" \
+                                --issuer "$ASC_ISSUER" \
+                                --wait 2>&1)
+        else
         res=$(xcrun notarytool submit "$zip_file" \
                                 --apple-id $USERNAME \
                                 --password $PASSWORD \
                                 --team-id $ASC_PROVIDER \
                                 --wait 2>&1)
+        fi
+        # </MG>
         echo "Notarytool submit:"
         echo $res
         
