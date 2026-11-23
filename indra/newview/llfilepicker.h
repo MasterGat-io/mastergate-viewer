@@ -99,7 +99,10 @@ public:
         FFLOAD_HDRI = 17,
 
         // Firestorm additions
-        FFLOAD_IMPORT = 50
+        FFLOAD_IMPORT = 50,
+
+        // <MG> Creator Lab: models to rig or convert (dae, fbx, obj, glb, gltf, vrm)
+        FFLOAD_CHARACTER = 60
     };
 
     enum ESaveFilter

@@ -26,6 +26,7 @@
 
 #include "llviewerprecompiledheaders.h"
 #include "llviewerwindow.h"
+#include "mgphonecamera.h" // <MG/>
 
 
 // system library includes
@@ -6341,6 +6342,7 @@ bool LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
     }
 
     S32 output_buffer_offset_y = 0;
+    struct MGShotTileEnd { ~MGShotTileEnd() { MGPhoneCamera::clearShotTile(); } } mg_shot_tile_end; // <MG/>
 
     F32 depth_conversion_factor_1 = (LLViewerCamera::getInstance()->getFar() + LLViewerCamera::getInstance()->getNear()) / (2.f * LLViewerCamera::getInstance()->getFar() * LLViewerCamera::getInstance()->getNear());
     F32 depth_conversion_factor_2 = (LLViewerCamera::getInstance()->getFar() - LLViewerCamera::getInstance()->getNear()) / (2.f * LLViewerCamera::getInstance()->getFar() * LLViewerCamera::getInstance()->getNear());
@@ -6369,6 +6371,11 @@ bool LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
             if (read_width && read_height)
             {
                 const U32 subfield = subimage_x+(subimage_y*llceil(scale_factor));
+                // <MG> where the photo lies in this tile (the Camera's look: vignette, bars)
+                MGPhoneCamera::setShotTile((F32)(buffer_x_offset - subimage_x * window_width) / (F32)window_width,
+                                           (F32)(buffer_y_offset - subimage_y * window_height) / (F32)window_height,
+                                           (F32)raw->getWidth() / (F32)window_width, (F32)raw->getHeight() / (F32)window_height);
+                // </MG>
                 display(do_rebuild, scale_factor, subfield, true);
 
                 if (!LLPipeline::sRenderDeferred)

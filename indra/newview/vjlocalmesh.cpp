@@ -1139,6 +1139,13 @@ void LLLocalMeshFile::applyToVObject(LLUUID viewer_object_id, int object_index, 
     }
 
     auto object_params = mLoadedObjectList[object_index]->getVolumeParams();
+    // <MG> the skin first: setVolume asks the mesh repository for it. A new local id is unknown
+    // there, so it was fetched from the server, refused (403), and the object lost its skin.
+    if (mLoadedObjectList[object_index]->getIsRiggedObject())
+    {
+        mLoadedObjectList[object_index]->attachSkinInfo();
+    }
+    // </MG>
     target_object->setVolume(object_params, 3);
     target_object->mIsLocalMesh = true;
     target_object->mIsLocalMeshUsingScale = use_scale;
@@ -1490,6 +1497,20 @@ std::vector<LLLocalMeshFile::LLLocalMeshFileInfo> LLLocalMeshSystem::getFileInfo
 
     return result;
 }
+
+// <MG> the MG Phone Creator Lab reads a loaded file's objects (checks, clip finder)
+LLLocalMeshFile* LLLocalMeshSystem::getFile(const LLUUID& local_file_id) const
+{
+    for (const auto& current_file : mLoadedFileList)
+    {
+        if (current_file->getFileID() == local_file_id)
+        {
+            return current_file.get();
+        }
+    }
+    return nullptr;
+}
+// </MG>
 
 std::vector<std::string> LLLocalMeshSystem::getFileLog(const LLUUID& local_file_id) const
 {

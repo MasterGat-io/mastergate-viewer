@@ -638,6 +638,13 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
     extra_code_text[extra_code_count++] = strdup("#define GBUFFER_FLAG_HAS_PBR      0.67\n"); // bit 1
     extra_code_text[extra_code_count++] = strdup("#define GBUFFER_FLAG_HAS_HDRI      1.0\n");  // bit 2
     extra_code_text[extra_code_count++] = strdup("#define GET_GBUFFER_FLAG(data, flag)    (abs(data-flag)< 0.1)\n");
+    // <MG> loading hologram: a surface still showing the placeholder texture (its colour is this
+    // key, llviewertexture.cpp) is marked in the G-buffer as "sky" with an environment intensity of 1,
+    // which the sky never writes; softenLightF draws it as the MasterGate hologram (mgloadingfx.cpp)
+    extra_code_text[extra_code_count++] = strdup("#define MG_HOLO_KEY vec3(13.0/255.0, 21.0/255.0, 43.0/255.0)\n");
+    extra_code_text[extra_code_count++] = strdup("#define MG_IS_HOLO(c) all(lessThan(abs((c) - MG_HOLO_KEY), vec3(1.6/255.0)))\n");
+    extra_code_text[extra_code_count++] = strdup("#define MG_HOLO_GBUFFER(c, n) if (MG_IS_HOLO(c)) { frag_data[0] = vec4(MG_HOLO_KEY, 0.0); frag_data[1] = vec4(0.0); frag_data[2] = encodeNormal(n, 1.0, GBUFFER_FLAG_SKIP_ATMOS); frag_data[3] = vec4(0.0); return; }\n");
+    // </MG>
 
     if (defines)
     {

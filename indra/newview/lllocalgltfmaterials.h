@@ -103,6 +103,7 @@ public:
     void         delUnit(LLUUID tracking_id);
 
     LLUUID       getWorldID(LLUUID tracking_id);
+    LLUUID       getWorldIDForFile(const std::string& filename, S32 index); // <MG/> Creator Lab's Look: the material loaded from this file
     bool         isLocal(LLUUID world_id);
     void         getFilenameAndIndex(LLUUID tracking_id, std::string &filename, S32 &index);
 

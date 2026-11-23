@@ -52,6 +52,7 @@ void main()
     {
         discard;
     }
+    vec3 mg_t = col.rgb;
     col *= vertex_color;
 
     vec3 norm = texture(bumpMap, vary_texcoord0.xy).rgb * 2.0 - 1.0;
@@ -66,6 +67,7 @@ void main()
     vec3 nvn = normalize(tnorm);
     frag_data[2] = encodeNormal(nvn, vertex_color.a, GBUFFER_FLAG_HAS_ATMOS);
 
+    MG_HOLO_GBUFFER(mg_t, nvn) // <MG/> still loading: the hologram
 #if defined(HAS_EMISSIVE)
     frag_data[3] = vec4(0, 0, 0, 0);
 #endif

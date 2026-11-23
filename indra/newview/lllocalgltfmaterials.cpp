@@ -488,6 +488,17 @@ void LLLocalGLTFMaterialMgr::feedScrollList(LLScrollListCtrl* ctrl)
 
 }
 
+// <MG> Creator Lab's Look: the material already loaded from this file (null if none)
+LLUUID LLLocalGLTFMaterialMgr::getWorldIDForFile(const std::string& filename, S32 index)
+{
+    for (local_list_iter iter = mMaterialList.begin(); iter != mMaterialList.end(); iter++)
+    {
+        if ((*iter)->getFilename() == filename && (*iter)->getIndexInFile() == index) return (*iter)->getWorldID();
+    }
+    return LLUUID::null;
+}
+// </MG>
+
 void LLLocalGLTFMaterialMgr::doUpdates()
 {
     // preventing theoretical overlap in cases with huge number of loaded images.

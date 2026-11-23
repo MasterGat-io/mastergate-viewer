@@ -54,6 +54,7 @@ void main()
     vec3 nvn = normalize(vary_normal);
     frag_data[2] = encodeNormal(nvn.xyz, 0, GBUFFER_FLAG_HAS_ATMOS);
 
+    MG_HOLO_GBUFFER(diff.rgb, nvn.xyz) // <MG/> still loading: the hologram
 #if defined(HAS_EMISSIVE)
     frag_data[3] = vec4(0);
 #endif

@@ -99,6 +99,7 @@ class ViewerManifest(LLManifest,FSViewerManifest):
                 self.exclude("logcontrol-dev.xml")
                 self.path("*.ini")
                 self.path("*.xml")
+                self.path("mgrigmaps.txt") # <MG/> Creator Lab rig converter bone maps
 
                 # include the entire shaders directory recursively
                 self.path("shaders")

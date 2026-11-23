@@ -794,6 +794,9 @@ public:
     /// </remarks>
     void applyJointMirrorToBaseRotations(FSPosingMotion* posingMotion);
 
+    // <MG> MG Phone Animation Studio reads and sets the joints' target rotations directly
+    FSPosingMotion* mgPosingMotion(LLVOAvatar* avatar) const { return getPosingMotion(avatar); }
+
   private:
     /// <summary>
     /// Translates the supplied rotation vector from UI to a Quaternion for the bone.

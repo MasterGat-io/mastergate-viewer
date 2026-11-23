@@ -48,6 +48,7 @@ public:
     void draw() override;
     void handleReshape(const LLRect& new_rect, bool by_user) override;
     void reshape(S32 width, S32 height, bool called_from_parent = true) override;
+    void bringToFront(S32 x, S32 y) override; // <MG/> not over the poser in viewfinder mode
 
     // LLViewerMediaObserver
     void handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event) override;
@@ -61,6 +62,11 @@ public:
     // the shell is loaded and listening (it said "hello")
     bool isShellReady() const { return mLoaded && mShellReady; }
 
+    // <MG> the Camera's viewfinder: the page fills the window, see-through over the
+    // 3D view, with the viewer's interface hidden (phone_viewfinder {on})
+    bool isViewfinder() const { return mViewfinder; }
+    // </MG>
+
 private:
     void loadPhone(const std::string& dest);
     void setMode(const std::string& size, bool landscape, bool tablet);
@@ -71,6 +77,8 @@ private:
     void sendSnapshot(S32 seq, const LLSD& args);
     void ackToPage(S32 seq, const LLSD& result);
     void deliverReplay();
+    void setViewfinder(bool on); // <MG/>
+    void fitViewfinder();        // <MG/>
 
     LLMediaCtrl* mBrowser;
     LLTextBox*   mStatus;
@@ -86,6 +94,14 @@ private:
     LLSD         mReplay;       // notifications to hand over (arrived while the phone was closed)
     LLSD         mOpenEvent;    // notification whose "Open phone" button was used
     LLFrameTimer mInfoTimer;
+    // <MG> viewfinder mode
+    bool         mViewfinder;
+    bool         mVfMenuWas;    // the menu bar was showing
+    bool         mVfNavWas;     // the navigation bar was showing
+    LLRect       mVfSavedRect;  // the phone's place, back when the viewfinder ends
+    LLSD         mShellState;   // the shell's last window state (size, landscape, tablet)
+    LLFrameTimer mVfPing;       // the page's keep-alive: no word for 8 s ends the viewfinder
+    // </MG>
 };
 
 #endif // MG_FLOATERPHONE_H

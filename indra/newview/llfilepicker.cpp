@@ -62,6 +62,7 @@ LLFilePicker LLFilePicker::sInstance;
 #define ANIM_FILTER L"Animations (*.bvh; *.anim)\0*.bvh;*.anim\0"
 #define COLLADA_FILTER L"Scene (*.dae)\0*.dae\0"
 #define GLTF_FILTER L"glTF (*.gltf; *.glb)\0*.gltf;*.glb\0"
+#define CHARACTER_FILTER L"3D models (*.dae, *.fbx, *.obj, *.glb, *.gltf, *.vrm)\0*.dae;*.fbx;*.obj;*.glb;*.gltf;*.vrm\0" // <MG/>
 #define XML_FILTER L"XML files (*.xml)\0*.xml\0"
 #define SLOBJECT_FILTER L"Objects (*.slobject)\0*.slobject\0"
 #define RAW_FILTER L"RAW files (*.raw)\0*.raw\0"
@@ -219,6 +220,12 @@ bool LLFilePicker::setupFilter(ELoadFilter filter)
         mOFN.lpstrFilter = GLTF_FILTER \
             L"\0";
         break;
+    // <MG> Creator Lab rig converter
+    case FFLOAD_CHARACTER:
+        mOFN.lpstrFilter = CHARACTER_FILTER \
+            L"\0";
+        break;
+    // </MG>
     case FFLOAD_COLLADA:
         mOFN.lpstrFilter = COLLADA_FILTER \
             L"\0";

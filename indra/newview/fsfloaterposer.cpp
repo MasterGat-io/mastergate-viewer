@@ -1865,10 +1865,14 @@ void FSFloaterPoser::selectJointByName(const std::string& jointName)
         mCollisionVolumesScrollList
     };
 
+    // <MG> a poser never shown (the MG Phone drives its engine) may have no tabs or lists yet
+    if (!tabContainer) return;
+    // </MG>
     bool found = false;
     for (S32 i = 0; i < tabContainer->getTabCount(); ++i)
     {
         LLPanel* panel = tabContainer->getPanelByIndex(i);
+        if (!panel) continue; // <MG/>
         tabContainer->selectTabPanel(panel);
 
         // Special handling for Hands tab
@@ -1879,10 +1883,11 @@ void FSFloaterPoser::selectJointByName(const std::string& jointName)
 
         for (auto scrollList : scrollLists)
         {
-            scrollList->deselectAllItems();
+            if (scrollList) scrollList->deselectAllItems(); // <MG/>
         }
 
         auto scrollList = getScrollListForTab(panel);
+        if (!scrollList) continue; // <MG/> a tab without a joint list (the floater was never shown)
 
         std::vector<LLScrollListItem*> items = scrollList->getAllData();
         for (auto item : items)
@@ -1976,6 +1981,12 @@ std::vector<FSPoserAnimator::FSPoserJoint*> FSFloaterPoser::getUiSelectedPoserJo
 
 void FSFloaterPoser::updateManipWithFirstSelectedJoint(const std::vector<FSPoserAnimator::FSPoserJoint*>& joints) const
 {
+    // <MG> hidden, this floater is the MG Phone Camera's pose engine (mgphoneposer.cpp): the
+    // camera chose the gizmo's joint; the empty joint lists here must not clear it (this runs
+    // on every gizmo drag step, through getUiSelectedPoserJoints)
+    if (!getVisible())
+        return;
+    // </MG>
     auto avatarp = getUiSelectedAvatar();
     if (!avatarp)
         return;

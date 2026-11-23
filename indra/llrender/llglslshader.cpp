@@ -2076,6 +2076,11 @@ LLUUID LLGLSLShader::hash()
 
     }
     hash_obj.update(&mFeatures, sizeof(LLShaderFeatures));
+    // <MG> the cache key holds the shader file names, not their text: bump this whenever a
+    // MasterGate change edits an existing shader, or machines keep running the old binaries
+    // (rev 2: the loading hologram, MG_HOLO_GBUFFER / softenLightF mgHologram)
+    hash_obj.update(std::string("MasterGate shader rev 2"));
+    // </MG>
     hash_obj.update(gGLManager.mGLVendor);
     hash_obj.update(gGLManager.mGLRenderer);
     hash_obj.update(gGLManager.mGLVersionString);

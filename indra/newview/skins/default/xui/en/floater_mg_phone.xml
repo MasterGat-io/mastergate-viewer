@@ -7,7 +7,9 @@
      MG_PhoneBezel is the phone body; the browser is the screen, inset by the bezel
      (12 px sides, 30 px top incl. the drag/close strip, 14 px bottom; mgfloaterphone.cpp
      BEZEL_* must match). MG_PhoneScreenMask rounds the screen corners and lets clicks
-     through. The page renders at its logical size (texture 512x1024; 1024x512 /
+     through. mg_transparent: the page may be see-through (the Camera's full-window
+     viewfinder over the 3D view, phone_viewfinder); in phone mode the shell paints
+     an opaque background. The page renders at its logical size (texture 512x1024; 1024x512 /
      1024x1024 for landscape / tablet) and is scaled to the screen, whose aspect the
      floater keeps when resized. -->
 <floater
@@ -44,6 +46,7 @@
      texture_width="512"
      texture_height="1024"
      trusted_content="false"
+     mg_transparent="true"
      start_url="" />
     <icon
      name="phone_screen_mask"

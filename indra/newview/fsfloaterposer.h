@@ -79,6 +79,7 @@ typedef enum E_Columns
 class FSFloaterPoser : public LLFloater, public LLEditMenuHandler
 {
     friend class LLFloaterReg;
+    friend class MGPoserBridge; // <MG/> the MG Phone Camera's posing panel (mgphoneposer.cpp)
     FSFloaterPoser(const LLSD &key);
 public:
     void updatePosedBones(const std::string& jointName, const LLQuaternion& rotation, const LLVector3& position, const LLVector3& scale);

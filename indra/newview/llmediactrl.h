@@ -56,7 +56,8 @@ public:
                                 hide_loading,
                                 decouple_texture_size,
                                 trusted_content,
-                                focus_on_click;
+                                focus_on_click,
+                                mg_transparent; // <MG/> transparent page over the 3D view (MG Phone)
 
         Optional<S32>           texture_width,
                                 texture_height;
@@ -154,6 +155,13 @@ public:
 
         void setAllowFileDownload(bool allow) { mAllowFileDownload = allow; }
 
+        // <MG> the owner answers file downloads itself (returns false to refuse one);
+        // the handler must answer the plugin (sendPickFileResponse) when it accepts
+        typedef std::function<bool(LLPluginClassMedia* self, const std::string& suggested_name)> mg_download_handler_t;
+        void setMGDownloadHandler(mg_download_handler_t handler) { mMGDownloadHandler = handler; }
+        bool isMGTransparent() const { return mMGTransparent; }
+        // </MG>
+
         // over-rides
         virtual bool handleKeyHere( KEY key, MASK mask);
         virtual bool handleKeyUpHere(KEY key, MASK mask);
@@ -209,7 +217,10 @@ public:
                 mHoverTextChanged,
                 mDecoupleTextureSize,
                 mUpdateScrolls,
-                mAllowFileDownload;
+                mAllowFileDownload,
+                mMGTransparent; // <MG/>
+
+        mg_download_handler_t mMGDownloadHandler; // <MG/>
 
         std::string mHomePageUrl,
                     mHomePageMimeType,

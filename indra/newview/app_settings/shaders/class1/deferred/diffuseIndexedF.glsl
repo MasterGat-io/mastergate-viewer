@@ -40,7 +40,8 @@ vec3 linear_to_srgb(vec3 c);
 void main()
 {
     mirrorClip(vary_position);
-    vec3 col = vertex_color.rgb * diffuseLookup(vary_texcoord0.xy).rgb;
+    vec3 mg_t = diffuseLookup(vary_texcoord0.xy).rgb;
+    vec3 col = vertex_color.rgb * mg_t;
 
     vec3 spec;
     spec.rgb = vec3(vertex_color.a);
@@ -50,6 +51,7 @@ void main()
     vec3 nvn = normalize(vary_normal);
     frag_data[2] = encodeNormal(nvn.xyz, vertex_color.a, GBUFFER_FLAG_HAS_ATMOS);
 
+    MG_HOLO_GBUFFER(mg_t, nvn.xyz) // <MG/> still loading: the hologram
 #if defined(HAS_EMISSIVE)
     frag_data[3] = vec4(0, 0, 0, 0);
 #endif

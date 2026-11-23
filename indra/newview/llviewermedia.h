@@ -390,6 +390,10 @@ public:
     bool getUsedInUI() const { return mUsedInUI; };
 
     void setBackgroundColor(LLColor4 color);
+    // <MG> transparent page (CEF), set before the plugin starts (LLMediaCtrl mg_transparent)
+    void setMGTransparent(bool transparent) { mMGTransparent = transparent; }
+    bool getMGTransparent() const { return mMGTransparent; }
+    // </MG>
 
     F64 getCPUUsage() const;
 
@@ -496,6 +500,7 @@ private:
     bool mInNearbyMediaList;    // used by LLPanelNearbyMedia::refreshList() for performance reasons
     bool mClearCache;
     LLColor4 mBackgroundColor;
+    bool mMGTransparent = false; // <MG/>
     bool mNavigateSuspended;
     bool mNavigateSuspendedDeferred;
     bool mTrustedBrowser;

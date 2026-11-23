@@ -1,5 +1,6 @@
 <llsd>
     <map>
+<!-- <MG> MasterGate Viewer: an avatar still loading assembles from glowing cyan sparks drawn in from a shell around it (explode pattern + target position), instead of the brown cloud. -->
 
 
 <!-- Settings for the whole particle system -->
@@ -21,61 +22,61 @@
         <real>0</real>
 
     <key>BurstPartCount</key>
-        <integer>1</integer>
+        <integer>3</integer>
     <key>BurstRadius</key>
-        <real>0.3</real>
+        <real>0.85</real>
     <key>BurstRate</key>
-        <real>0.02</real>
+        <real>0.015</real>
     <key>BurstSpeedMin</key>
-        <real>0.1</real>
+        <real>0.05</real>
     <key>BurstSpeedMax</key>
-        <real>1</real>
+        <real>0.25</real>
 
     <!-- pattern flags set to 1 for true and 0 for false -->
     <key>LL_PART_SRC_PATTERN_ANGLE</key>
         <integer>0</integer>
     <key>LL_PART_SRC_PATTERN_ANGLE_CONE</key>
-        <integer>1</integer>
+        <integer>0</integer>
     <key>LL_PART_SRC_PATTERN_ANGLE_CONE_EMPTY</key>
         <integer>0</integer>
     <key>LL_PART_SRC_PATTERN_DROP</key>
         <integer>0</integer>
     <key>LL_PART_SRC_PATTERN_EXPLODE</key>
-        <integer>0</integer>
+        <integer>1</integer>
     <!-- end of pattern flags -->
 
 <!-- Settings for single particles within the  system -->
 
     <key>ParticleMaxAge</key><!-- how long a single particle can live with 0 forever -->
-        <real>4</real>
+        <real>1.6</real>
 
     <key>PartImageID</key> <!--This setting is ignored for the cloud, used instead for now is the hardcoded -->
         <string>0000000000000-0000-0000-000000000000</string><!-- skins/default/textures/cloud-particle.j2c -->
 
     <key>StartColor</key><!-- RGBA -->
         <array>
-            <real>0.666</real>
-            <real>0.228</real>
-            <real>0.13</real>
-            <real>0.1</real>
+            <real>0.16</real>
+            <real>0.83</real>
+            <real>0.91</real>
+            <real>0.0</real>
         </array>
     <key>EndColor</key><!-- RGBA -->
         <array>
-            <real>0.766</real>
-            <real>0.328</real>
-            <real>0.23</real>
-            <real>0.9</real>
+            <real>0.62</real>
+            <real>0.45</real>
+            <real>1.0</real>
+            <real>0.95</real>
         </array>
 
     <key>StartScale</key>
         <array>
-            <real>0.8</real>
-            <real>0.8</real>
+            <real>0.14</real>
+            <real>0.14</real>
         </array>
     <key>EndScale</key>
         <array>
-            <real>0.02</real>
-            <real>0.02</real>
+            <real>0.03</real>
+            <real>0.03</real>
         </array>
 
     <key>TargetId</key><!-- This setting is ignored for the cloud -->

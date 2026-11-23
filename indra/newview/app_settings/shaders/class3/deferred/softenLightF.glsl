@@ -116,16 +116,102 @@ void adjustIrradiance(inout vec3 irradiance, float ambocc)
 #endif
 }
 
+
+// <MG> MasterGate loading hologram (mgloadingfx.cpp): a surface whose texture has not arrived
+// is a dark glassy shell wrapped in a glowing honeycomb. Colour bands of MasterGate cyan and
+// violet climb it, cells light up as if being assembled, and a scan pulse sweeps out from
+// your avatar every few seconds.
+uniform vec4 mg_holo;           // x: time (s), y: 1 = on
+uniform vec3 mg_holo_center;    // the pulse's centre (agent space)
+uniform mat4 mg_holo_view_inv;  // eye space -> agent space
+
+float mgHash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+
+// x: distance to the nearest hexagon edge (0 on it, 0.5 at the centre); yz: the cell
+vec3 mgHex(vec2 uv)
+{
+    const vec2 r = vec2(1.0, 1.7320508);
+    vec2 a = mod(uv, r) - r * 0.5;
+    vec2 b = mod(uv - r * 0.5, r) - r * 0.5;
+    vec2 g = dot(a, a) < dot(b, b) ? a : b;
+    vec2 q = abs(g);
+    float d = max(dot(q, vec2(0.5, 0.8660254)), q.x);
+    return vec3(0.5 - d, uv - g);
+}
+
+vec3 mgHologram(vec3 posEye, vec3 nEye, vec2 tc, float fwEye)
+{
+    float t = mg_holo.x;
+    vec3 p = (mg_holo_view_inv * vec4(posEye, 1.0)).xyz;
+    vec3 n = normalize(mat3(mg_holo_view_inv) * nEye);
+    vec3 an = abs(n);
+
+    // the honeycomb, projected on the face's main plane: a bold one and a fine one inside it
+    vec2 uv;
+    float plane;
+    if (an.z >= an.x && an.z >= an.y) { uv = p.xy; plane = 0.0; }
+    else if (an.x >= an.y)            { uv = p.yz; plane = 1.0; }
+    else                              { uv = p.xz; plane = 2.0; }
+    vec3 big = mgHex(uv / 0.45);
+    vec3 fine = mgHex(uv / 0.11);
+
+    // neon lines about a pixel wide with a soft glow; where cells shrink to a few pixels they fade
+    float fb = max(fwEye / 0.45, 1e-4);
+    float ff = max(fwEye / 0.11, 1e-4);
+    float lineB = (1.0 - smoothstep(fb * 0.4, fb * 1.3, big.x)) * (1.0 - smoothstep(0.1, 0.35, fb));
+    float glowB = exp(-big.x / max(0.05, fb * 2.0)) * 0.35 * (1.0 - smoothstep(0.15, 0.5, fb));
+    float lineF = (1.0 - smoothstep(ff * 0.4, ff * 1.2, fine.x)) * (1.0 - smoothstep(0.08, 0.3, ff));
+
+    float h = mgHash(big.yz + plane * 17.0);
+    // energy running up the lines in bright dashes
+    float dash = smoothstep(0.75, 1.0, fract(p.z * 0.9 - t * 1.1 + h * 3.0));
+    // cells being assembled: each flares for an instant at its own rhythm
+    float flare = pow(max(0.0, sin(t * (0.5 + h * 1.5) + h * 40.0)), 28.0);
+    // the scan pulse, sweeping out from you every 3 s
+    float radius = mod(t, 3.0) * 9.0;
+    float ring = exp(-pow((distance(p, mg_holo_center) - radius) / 0.5, 2.0)) * (1.0 - smoothstep(16.0, 27.0, radius));
+    // colour bands of MasterGate cyan and violet climbing the surfaces
+    float band = 0.5 + 0.5 * sin(p.z * 1.2 - t * 1.6 + h * 0.4);
+    vec3 cyan = vec3(0.0, 0.6, 0.8);
+    vec3 violet = vec3(0.34, 0.1, 0.8);
+    vec3 tint = mix(cyan, violet, band);
+    vec3 hot = mix(tint, vec3(1.0), 0.6);
+
+    vec3 v = normalize(-posEye);
+    float ndv = clamp(abs(dot(nEye, v)), 0.0, 1.0);
+    float rim = pow(1.0 - ndv, 3.0);
+
+    vec3 col = vec3(0.003, 0.006, 0.016) + tint * (0.015 + 0.03 * (1.0 - ndv));   // dark glass
+    col += tint * lineF * 0.22;
+    col += tint * (lineB * (0.9 + 1.4 * dash) + glowB);
+    col += hot * lineB * dash * 0.6;
+    col += tint * flare * (0.12 + 0.6 * big.x);
+    col += hot * ring * (0.12 + 2.0 * lineB + 0.8 * lineF);
+    col += mix(cyan, vec3(1.0), 0.3) * rim * 0.9;
+    // a faint interference line drifting down the screen
+    col *= 1.0 + 0.3 * smoothstep(0.985, 1.0, fract(tc.y * 3.0 + t * 0.35));
+
+    // far away: a soft glow instead of lines
+    float far = smoothstep(60.0, 160.0, length(posEye));
+    return mix(col, tint * 0.05 + cyan * rim * 0.5, far);
+}
+// </MG>
+
 void main()
 {
     vec2  tc           = vary_fragcoord.xy;
     float depth        = getDepth(tc.xy);
     vec4  pos          = getPositionWithDepth(tc, depth);
+    float mg_fw        = length(fwidth(pos.xyz)); // <MG/> (taken where every pixel runs it)
 
     GBufferInfo gb = getGBuffer(tc);
 
     vec3 colorEmissive = gb.emissive.rgb;
     float envIntensity = gb.envIntensity;
+    // <MG> a surface still loading (see MG_HOLO_GBUFFER)
+    bool mg_h = GET_GBUFFER_FLAG(gb.gbufferFlag, GBUFFER_FLAG_SKIP_ATMOS) && envIntensity > 0.75;
+    if (mg_h) envIntensity = 0.0;
+    // </MG>
     vec3  light_dir   = (sun_up_factor == 1) ? sun_dir : moon_dir;
 
     vec4 baseColor     = gb.albedo;
@@ -164,7 +250,11 @@ void main()
 
     vec3  radiance  = vec3(0);
 
-    if (GET_GBUFFER_FLAG(gb.gbufferFlag, GBUFFER_FLAG_HAS_PBR))
+    if (mg_h && mg_holo.y > 0.5)
+    {
+        color = mgHologram(pos.xyz, gb.normal, tc, mg_fw); // <MG/>
+    }
+    else if (GET_GBUFFER_FLAG(gb.gbufferFlag, GBUFFER_FLAG_HAS_PBR))
     {
         vec3 orm = spec.rgb;
         float perceptualRoughness = orm.g;
@@ -192,7 +282,7 @@ void main()
         // actual HDRI sky, just copy color value
         color = colorEmissive.rgb;
     }
-    else if (GET_GBUFFER_FLAG(gb.gbufferFlag, GBUFFER_FLAG_SKIP_ATMOS))
+    else if (GET_GBUFFER_FLAG(gb.gbufferFlag, GBUFFER_FLAG_SKIP_ATMOS) && !mg_h) // <MG/> (effect off: lit as usual)
     {
         //should only be true of WL sky, port over base color value and scale for fake HDR
 #if defined(HAS_EMISSIVE)

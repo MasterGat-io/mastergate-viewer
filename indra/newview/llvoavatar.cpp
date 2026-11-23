@@ -9789,7 +9789,11 @@ bool LLVOAvatar::processFullyLoadedChange(bool loading)
 
 bool LLVOAvatar::isFullyLoaded() const
 {
-    return (mRenderUnloadedAvatar && !isSelf()) || mFullyLoaded;
+    // <MG> with the loading effects on, another avatar still loading is shown as it arrives:
+    // what has not loaded yet is the hologram (mgloadingfx.cpp), not hidden in a cloud
+    static LLCachedControl<bool> mg_loading_fx(gSavedSettings, "MGLoadingEffects", true);
+    return ((mRenderUnloadedAvatar || mg_loading_fx) && !isSelf()) || mFullyLoaded;
+    // </MG>
 }
 
 bool LLVOAvatar::hasFirstFullAttachmentData() const

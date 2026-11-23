@@ -109,6 +109,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "mgphonecamera.h" // <MG/>
 
 extern LLPointer<LLViewerTexture> gStartTexture;
 extern bool gShiftFrame;
@@ -1106,7 +1107,11 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
         }
         else
         {
-            glClearColor(1, 0, 1, 1);
+            // <MG> the Camera's isolation: the background behind the subject
+            LLColor4 clear_color(1.f, 0.f, 1.f, 1.f);
+            MGPhoneCamera::gbufferClear(clear_color);
+            glClearColor(clear_color.mV[0], clear_color.mV[1], clear_color.mV[2], clear_color.mV[3]);
+            // </MG>
         }
         gPipeline.mRT->deferredScreen.clear();
 
@@ -1638,6 +1643,7 @@ void render_ui(F32 zoom_factor, int subfield)
 
     // apply gamma correction and post effects
     gPipeline.renderFinalize();
+    MGPhoneCamera::onSceneFinal(); // <MG/> the Camera's histogram: the scene, no interface
 
     {
         LLGLState::checkStates();

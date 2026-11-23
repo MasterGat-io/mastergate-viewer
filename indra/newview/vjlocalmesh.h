@@ -282,6 +282,7 @@ public:
     void                                              triggerFloaterRefresh(bool keep_selection = true);
     std::vector<LLLocalMeshFile::LLLocalMeshFileInfo> getFileInfoVector() const;
     std::vector<std::string>                          getFileLog(const LLUUID& local_file_id) const;
+    LLLocalMeshFile*                                  getFile(const LLUUID& local_file_id) const; // <MG/> the MG Phone Creator Lab reads the loaded objects
     // misc
     void pushLog(const std::string& who, const std::string& what, bool is_error = false);
 

@@ -27,6 +27,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llviewerobject.h"
+#include "mgphonecamera.h" // <MG/>
 
 #include "llaudioengine.h"
 #include "indra_constants.h"
@@ -2498,7 +2499,8 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
     if (mDrawable.notNull())
     {
         // Don't clear invisibility flag on update if still orphaned!
-        if (mDrawable->isState(LLDrawable::FORCE_INVISIBLE) && !mOrphaned)
+        if (mDrawable->isState(LLDrawable::FORCE_INVISIBLE) && !mOrphaned
+            && !MGPhoneCamera::isIsoHidden(mID)) // <MG/> the Camera's cut-out keeps it hidden
         {
 //          LL_DEBUGS() << "Clearing force invisible: " << mID << ":" << getPCodeString() << ":" << getPositionAgent() << LL_ENDL;
             mDrawable->clearState(LLDrawable::FORCE_INVISIBLE);

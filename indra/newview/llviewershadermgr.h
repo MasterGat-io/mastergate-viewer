@@ -214,6 +214,7 @@ extern LLGLSLShader         gImpostorProgram;
 extern LLGLSLShader         gPostScreenSpaceReflectionProgram;
 extern LLGLSLShader         gPostVignetteProgram;   // <FS:CR> Import Vignette from Exodus
 extern LLGLSLShader         gPostSnapshotFrameProgram;   // <FS:Beq/> Snapshot Frame overlay
+extern LLGLSLShader         gMGLookProgram;   // <MG/> the MG Phone Camera's live looks
 
 // Deferred rendering shaders
 extern LLGLSLShader         gDeferredImpostorProgram;

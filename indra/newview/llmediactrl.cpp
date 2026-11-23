@@ -84,7 +84,8 @@ LLMediaCtrl::Params::Params()
     error_page_url("error_page_url"),
     media_id("media_id"),
     trusted_content("trusted_content", false),
-    focus_on_click("focus_on_click", true)
+    focus_on_click("focus_on_click", true),
+    mg_transparent("mg_transparent", false) // <MG/>
 {
 }
 
@@ -112,7 +113,8 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
     mTrusted(p.trusted_content),
     mWindowShade(NULL),
     mHoverTextChanged(false),
-    mAllowFileDownload(false)
+    mAllowFileDownload(false),
+    mMGTransparent(p.mg_transparent) // <MG/>
 {
     {
         LLColor4 color = p.caret_color().get();
@@ -793,6 +795,7 @@ bool LLMediaCtrl::ensureMediaSourceExists()
             mMediaSource->setVisible( isInVisibleChain() );
             mMediaSource->addObserver( this );
             mMediaSource->setBackgroundColor( getBackgroundColor() );
+            mMediaSource->setMGTransparent(mMGTransparent); // <MG/> before the plugin starts
             mMediaSource->setTrustedBrowser(mTrusted);
 
             F32 scale_factor = LLUI::getScaleFactor().mV[ VX ];
@@ -894,6 +897,13 @@ void LLMediaCtrl::draw()
             // scale texture to fit the space using texture coords
             gGL.getTexUnit(0)->bind(media_texture);
             LLColor4 media_color = LLColor4::white % alpha;
+            // <MG> a transparent page carries CEF's premultiplied alpha
+            if (mMGTransparent)
+            {
+                media_color = LLColor4(alpha, alpha, alpha, alpha);
+                gGL.blendFunc(LLRender::BF_ONE, LLRender::BF_ONE_MINUS_SOURCE_ALPHA);
+            }
+            // </MG>
             gGL.color4fv( media_color.mV );
             F32 max_u = ( F32 )media_plugin->getWidth() / ( F32 )media_plugin->getTextureWidth();
             F32 max_v = ( F32 )media_plugin->getHeight() / ( F32 )media_plugin->getTextureHeight();
@@ -946,6 +956,13 @@ void LLMediaCtrl::draw()
                 gGL.vertex2i( x_offset + width, y_offset );
             }
             gGL.end();
+            // <MG> back to the UI's blending
+            if (mMGTransparent)
+            {
+                gGL.flush();
+                gGL.setSceneBlendType(LLRender::BT_ALPHA);
+            }
+            // </MG>
         }
         gGL.popUIMatrix();
 
@@ -1034,8 +1051,19 @@ void LLMediaCtrl::convertInputCoords(S32& x, S32& y)
     // (used by the MG Phone panel; the other decoupled controls are previews).
     if (mDecoupleTextureSize && width > 0 && height > 0)
     {
-        const F32 sx = (F32)mTextureWidth / (F32)width;
-        const F32 sy = (F32)mTextureHeight / (F32)height;
+        // the page's real size: the plugin may have clamped the requested one (2048 on
+        // Windows), and the drawing (calcOffsetsAndSize, draw) uses the real one
+        S32 page_w = mTextureWidth, page_h = mTextureHeight;
+        if (LLPluginClassMedia* plugin = (mMediaSource && mMediaSource->hasMedia()) ? mMediaSource->getMediaPlugin() : nullptr)
+        {
+            if (plugin->getWidth() > 0 && plugin->getHeight() > 0)
+            {
+                page_w = plugin->getWidth();
+                page_h = plugin->getHeight();
+            }
+        }
+        const F32 sx = (F32)page_w / (F32)width;
+        const F32 sy = (F32)page_h / (F32)height;
         x = ll_round((F32)x * sx);
         y = coords_opengl ? ll_round((F32)(height - y) * sy) : ll_round((F32)y * sy);
         return;
@@ -1232,6 +1260,12 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 
         case MEDIA_EVENT_FILE_DOWNLOAD:
         {
+            // <MG> the owner (MG Phone Camera) writes the file where it chose
+            if (mMGDownloadHandler && mMGDownloadHandler(self, self->getFileDownloadFilename()))
+            {
+            }
+            else
+            // </MG>
             if (mAllowFileDownload)
             {
                 // pick a file from SAVE FILE dialog

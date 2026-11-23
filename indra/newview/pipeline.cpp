@@ -27,6 +27,8 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "pipeline.h"
+#include "mgloadingfx.h" // <MG/>
+#include "mgphonecamera.h" // <MG/>
 
 // library includes
 #include "llimagepng.h"
@@ -9021,6 +9023,12 @@ void LLPipeline::renderFinalize()
         std::swap(auxActiveBuffer, auxTargetBuffer);
     };
     // </FS:Beq>
+    // <MG> the MG Phone Camera's live looks (also in its photos: snapshots come through here)
+    if (MGPhoneCamera::renderLook(auxActiveBuffer, auxTargetBuffer, mScreenTriangleVB))
+    {
+        std::swap(auxActiveBuffer, auxTargetBuffer);
+    }
+    // </MG>
     // <FS:Beq> new shader for snapshot frame helper
     if (renderSnapshotFrame(auxActiveBuffer, auxTargetBuffer))
     {
@@ -9570,6 +9578,7 @@ void LLPipeline::renderDeferredLighting()
             soften_shader.uniform3fv(LLShaderMgr::LIGHTNORM, 1, environment.getClampedLightNorm().mV);
 
             soften_shader.uniform4fv(LLShaderMgr::WATER_WATERPLANE, 1, LLDrawPoolAlpha::sWaterPlane.mV);
+            MGLoadingFX::bindSoften(soften_shader); // <MG/> the loading hologram's clock and camera
 
             {
                 LLGLDepthTest depth(GL_FALSE);

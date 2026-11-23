@@ -70,6 +70,7 @@ void main()
     mirrorClip(vary_position);
 
     vec4 basecolor = texture(diffuseMap, base_color_texcoord.xy).rgba;
+    vec3 mg_t = basecolor.rgb;
     basecolor.rgb = srgb_to_linear(basecolor.rgb);
 
     basecolor *= vertex_color;
@@ -116,6 +117,7 @@ void main()
     frag_data[1] = max(vec4(spec.rgb,0.0), vec4(0));                                    // PBR linear packed Occlusion, Roughness, Metal.
     frag_data[2] = encodeNormal(tnorm, 0, GBUFFER_FLAG_HAS_PBR); // normal, environment intensity, flags
 
+    MG_HOLO_GBUFFER(mg_t, tnorm) // <MG/> still loading: the hologram
 #if defined(HAS_EMISSIVE)
     frag_data[3] = max(vec4(emissive,0), vec4(0));                                                // PBR sRGB Emissive
 #endif

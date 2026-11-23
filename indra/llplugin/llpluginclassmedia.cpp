@@ -379,6 +379,7 @@ void LLPluginClassMedia::setSizeInternal(void)
 //<FS:TS> FIRE-30019: This clamp doesn't make sense on Linux, which can have
 //        huge windows without needing to turn on HiDPI support
 #if !LL_LINUX
+    if (!mMGNoSizeClamp) // <MG/>
     {
         if (mRequestedMediaWidth > 2048)
             mRequestedMediaWidth = 2048;
@@ -993,6 +994,18 @@ void LLPluginClassMedia::setPluginsEnabled(const bool enabled)
     message.setValueBoolean("enable", enabled);
     sendMessage(message);
 }
+
+// <MG> a transparent browser: must be queued before the "init" message
+void LLPluginClassMedia::setTransparentBackground(const bool enabled)
+{
+    LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "mg_transparent");
+    message.setValueBoolean("enable", enabled);
+    sendMessage(message);
+    // the transparent page is the MG Phone's: over the whole window it is laid out at
+    // the window's real size, not clamped to 2048 and stretched
+    mMGNoSizeClamp = enabled;
+}
+// </MG>
 
 void LLPluginClassMedia::setJavascriptEnabled(const bool enabled)
 {

@@ -156,6 +156,23 @@ set(viewer_SOURCE_FILES
     mgphonewardrobe.cpp # <MG/> the MG Phone Wardrobe app
     mgphoneupdate.cpp # <MG/> install a new release from the MG Phone
     mgphoneplaces.cpp # <MG/> the MG Phone Places app (landmarks)
+    mgphoneposer.cpp # <MG/> the MG Phone Camera's posing panel (Firestorm's poser)
+    mgphonecreator.cpp # <MG/> the MG Phone Creator Lab (garment test on Local Mesh)
+    mgphonebody.cpp # <MG/> the MG Phone Body Studio (shape, morphs, inflation)
+    mgphoneanimstudio.cpp # <MG/> the MG Phone Motion Lab (keyframes, timeline, paths, .anim)
+    mgmotionread.cpp # <MG/> motion files (FBX, BVH, Collada) for the Motion Lab converter
+    mgcreatordae.cpp # <MG/> Creator Lab: COLLADA reader / writer for Make it fit
+    mgcreatorrefit.cpp # <MG/> Creator Lab: versions for other bodies (refit)
+    mgrig.cpp # <MG/> Creator Lab: rig converter (maps, T-pose, SL skeleton, COLLADA writer)
+    mgrigfbx.cpp # <MG/> Creator Lab: rig converter, FBX reader
+    mgriggltf.cpp # <MG/> Creator Lab: rig converter, glTF / VRM reader
+    mgrigdae.cpp # <MG/> Creator Lab: COLLADA reader (static and skinned)
+    mgrigcloth.cpp # <MG/> Creator Lab: rigging clothes and accessories
+    mgdrape.cpp # <MG/> Creator Lab: Drape (cloth simulation)
+    mgfitcore.cpp # <MG/> Creator Lab: Make it fit (geometry)
+    mgrigufbx.cpp # <MG/> ufbx (FBX library) built as C++
+    mgcreatorweights.cpp # <MG/> Creator Lab: weight tools (devkit copy, smooth, fitted mesh)
+    mgloadingfx.cpp # <MG/> the world loading, made visible (hologram)
     mgphoneinventory.cpp # <MG/> the MG Phone Textures app
     fsjointpose.cpp
     fskeywords.cpp
@@ -1033,6 +1050,19 @@ set(viewer_HEADER_FILES
     mgphonewardrobe.h # <MG/>
     mgphoneupdate.h # <MG/>
     mgphoneplaces.h # <MG/>
+    mgphoneposer.h # <MG/>
+    mgphonecreator.h # <MG/>
+    mgphonebody.h # <MG/>
+    mgphoneanimstudio.h # <MG/>
+    mgmotionread.h # <MG/>
+    mgcreatordae.h # <MG/>
+    mgcreatorrefit.h # <MG/>
+    mgrig.h # <MG/>
+    mgrigcloth.h # <MG/>
+    mgdrape.h # <MG/>
+    mgfitcore.h # <MG/>
+    mgcreatorweights.h # <MG/>
+    mgloadingfx.h # <MG/>
     mgphoneinventory.h # <MG/>
     fsjointpose.h
     fsgridhandler.h
@@ -2333,6 +2363,17 @@ set(PACKAGE ON CACHE BOOL
 if(USE_PRECOMPILED_HEADERS)
   target_precompile_headers( ${VIEWER_BINARY_NAME} PRIVATE llviewerprecompiledheaders.h )
 endif(USE_PRECOMPILED_HEADERS)
+
+# <MG> ufbx (third-party FBX reader) is built without the viewer's precompiled header
+# (its Windows macros) and without warnings
+set_source_files_properties(mgrigufbx.cpp PROPERTIES SKIP_PRECOMPILE_HEADERS ON)
+if (WINDOWS)
+  set_source_files_properties(mgrigufbx.cpp PROPERTIES COMPILE_OPTIONS "/W0")
+else (WINDOWS)
+  # -w also overrides -Werror (macOS / Linux builds)
+  set_source_files_properties(mgrigufbx.cpp PROPERTIES COMPILE_OPTIONS "-w")
+endif (WINDOWS)
+# </MG>
 
 if (OPENSIM)
   set(ND_VIEWER_FLAVOR "oss")

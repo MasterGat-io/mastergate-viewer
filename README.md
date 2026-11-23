@@ -14,6 +14,40 @@ Windows, macOS (beta) and Linux (beta): **https://mastergate.io/viewer/**. The p
 
 Installing over an older version keeps your settings. When a new release is out, the viewer offers the update itself.
 
+## New: Creator Lab and Motion Lab
+
+Two creator studios now live in the MG Phone, working directly on your avatar in the 3D view. They are member apps: sign in with your MasterGate account to use them.
+
+### Motion Lab: an animation studio on your own avatar
+
+<p align="center"><img src="doc/mastergate/motionlab-path.webp" width="860" alt="Motion Lab: a path through waypoints with the motion trails of the hands and feet, and the timeline"/></p>
+
+- **Pose with the mouse.** Rings rotate joints (FK); arrows move hands, feet, hips and chest (IK) and the limb follows. Padlocks keep feet or hands planted while you move the rest. Face and finger posing, one-click hand gestures, a Pose mixer, Look at (the head and eyes follow a target you key over time).
+- **Animate on a timeline** at the bottom of the screen, with a shortcut bar above the 3D view: keys, Auto key, curves with presets and Bezier handles, clips you can move, loop, speed up, trim and blend, layers above them, a motion trail you drag in 3D, IK/FK over a range of frames to stop foot sliding.
+- **Paths anywhere in the region.** Drop waypoints in 3D (gizmo or exact distances) and walk, run, jump or fly through them, or record a route by just walking, with actions on keys 1 to 5. Long routes export as in-place animations plus a mover script.
+- **Import and convert** FBX, BVH and Collada motion from Mixamo, iClone / Character Creator, DAZ, Unreal and more onto the Second Life skeleton (fingers and face included), or start from your own full-permission animations.
+- **Export** a free `.anim` file, upload it to your inventory, or save the whole project. A user guide with step-by-step scenarios opens from the app.
+
+<table>
+  <tr>
+    <td align="center"><img src="doc/mastergate/motionlab-pose.webp" width="420" alt="Motion Lab: posing with IK, a locked hand"/><br/><b>IK posing and locks</b></td>
+    <td align="center"><img src="doc/mastergate/motionlab-library.webp" width="420" alt="Motion Lab: the pose library"/><br/><b>Pose library</b></td>
+  </tr>
+  <tr>
+    <td align="center" colspan="2"><img src="doc/mastergate/motionlab-face.webp" width="420" alt="Motion Lab: face posing"/><br/><b>Face posing</b></td>
+  </tr>
+</table>
+
+### Creator Lab: try your mesh on before you upload it
+
+<p align="center"><img src="doc/mastergate/creatorlab-drape.webp" width="860" alt="Creator Lab: a coat draped on the avatar"/></p>
+
+- **Your mesh on your avatar, before you upload it.** Load a `.dae`, `.fbx` or `.glb` garment and wear it locally; only you see it.
+- **Rig** clothes and accessories to the body you wear, with live placement, from a body maker's devkit or your own project file.
+- **Fix:** Make it fit, **Drape** (real cloth simulation with fabric presets: cotton, silk, denim, leather, stretch), weight copy and smoothing, a weight brush and Touch up tools.
+- **Check** before paying for an upload: upload checks and a stress test where your avatar takes 7 poses and the viewer shows where the body pokes through.
+- **Bodies:** make versions of the garment for other bodies, then upload.
+
 ## What's new in 7.2.5
 
 - **Firestorm 7.2.5.** The viewer is now based on Firestorm 7.2.5, with all its fixes and features.
@@ -40,6 +74,8 @@ Everything Firestorm does is still here. MasterGate Viewer adds:
 | Animations | inventory names, AO floater | **a 3D stage** with a mannequin; playlists; the whole AO managed from the phone |
 | Clothing | inventory names | **Wardrobe**: picture cards and outfits, each item viewable in 3D before you wear it |
 | Landmarks | landmarks floater, favorites bar | **Places**: pictures, ratings, folders, history, clean-up, sharing, Destinations |
+| Making animations | the poser floater | **Motion Lab**: IK/FK posing, timeline, curves, clips and layers, paths, FBX/BVH conversion, `.anim` export |
+| Making clothes | Local Mesh | **Creator Lab**: wear your mesh before upload, rig, fit, drape, weights, stress test, versions for other bodies |
 | Apps | – | the MasterGate apps (Feeds, AvaTalk, Vortex, Photos, LandLord, Pulse BI, MasterAds, Wallet…) and an App Store |
 | Look | Firestorm skins | the dark MasterGate skin |
 
@@ -112,6 +148,10 @@ Every app on the MG Phone is a web page, so anyone can build one. The same app r
 | `mgphoneanims.cpp` | `anim_*`, `gest_*` | Animations, the 3D stage, the AO |
 | `mgphonewardrobe.cpp` | `ward_*` | Wardrobe and its 3D view |
 | `mgphoneplaces.cpp` | `place_*` | Places |
+| `mgphoneposer.cpp` | `pose_*` | posing engine (Firestorm's poser) used by Camera Pro and the studios |
+| `mgphoneanimstudio.cpp`, `mgmotionread.cpp` | `studio_*` | Motion Lab: timeline, gizmos, IK, paths, motion file import |
+| `mgphonecreator.cpp`, `mgrig*.cpp`, `mgdrape.cpp`, `mgfitcore.cpp`, `mgcreator*.cpp` | `lab_*` | Creator Lab: local garments, rigging, fitting, cloth, weights |
+| `mgphonebody.cpp` | `body_*` | body shape tools |
 | `mgphoneupdate.cpp` | `update_*` | in-viewer updates (Windows) |
 
 - **The interface skin** is `indra/newview/skins/mastergate`.
@@ -140,6 +180,7 @@ Open a ticket at **https://mastergate.io/m/ticket/add**, or use Help in the view
 
 - The viewer code is available under the **GNU LGPL 2.1** ([LICENSE](doc/LGPL-license.txt)), like the Second Life and Firestorm viewers it is based on.
 - Thanks to Linden Lab and to The Phoenix Firestorm Project and its contributors, whose work this viewer builds on.
+- Creator Lab reads FBX files with [ufbx](https://github.com/ufbx/ufbx) by Samuli Raivio (MIT / public domain, `indra/newview/ufbx`). Its rig converter bone maps come from Bento Buddy (Critters LLC), used with the author's permission.
 - Second Life is a trademark of Linden Research, Inc. Firestorm is a project of The Phoenix Firestorm Project, Inc.
 - MasterGate and the MasterGate Viewer name and logo belong to MasterGate.
 - This viewer follows Linden Lab's [Policy on Third-Party Viewers](https://secondlife.com/corporate/third-party-viewers).

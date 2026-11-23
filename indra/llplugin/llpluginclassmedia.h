@@ -228,6 +228,7 @@ public:
     void    setLanguageCode(const std::string &language_code);
     void    setPluginsEnabled(const bool enabled);
     void    setJavascriptEnabled(const bool enabled);
+    void    setTransparentBackground(const bool enabled); // <MG/> before init(): transparent page, RGBA texture
     void    setWebSecurityDisabled(const bool disabled);
     void    setFileAccessFromFileUrlsEnabled(const bool enabled);
     void    setTarget(const std::string &target);
@@ -367,6 +368,7 @@ protected:
     bool        mTextureParamsReceived;     // the mRequestedTexture* fields are only valid when this is true
     S32         mRequestedTextureDepth;
     U32         mRequestedTextureInternalFormat;
+    bool        mMGNoSizeClamp = false; // <MG/> the MG Phone's page may be wider than 2048 (full-window viewfinder)
     U32         mRequestedTextureFormat;
     U32         mRequestedTextureType;
     bool        mRequestedTextureSwapBytes;

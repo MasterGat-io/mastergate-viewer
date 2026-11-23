@@ -298,6 +298,7 @@ void main()
 
     // diffcol == diffuse map combined with vertex color
     vec4 diffcol = texture(diffuseMap, vary_texcoord0.xy);
+    vec3 mg_t = diffcol.rgb;
     diffcol.rgb *= vertex_color.rgb;
     alphaMask(diffcol.a);
 
@@ -430,6 +431,7 @@ void main()
     // deferred path               // See: C++: addDeferredAttachment(), shader: softenLightF.glsl
 
     float flag = GBUFFER_FLAG_HAS_ATMOS;
+    MG_HOLO_GBUFFER(mg_t, norm) // <MG/> still loading: the hologram
 
     frag_data[0] = max(vec4(diffcol.rgb, emissive), vec4(0));        // gbuffer is sRGB for legacy materials
     frag_data[1] = max(vec4(spec.rgb, glossiness), vec4(0));           // XYZ = Specular color. W = Specular exponent.

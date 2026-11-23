@@ -45,7 +45,8 @@ void main()
 {
     mirrorClip(vary_position);
 
-    vec4 col = texture(diffuseMap, vary_texcoord0.xy) * vertex_color;
+    vec4 mg_t = texture(diffuseMap, vary_texcoord0.xy);
+    vec4 col = mg_t * vertex_color;
 
     if (col.a < minimum_alpha)
     {
@@ -57,6 +58,7 @@ void main()
     vec3 nvn = normalize(vary_normal);
     frag_data[2] = encodeNormal(nvn.xyz, 0, GBUFFER_FLAG_HAS_ATMOS);
 
+    MG_HOLO_GBUFFER(mg_t.rgb, nvn.xyz) // <MG/> still loading: the hologram
 #if defined(HAS_EMISSIVE)
     frag_data[3] = vec4(0);
 #endif

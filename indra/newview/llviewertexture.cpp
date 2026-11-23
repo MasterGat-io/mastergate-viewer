@@ -409,9 +409,13 @@ void LLViewerTextureManager::init()
             else
 #endif
             {
-                *data++ = 0x7f;
-                *data++ = 0x7f;
-                *data++ = 0x7f;
+                // <MG> what a surface shows while its texture loads: the hologram key colour. The
+                // G-buffer shaders recognise it (MG_HOLO_KEY, llshadermgr.cpp) and the surface is
+                // drawn as the MasterGate loading hologram (mgloadingfx.cpp). Keep both in step.
+                *data++ = 13;
+                *data++ = 21;
+                *data++ = 43;
+                // </MG>
             }
         }
     }

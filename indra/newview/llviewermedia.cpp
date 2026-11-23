@@ -1827,8 +1827,12 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
     // HACK: we always try to keep a spare running webkit plugin around to improve launch times.
     // If a spare was already created before PluginAttachDebuggerToPlugins was set, don't use it.
     // Do not use a spare if launching with full viewer control (e.g. Twitter and few others)
+    // <MG> a transparent browser cannot take the spare: it was started opaque
+    LLViewerMediaImpl* mg_impl = owner ? dynamic_cast<LLViewerMediaImpl*>(owner) : nullptr;
+    const bool mg_transparent = mg_impl && mg_impl->getMGTransparent();
+    // </MG>
     if ((plugin_basename == "media_plugin_cef") &&
-        !gSavedSettings.getBOOL("PluginAttachDebuggerToPlugins") && !clean_browser)
+        !gSavedSettings.getBOOL("PluginAttachDebuggerToPlugins") && !clean_browser && !mg_transparent) // <MG/>
     {
         media_source = LLViewerMedia::getInstance()->getSpareBrowserMediaSource();
         if(media_source)
@@ -1903,6 +1907,13 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
             media_source->proxy_setup(gSavedSettings.getBOOL("BrowserProxyEnabled"), gSavedSettings.getString("BrowserProxyAddress"), gSavedSettings.getS32("BrowserProxyPort"));
 
             media_source->setTarget(target);
+
+            // <MG> queued before the plugin's "init"
+            if (mg_transparent)
+            {
+                media_source->setTransparentBackground(true);
+            }
+            // </MG>
 
             const std::string plugin_dir = gDirUtilp->getLLPluginDir();
             if (media_source->init(launcher_name, plugin_dir, plugin_name, gSavedSettings.getBOOL("PluginAttachDebuggerToPlugins")))

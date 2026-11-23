@@ -30,6 +30,7 @@
 #include "llgl.h" // <MG/> max texture size for pro shots
 #include "llwindow.h" // <MG/> keep the cursor across shots
 #include "llimagejpeg.h"
+#include "llimagepng.h" // <MG/> transparent shots
 #include "llimview.h"
 #include "llmediactrl.h"
 #include "llnotificationsutil.h"
@@ -55,6 +56,20 @@
 #include "mgphonewardrobe.h" // <MG/>
 #include "mgphoneupdate.h" // <MG/>
 #include "mgphoneplaces.h" // <MG/>
+#include "mgphoneposer.h" // <MG/>
+#include "mgphonecreator.h" // <MG/>
+#include "mgphonebody.h" // <MG/> Body Studio
+#include "mgphoneanimstudio.h" // <MG/> Animation Studio
+// <MG> viewfinder mode hides the viewer's interface like mouselook does
+#include "llchicletbar.h"
+#include "lldraghandle.h"
+#include "llfloater.h" // LLFloaterView
+#include "llrootview.h"
+#include "llmoveview.h"
+#include "llnavigationbar.h"
+#include "lltoolbarview.h"
+#include "llviewermenu.h"
+// </MG>
 
 namespace
 {
@@ -100,6 +115,10 @@ namespace
     {
         return boost::json::serialize(LlsdToJson(sd));
     }
+
+    // <MG> viewfinder geometry diagnostics: a few log lines after each opening
+    S32 sVfDiagCount = 0;
+    LLFrameTimer sVfDiagTimer;
 }
 
 MGFloaterPhone::MGFloaterPhone(const LLSD& key)
@@ -113,7 +132,10 @@ MGFloaterPhone::MGFloaterPhone(const LLSD& key)
     mLastSeq(-1),
     mLastBalance(-1),
     mShellReady(false),
-    mReplay(LLSD::emptyArray())
+    mReplay(LLSD::emptyArray()),
+    mViewfinder(false),
+    mVfMenuWas(true),
+    mVfNavWas(true)
 {
 }
 
@@ -131,6 +153,19 @@ bool MGFloaterPhone::postBuild()
     mBrowser->addObserver(this);
     mStatus = getChild<LLTextBox>("phone_status");
     MGPhoneWardrobe::startWatching(); // <MG/> the Wardrobe reads the shapes of worn items
+    // <MG> the Camera saves edited photos to the PC: the page announces the file
+    // (cam_save_arm), then downloads it; CEF writes it where the viewer says
+    mBrowser->setMGDownloadHandler([](LLPluginClassMedia* self, const std::string& name)
+        {
+            const std::string path = MGPhoneCamera::takeDownloadPath(name);
+            if (path.empty() || !self)
+            {
+                return false;
+            }
+            self->sendPickFileResponse(std::vector<std::string>(1, path));
+            return true;
+        });
+    // </MG>
     return true;
 }
 
@@ -174,6 +209,12 @@ void MGFloaterPhone::onClose(bool app_quitting)
 {
     // Like the on-site popup: closing unloads the shell so nothing keeps polling.
     // Reopening signs in again silently (saved viewer token).
+    // <MG> the viewer's interface comes back before anything else
+    if (mViewfinder && !app_quitting)
+    {
+        setViewfinder(false);
+    }
+    // </MG>
     if (mBrowser && !app_quitting)
     {
         mBrowser->navigateTo("about:blank", "text/html");
@@ -181,12 +222,21 @@ void MGFloaterPhone::onClose(bool app_quitting)
     mLoaded = false;
     mShellReady = false;
     mLastSeq = -1;
+    // <MG> Creator Lab: a stress test or hold ends, the AO and the shape come back (quitting too)
+    MGPhoneCreator::onClose();
+    MGPhoneBody::onClose(); // <MG/> Body Studio: previews off, the skeleton as the worn shape makes it
+    MGPhoneAnimStudio::onClose(); // <MG/> Animation Studio: the avatar let go, the AO back, the timeline off
+    // </MG>
     // <MG> the Camera's live changes (exposure, sky, freeze, guides) never outlive the phone
     if (!app_quitting)
     {
         MGPhoneAnims::onClose(); // <MG/> local test animations off
         MGPhoneWardrobe::onClose(); // <MG/> the 3D view off, a peek undone
         MGPhoneCamera::restore();
+    }
+    else
+    {
+        MGPhoneCamera::restoreSettings(); // <MG/> quitting: never save the camera's boosted settings
     }
     // </MG>
 }
@@ -360,6 +410,13 @@ void MGFloaterPhone::applyShellState(const LLSD& query)
         closeFloater();
         return;
     }
+    // <MG> remembered; while the viewfinder fills the window it is applied at its end
+    mShellState = query;
+    if (mViewfinder)
+    {
+        return;
+    }
+    // </MG>
     const std::string size = query.has("size") ? query["size"].asString() : "m";
     setMode(size, isOn(query, "landscape"), isOn(query, "tablet"));
 }
@@ -377,6 +434,12 @@ void MGFloaterPhone::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent even
         mLastSeq = -1;
         pushInfo(true);
     }
+    // <MG> a new page (the shell reloaded) never inherits the viewfinder
+    else if (event == MEDIA_EVENT_NAVIGATE_BEGIN && mViewfinder)
+    {
+        setViewfinder(false);
+    }
+    // </MG>
 }
 
 void MGFloaterPhone::handleBridgeTitle(const std::string& title)
@@ -397,10 +460,54 @@ void MGFloaterPhone::handleBridgeTitle(const std::string& title)
         return;
     }
     mLastSeq = seq;
+    mVfPing.reset(); // <MG/> any word from the page keeps the viewfinder
+    std::string json = title.substr(colon + 1);
+    // <MG> a long message comes in parts: "mgos:<seq>:~<id>/<i>/<n>:[<piece>]" (Chromium cuts a page
+    // title at 4096 characters, so an animation or a project never fitted in one). Each part is
+    // acknowledged; the last one runs the command with the whole message.
+    if (!json.empty() && json[0] == '~')
+    {
+        static std::string sChunkId;
+        static std::vector<std::string> sChunks;
+        static size_t sChunkBytes = 0;
+        const size_t c2 = json.find(':');
+        S32 i = -1, n = 0;
+        char idbuf[40] = { 0 };
+        if (c2 == std::string::npos || sscanf(json.c_str() + 1, "%39[^/]/%d/%d", idbuf, &i, &n) != 3 || n < 1 || n > 4000 || i < 0 || i >= n ||
+            json.size() < c2 + 3 || json[c2 + 1] != '[' || json.back() != ']')
+        {
+            ackToPage(seq, LLSD().with("ok", false).with("error", "bad part"));
+            return;
+        }
+        if (sChunkId != idbuf || (S32)sChunks.size() != n)
+        {
+            sChunkId = idbuf;
+            sChunks.assign(n, std::string());
+            sChunkBytes = 0;
+        }
+        std::string piece = json.substr(c2 + 2, json.size() - c2 - 3);   // the brackets keep the title from trimming spaces
+        sChunkBytes += piece.size();
+        if (sChunkBytes > 16 * 1024 * 1024)
+        {
+            sChunkId.clear(); sChunks.clear(); sChunkBytes = 0;
+            ackToPage(seq, LLSD().with("ok", false).with("error", "too big"));
+            return;
+        }
+        sChunks[i].swap(piece);
+        if (i < n - 1)
+        {
+            ackToPage(seq, LLSD().with("ok", true).with("part", i));
+            return;
+        }
+        json.clear();
+        for (const std::string& p : sChunks) json += p;
+        sChunkId.clear(); sChunks.clear(); sChunkBytes = 0;
+    }
+    // </MG>
     LLSD msg;
     try
     {
-        msg = LlsdFromJson(boost::json::parse(title.substr(colon + 1)));
+        msg = LlsdFromJson(boost::json::parse(json));
     }
     catch (...)
     {
@@ -421,6 +528,22 @@ void MGFloaterPhone::runCommand(const std::string& cmd, const LLSD& args, S32 se
         deliverReplay();
         MGPhoneCalls::onShellReady(); // a call in progress or ringing
     }
+    // <MG> the Camera's full-window viewfinder; {on} or {keep}: the page's keep-alive
+    else if (cmd == "phone_viewfinder")
+    {
+        mVfPing.reset();
+        if (!args.has("keep"))
+        {
+            setViewfinder(args["on"].asBoolean());
+        }
+        result["on"] = mViewfinder;
+        if (mViewfinder)
+        {
+            result["w"] = getRect().getWidth();
+            result["h"] = getRect().getHeight();
+        }
+    }
+    // </MG>
     else if (MGPhoneCalls::isCommand(cmd))
     {
         result = MGPhoneCalls::runCommand(cmd, args);
@@ -445,10 +568,30 @@ void MGFloaterPhone::runCommand(const std::string& cmd, const LLSD& args, S32 se
     {
         result = MGPhoneWardrobe::runCommand(cmd, args);
     }
+    // the Camera's posing panel on Firestorm's poser (pose_*)
+    else if (MGPhonePoser::isCommand(cmd))
+    {
+        result = MGPhonePoser::runCommand(cmd, args);
+    }
     // the Places app: landmarks, favorites, teleport history, the place here (place_*)
     else if (MGPhonePlaces::isCommand(cmd))
     {
         result = MGPhonePlaces::runCommand(cmd, args);
+    }
+    // Creator Lab: a garment file worn on my avatar, checks, clip finder (lab_*)
+    else if (MGPhoneCreator::isCommand(cmd))
+    {
+        result = MGPhoneCreator::runCommand(cmd, args);
+    }
+    // Body Studio: shape / physics sliders, bone morphs, big size and inflation (body_*)
+    else if (MGPhoneBody::isCommand(cmd))
+    {
+        result = MGPhoneBody::runCommand(cmd, args);
+    }
+    // Animation Studio: keyframes on my avatar, the timeline in the 3D view, .anim out (studio_*)
+    else if (MGPhoneAnimStudio::isCommand(cmd))
+    {
+        result = MGPhoneAnimStudio::runCommand(cmd, args);
     }
     // a new release: download, check, install over this one (update_*)
     else if (MGPhoneUpdate::isCommand(cmd))
@@ -580,6 +723,7 @@ void MGFloaterPhone::runCommand(const std::string& cmd, const LLSD& args, S32 se
 
 void MGFloaterPhone::ackToPage(S32 seq, const LLSD& result)
 {
+    mVfPing.reset(); // <MG/> a long shot just finished: the page is alive
     if (mBrowser && mBrowser->getMediaPlugin())
     {
         mBrowser->getMediaPlugin()->executeJavaScript(
@@ -639,6 +783,7 @@ void MGFloaterPhone::sendSnapshot(S32 seq, const LLSD& args)
     //   format       png | jpg (the saved file)   name  file name pattern {date} {time} {n} {w} {h}
     //   send         return the image to the page (default yes)
     //   preview_max  longest side of the returned image (160-4096, default 2560)
+    //   ss           supersampling 2-3: rendered that many times larger, averaged down
     LLPointer<LLImageRaw> raw = new LLImageRaw;
     const S32 win_w = gViewerWindow->getWindowWidthRaw();
     const S32 win_h = gViewerWindow->getWindowHeightRaw();
@@ -655,16 +800,64 @@ void MGFloaterPhone::sendSnapshot(S32 seq, const LLSD& args)
     {
         h = ll_round(win_h * (F32)w / (F32)llmax(1, win_w));
     }
+    // <MG> supersampling: a larger render averaged down (cleaner edges, hair, shadows)
+    S32 ss = (args.has("ss") && !args["ui"].asBoolean()) ? llclamp(args["ss"].asInteger(), 1, 3) : 1;
+    while (ss > 1 && (w * ss > max_size || h * ss > max_size))
+    {
+        --ss;
+    }
+    // </MG>
     const bool show_ui = args["ui"].asBoolean();
     const bool show_hud = args["hud"].asBoolean();
     const bool show_balance = args["balance"].asBoolean();
     MGPhoneCamera::hideGuidesForShot(true);
+    MGPhoneCamera::suspendLook(args["nolook"].asBoolean()); // <MG/> a thumbnail source
     // rawSnapshot leaves an arrow cursor behind; the live view shoots every second
     const ECursorType cursor = gViewerWindow->getWindow() ? gViewerWindow->getWindow()->getCursor() : UI_CURSOR_ARROW;
-    const bool shot = gViewerWindow->rawSnapshot(raw, w, h, keep_aspect, false, show_ui, show_hud, false, false, show_balance,
-                                                 LLSnapshotModel::SNAPSHOT_TYPE_COLOR, max_size);
+    const bool matte_shot = args["alpha"].asBoolean() && MGPhoneCamera::isIsolating(); // <MG/>
+    MGPhoneCamera::setMatteShot(matte_shot);
+    bool shot = gViewerWindow->rawSnapshot(raw, w * ss, h * ss, keep_aspect, false, show_ui, show_hud, false, false, show_balance,
+                                           LLSnapshotModel::SNAPSHOT_TYPE_COLOR, max_size);
+    // <MG> transparent shot (isolation): the same frame again over white, then the alpha
+    if (shot && args["alpha"].asBoolean() && MGPhoneCamera::isIsolating())
+    {
+        LLPointer<LLImageRaw> on_white = new LLImageRaw;
+        MGPhoneCamera::setIsolateWhite(true);
+        const bool shot2 = gViewerWindow->rawSnapshot(on_white, w * ss, h * ss, keep_aspect, false, show_ui, show_hud, false, false, show_balance,
+                                                      LLSnapshotModel::SNAPSHOT_TYPE_COLOR, max_size);
+        MGPhoneCamera::setIsolateWhite(false);
+        MGPhoneCamera::setMatteShot(false);
+        // the filters: once more over black, with the look, for the colours
+        LLPointer<LLImageRaw> looked;
+        if (shot2 && MGPhoneCamera::lookActive())
+        {
+            looked = new LLImageRaw;
+            if (!gViewerWindow->rawSnapshot(looked, w * ss, h * ss, keep_aspect, false, show_ui, show_hud, false, false, show_balance,
+                                            LLSnapshotModel::SNAPSHOT_TYPE_COLOR, max_size))
+            {
+                looked = nullptr;
+            }
+        }
+        LLPointer<LLImageRaw> rgba = shot2 ? MGPhoneCamera::matte(raw, on_white) : LLPointer<LLImageRaw>();
+        on_white = nullptr;
+        if (rgba.notNull())
+        {
+            if (looked.notNull())
+            {
+                MGPhoneCamera::lookIntoMatte(rgba, looked);
+            }
+            raw = rgba;
+        }
+    }
+    MGPhoneCamera::setMatteShot(false);
+    if (shot && ss > 1)
+    {
+        MGPhoneCamera::downsample(raw, ss); // <MG/>
+    }
+    // </MG>
     gViewerWindow->setCursor(cursor);
     MGPhoneCamera::hideGuidesForShot(false);
+    MGPhoneCamera::suspendLook(false); // <MG/>
     if (!shot)
     {
         ackToPage(seq, LLSD().with("ok", false).with("error", "snapshot failed"));
@@ -676,6 +869,7 @@ void MGFloaterPhone::sendSnapshot(S32 seq, const LLSD& args)
     }
     LLSD result;
     result["ok"] = true;
+    result["ss"] = ss; // <MG/>
     result["width"] = raw->getWidth();
     result["height"] = raw->getHeight();
     if (args["save"].asBoolean())
@@ -684,7 +878,28 @@ void MGFloaterPhone::sendSnapshot(S32 seq, const LLSD& args)
         if (!path.empty()) result["saved"] = path;
         else result["save_error"] = "could not write the file";
     }
-    if (!args.has("send") || args["send"].asBoolean())
+    if ((!args.has("send") || args["send"].asBoolean()) && raw->getComponents() == 4)
+    {
+        // <MG> a transparent shot reaches the page as PNG (JPEG has no alpha)
+        LLPointer<LLImageRaw> out = raw;
+        const S32 pmax = llclamp(args.has("preview_max") ? args["preview_max"].asInteger() : 2560, 160, 4096);
+        if (raw->getWidth() > pmax || raw->getHeight() > pmax)
+        {
+            const F32 k = (F32)pmax / (F32)llmax(raw->getWidth(), raw->getHeight());
+            out = new LLImageRaw(raw->getData(), raw->getWidth(), raw->getHeight(), raw->getComponents());
+            out->scale(llmax(1, ll_round(raw->getWidth() * k)), llmax(1, ll_round(raw->getHeight() * k)));
+        }
+        LLPointer<LLImagePNG> png = new LLImagePNG();
+        if (!png->encode(out, 0.f))
+        {
+            ackToPage(seq, LLSD().with("ok", false).with("error", "encode failed"));
+            return;
+        }
+        result["image"] = "data:image/png;base64," + LLBase64::encode(png->getData(), png->getDataSize());
+        result["alpha"] = true;
+        // </MG>
+    }
+    else if (!args.has("send") || args["send"].asBoolean())
     {
         LLPointer<LLImageRaw> out = raw;
         const S32 pmax = llclamp(args.has("preview_max") ? args["preview_max"].asInteger() : 2560, 160, 4096);
@@ -707,6 +922,158 @@ void MGFloaterPhone::sendSnapshot(S32 seq, const LLSD& args)
     ackToPage(seq, result);
 }
 
+// <MG> ------------------------------------------------------------ viewfinder
+
+void MGFloaterPhone::setViewfinder(bool on)
+{
+    if (on == mViewfinder)
+    {
+        return;
+    }
+    LLView* mask = findChild<LLView>("phone_screen_mask");
+    LLView* grip = findChild<LLView>("phone_grip");
+    LLFloaterView::skip_list_t skip_list;
+    skip_list.insert(this);
+    if (on)
+    {
+        mVfSavedRect = getRect();
+        mViewfinder = true;
+        sVfDiagCount = 0; // <MG/>
+        mVfPing.reset();
+
+        // the viewer's interface goes, as in mouselook (LLAgent::changeCameraToMouselook)
+        if (gToolBarView) gToolBarView->setToolBarsVisible(false);
+        mVfMenuWas = gMenuBarView && gMenuBarView->getVisible();
+        if (gMenuBarView) gMenuBarView->setVisible(false);
+        LLView* nav = LLNavigationBar::instance().getView();
+        mVfNavWas = nav && nav->getVisible();
+        if (nav) nav->setVisible(false);
+        if (gStatusBar) gStatusBar->setVisibleForMouselook(false);
+        LLChicletBar::getInstance()->setVisible(false);
+        LLPanelStandStopFlying::getInstance()->setVisible(false);
+        FSNearbyChat::instance().showDefaultChatBar(false);
+        gFloaterView->pushVisibleAll(false, skip_list);
+
+        // no phone body: the page is the whole window
+        setBackgroundVisible(false);
+        if (mask) mask->setVisible(false);
+        if (grip) grip->setVisible(false);
+        if (mStatus) mStatus->setVisible(false);
+        if (mDragHandle) mDragHandle->setVisible(false);
+        setCanClose(false);
+        // not resizable: LLFloaterView::refresh() squeezes and moves every resizable
+        // floater taller than its snap area (out of the toolbars' strip) each frame,
+        // before drawing it, which drew the page 63 UI px above where clicks landed
+        setCanResize(false);
+        fitViewfinder();
+        gFloaterView->bringToFront(this);
+        if (mBrowser) mBrowser->setFocus(true);
+        LL_INFOS("MGPhone") << "viewfinder on " << getRect() << LL_ENDL;
+    }
+    else
+    {
+        mViewfinder = false;
+        MGPhoneCamera::setViewRect(LLRect());
+
+        // the interface back, as when leaving mouselook
+        if (gToolBarView) gToolBarView->setToolBarsVisible(true);
+        if (gMenuBarView && mVfMenuWas) gMenuBarView->setVisible(true);
+        if (mVfNavWas) LLNavigationBar::instance().getView()->setVisible(true);
+        if (gStatusBar) gStatusBar->setVisibleForMouselook(true);
+        LLChicletBar::getInstance()->setVisible(true);
+        LLPanelStandStopFlying::getInstance()->setVisible(true);
+        if (!gSavedSettings.getBOOL("AutohideChatBar"))
+        {
+            FSNearbyChat::instance().showDefaultChatBar(true);
+        }
+        gFloaterView->popVisibleAll(skip_list);
+
+        // the phone body back where it was, its page back at its logical size
+        setBackgroundVisible(true);
+        if (mask) mask->setVisible(true);
+        if (grip) grip->setVisible(true);
+        if (mDragHandle) mDragHandle->setVisible(true);
+        setCanClose(true);
+        setCanResize(true);
+        mApplyingMode = true;
+        setShape(mVfSavedRect);
+        mApplyingMode = false;
+        if (mBrowser)
+        {
+            const LLRect r = getRect();
+            mBrowser->setShape(LLRect(BEZEL_SIDE, r.getHeight() - BEZEL_TOP, r.getWidth() - BEZEL_SIDE, BEZEL_BOTTOM));
+        }
+        const LLSD state = mShellState.isMap() ? mShellState : LLSD().with("size", "m");
+        setMode(state.has("size") ? state["size"].asString() : "m", isOn(state, "landscape"), isOn(state, "tablet"));
+        LL_INFOS("MGPhone") << "viewfinder off " << getRect() << LL_ENDL;
+    }
+    pushToPage(LLSD().with("type", "viewfinder").with("on", mViewfinder));
+}
+
+void MGFloaterPhone::bringToFront(S32 x, S32 y)
+{
+    // the viewfinder stays behind the windows opened over it (the poser): a click on
+    // the page gives it the keyboard without raising it over them
+    if (mViewfinder)
+    {
+        if (mBrowser) mBrowser->setFocus(true);
+        return;
+    }
+    LLFloater::bringToFront(x, y);
+}
+
+void MGFloaterPhone::fitViewfinder()
+{
+    LLView* root = gViewerWindow ? gViewerWindow->getRootView() : nullptr;
+    if (!root || !gFloaterView || !mBrowser)
+    {
+        return;
+    }
+    // the whole window, in the floater view's coordinates
+    const LLRect screen = root->getLocalRect();
+    LLRect local;
+    gFloaterView->screenRectToLocal(screen, &local);
+    if (getRect() != local)
+    {
+        mApplyingMode = true;
+        setShape(local);
+        mApplyingMode = false;
+    }
+    const LLRect page(0, local.getHeight(), local.getWidth(), 0);
+    if (mBrowser->getRect() != page)
+    {
+        mBrowser->setShape(page);
+    }
+    // one CSS px = one UI px (LLMediaCtrl zooms the page by the UI scale)
+    const F32 scale = LLUI::getScaleFactor().mV[VX];
+    const S32 tw = llmax(64, ll_round(local.getWidth() * scale));
+    const S32 th = llmax(64, ll_round(local.getHeight() * scale));
+    if (tw != mPageW || th != mPageH)
+    {
+        mPageW = tw;
+        mPageH = th;
+        mBrowser->setTextureSize(tw, th);
+    }
+    MGPhoneCamera::setViewRect(screen);
+
+    // diagnostics: where the page is drawn vs where the mouse maps (first seconds)
+    if (sVfDiagTimer.getElapsedTimeF32() > 1.f && sVfDiagCount < 6)
+    {
+        sVfDiagTimer.reset();
+        ++sVfDiagCount;
+        LLPluginClassMedia* plugin = mBrowser->getMediaPlugin();
+        LL_INFOS("MGPhone") << "viewfinder diag: root " << screen << " floater " << getRect() << " floater@screen " << calcScreenRect()
+                            << " browser " << mBrowser->getRect() << " browser@screen " << mBrowser->calcScreenRect()
+                            << " floaterview " << gFloaterView->getRect() << " floaterview@screen " << gFloaterView->calcScreenRect()
+                            << " snap " << gFloaterView->getSnapRect()
+                            << " requested " << tw << "x" << th << " ui_scale " << scale
+                            << " plugin " << (plugin ? plugin->getWidth() : -1) << "x" << (plugin ? plugin->getHeight() : -1)
+                            << " tex " << (plugin ? plugin->getTextureWidth() : -1) << "x" << (plugin ? plugin->getTextureHeight() : -1)
+                            << " gl_coords " << (plugin ? plugin->getTextureCoordsOpenGL() : false) << LL_ENDL;
+    }
+}
+// </MG>
+
 void MGFloaterPhone::draw()
 {
     // the phone panel's media keeps its own volume and stays awake when the viewer is
@@ -716,6 +1083,26 @@ void MGFloaterPhone::draw()
     MGPhoneAnims::idle(); // <MG/> the Animations app's preview photos, gestures
     MGPhoneWardrobe::idle(); // <MG/> the Wardrobe app's peeks, cards, outfit photos
     MGPhonePlaces::idle(); // <MG/> the Places app's landmark / parcel lookups
+    MGPhoneCamera::idle(); // <MG/> the Camera's focus tracking, meter, face box
+    MGPhoneCreator::idle(); // <MG/> Creator Lab: file loads / reloads, the stress test
+    MGPhoneBody::idle(); // <MG/> Body Studio: old previews cleaned, the "off" animation stopped
+    MGPhoneAnimStudio::idle(); // <MG/> Animation Studio: a ring let go, old previews cleaned
+
+    // <MG> the viewfinder follows the window; a silent page gives the interface back
+    const LLRect drawn_at = getRect(); // where LLFloaterView placed us for this frame
+    if (mViewfinder)
+    {
+        if (mVfPing.getElapsedTimeF32() > 8.f)
+        {
+            LL_WARNS("MGPhone") << "viewfinder: no keep-alive from the page, closing it" << LL_ENDL;
+            setViewfinder(false);
+        }
+        else
+        {
+            fitViewfinder();
+        }
+    }
+    // </MG>
 
     // live data for the shell: balance / region, checked once a second
     if (mLoaded && mInfoTimer.getElapsedTimeF32() > 1.f)
@@ -723,6 +1110,18 @@ void MGFloaterPhone::draw()
         mInfoTimer.reset();
         pushInfo(false);
     }
+    // <MG> the floater view translated this frame's drawing to where it had put us; if
+    // the viewfinder moved us back since, draw where we are (where clicks land)
+    const S32 dx = getRect().mLeft - drawn_at.mLeft;
+    const S32 dy = getRect().mBottom - drawn_at.mBottom;
+    if (dx || dy)
+    {
+        LLUI::translate((F32)dx, (F32)dy);
+        LLFloater::draw();
+        LLUI::translate((F32)-dx, (F32)-dy);
+        return;
+    }
+    // </MG>
     LLFloater::draw();
 }
 

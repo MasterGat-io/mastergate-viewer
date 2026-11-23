@@ -136,6 +136,7 @@ LLGLSLShader            gGlowExtractProgram;
 LLGLSLShader            gPostScreenSpaceReflectionProgram;
 LLGLSLShader            gPostVignetteProgram;   // <FS:CR> Import Vignette from Exodus
 LLGLSLShader            gPostSnapshotFrameProgram;   // <FS:Beq/> Add Snapshot frame guide
+LLGLSLShader            gMGLookProgram;   // <MG/> the MG Phone Camera's live looks
 
 // Deferred rendering shaders
 LLGLSLShader            gDeferredImpostorProgram;
@@ -1023,6 +1024,7 @@ bool LLViewerShaderMgr::loadShadersEffects()
         gGlowExtractProgram.unload();
         gPostVignetteProgram.unload();  // <FS:Ansariel> Import Vignette from Exodus
         gPostSnapshotFrameProgram.unload();  // <FS:Beq/> Add Snapshot framing shader
+        gMGLookProgram.unload(); // <MG/>
         return true;
     }
 
@@ -1083,6 +1085,20 @@ bool LLViewerShaderMgr::loadShadersEffects()
         gPostSnapshotFrameProgram.mShaderFiles.push_back(make_pair("post/snapshotFrameF.glsl", GL_FRAGMENT_SHADER));
         gPostSnapshotFrameProgram.mShaderLevel = mShaderLevel[SHADER_EFFECT];
         success = gPostSnapshotFrameProgram.createShader();
+    }
+    // <MG> the MG Phone Camera's live looks (a failure only disables them)
+    if (success)
+    {
+        gMGLookProgram.mName = "MG Camera Look Post";
+        gMGLookProgram.mShaderFiles.clear();
+        gMGLookProgram.mShaderFiles.push_back(make_pair("post/exoPostBaseV.glsl", GL_VERTEX_SHADER));
+        gMGLookProgram.mShaderFiles.push_back(make_pair("post/mgLookF.glsl", GL_FRAGMENT_SHADER));
+        gMGLookProgram.mShaderLevel = mShaderLevel[SHADER_EFFECT];
+        if (!gMGLookProgram.createShader())
+        {
+            LL_WARNS("MGPhone") << "camera: the live look shader did not build" << LL_ENDL;
+        }
+    // </MG>
     }
 // </FS:Beq>
 

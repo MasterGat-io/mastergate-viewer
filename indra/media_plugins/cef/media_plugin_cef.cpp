@@ -101,6 +101,7 @@ private:
     std::string mProxyHost;
     int mProxyPort;
     bool mDisableGPU;
+    bool mTransparent; // <MG/> transparent page background, RGBA texture (MG Phone viewfinder)
     bool mDisableNetworkService;
     bool mUseMockKeyChain;
     bool mDisableWebSecurity;
@@ -145,6 +146,7 @@ MediaPluginBase(host_send_func, host_user_data)
     mProxyHost = "";
     mProxyPort = 0;
     mDisableGPU = false;
+    mTransparent = false; // <MG/>
     mDisableNetworkService = true;
     mUseMockKeyChain = true;
     mDisableWebSecurity = false;
@@ -660,6 +662,13 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
                 // embedded background color to match the floater background
                 // and set it to white
                 settings.background_color = 0xffffffff; // white
+                // <MG> a transparent browser (the MG Phone, so its Camera viewfinder can
+                // sit over the 3D view): alpha 0 makes CEF paint a transparent page
+                if (mTransparent)
+                {
+                    settings.background_color = 0x00000000;
+                }
+                // </MG>
 
                 settings.root_cache_path = mRootCachePath;
                 settings.cookies_enabled = mCookiesEnabled;
@@ -766,7 +775,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
                 message.setValueS32("default_width", 1024);
                 message.setValueS32("default_height", 1024);
                 message.setValueS32("depth", mDepth);
-                message.setValueU32("internalformat", GL_RGB);
+                message.setValueU32("internalformat", mTransparent ? GL_RGBA : GL_RGB); // <MG/> keep CEF's (premultiplied) alpha
                 message.setValueU32("format", GL_BGRA);
                 message.setValueU32("type", GL_UNSIGNED_BYTE);
                 message.setValueBoolean("coords_opengl", true);
@@ -1070,6 +1079,12 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
             {
                 mDisableGPU = message_in.getValueBoolean("disable");
             }
+            // <MG> sent before "init" (LLPluginClassMedia::setTransparentBackground)
+            else if (message_name == "mg_transparent")
+            {
+                mTransparent = message_in.getValueBoolean("enable");
+            }
+            // </MG>
             else if (message_name == "proxy_setup")
             {
                 mProxyEnabled = message_in.getValueBoolean("enable");

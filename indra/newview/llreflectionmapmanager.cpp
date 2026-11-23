@@ -40,6 +40,7 @@
 #include "llstartup.h"
 #include "llviewermenufile.h"
 #include "llnotificationsutil.h"
+#include "mgphonecamera.h" // <MG/>
 
 #if LL_WINDOWS
 #pragma warning (push)
@@ -209,6 +210,13 @@ void LLReflectionMapManager::update()
     {
         return;
     }
+    // <MG> the Camera's cut-out hides the sky and the world: probes captured now would see only
+    // the empty background (the magenta clear) and light the avatar pink. They keep the scene.
+    if (MGPhoneCamera::isolating())
+    {
+        return;
+    }
+    // </MG>
 
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
     LL_PROFILE_GPU_ZONE("reflection manager update");

@@ -258,6 +258,7 @@ protected:
 #include "fsfloaterposer.h"
 class FSToolCompPose : public LLToolComposite
 {
+    friend class MGPoserBridge; // <MG/> the MG Phone Camera drives this gizmo from its page
 public:
     // Typical pattern: pass a name like "Pose"
     FSToolCompPose();
@@ -295,6 +296,7 @@ protected:
 
 class FSToolCompPoseTranslate : public LLToolComposite
 {
+    friend class MGPoserBridge; // <MG/>
 public:
     // Typical pattern: pass a name like "Pose"
     FSToolCompPoseTranslate();

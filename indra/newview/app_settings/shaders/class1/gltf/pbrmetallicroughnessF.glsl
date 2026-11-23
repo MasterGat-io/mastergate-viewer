@@ -192,6 +192,7 @@ void main()
 #endif
 
     vec4 basecolor = texture(diffuseMap, base_color_uv.xy).rgba;
+    vec3 mg_t = basecolor.rgb;
     basecolor.rgb = srgb_to_linear(basecolor.rgb);
     basecolor *= vertex_color;
 
@@ -241,6 +242,7 @@ void main()
     color.rgb += emissive.rgb;
     frag_color = color;
 #else
+    MG_HOLO_GBUFFER(mg_t, norm) // <MG/> still loading: the hologram
     frag_data[0] = max(vec4(basecolor.rgb, 0.0), vec4(0));
     frag_data[1] = max(vec4(orm.rgb,0.0), vec4(0));
     frag_data[2] = encodeNormal(norm, 0, GBUFFER_FLAG_HAS_PBR);
