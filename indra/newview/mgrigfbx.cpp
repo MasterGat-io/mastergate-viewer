@@ -31,6 +31,11 @@
 
 namespace
 {
+    // ufbx's vectors are a struct around a union around a struct: set the fields rather than
+    // brace-initialise them (clang -Wmissing-braces on macOS)
+    ufbx_vec3 vec3(ufbx_real x, ufbx_real y, ufbx_real z) { ufbx_vec3 r; r.x = x; r.y = y; r.z = z; return r; }
+    ufbx_vec2 vec2(ufbx_real x, ufbx_real y) { ufbx_vec2 r; r.x = x; r.y = y; return r; }
+
     MGRig::Mat toMat(const ufbx_matrix& m)
     {
         MGRig::Mat r{};
@@ -170,15 +175,15 @@ namespace MGRig
                 const uint32_t vn = mesh->vertex_normal.exists ? mesh->vertex_normal.indices.data[ix] : 0;
                 const uint32_t vu = hasUv ? mesh->vertex_uv.indices.data[ix] : 0;
                 // by value: same position, normal and uv
-                const ufbx_vec3 rn = mesh->vertex_normal.exists ? mesh->vertex_normal.values.data[vn] : ufbx_vec3{ { 0, 0, 1 } };
-                const ufbx_vec2 ru = hasUv ? mesh->vertex_uv.values.data[vu] : ufbx_vec2{ { 0, 0 } };
+                const ufbx_vec3 rn = mesh->vertex_normal.exists ? mesh->vertex_normal.values.data[vn] : vec3(0, 0, 1);
+                const ufbx_vec2 ru = hasUv ? mesh->vertex_uv.values.data[vu] : vec2(0, 0);
                 const CornerKey key = cornerKey(vp, rn.x, rn.y, rn.z, ru.x, ru.y);
                 auto it = made.find(key);
                 if (it != made.end()) return it->second;
                 const int id = (int)(m.pos.size() / 3);
                 const ufbx_vec3 p = ufbx_transform_position(&G, mesh->vertex_position.values.data[mesh->vertex_position.indices.data[ix]]);
                 m.pos.insert(m.pos.end(), { p.x, p.y, p.z });
-                ufbx_vec3 n = { { 0, 0, 1 } };
+                ufbx_vec3 n = vec3(0, 0, 1);
                 if (mesh->vertex_normal.exists) n = ufbx_transform_direction(&N, mesh->vertex_normal.values.data[vn]);
                 const double l = std::sqrt(n.x * n.x + n.y * n.y + n.z * n.z);
                 if (l > 1e-12) { n.x /= l; n.y /= l; n.z /= l; }
