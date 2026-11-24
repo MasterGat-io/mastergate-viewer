@@ -15,31 +15,56 @@ if [[ -f "$CONFIG_FILE" ]]; then
         #                         viewer.profile \
         #                         --verbose 2>*1)
         # echo $res
-        # <MG> an App Store Connect API key (ASC_KEY_PATH / ASC_KEY_ID / ASC_ISSUER) or an Apple ID
+        # <MG> an App Store Connect API key (ASC_KEY_PATH / ASC_KEY_ID / ASC_ISSUER) or an Apple ID.
+        # Submit without --wait, then poll: a GitHub runner's network can drop for a while
+        # and "--wait" then fails although Apple is still working on the submission.
         if [[ -n "$ASC_KEY_ID" ]]; then
-            res=$(xcrun notarytool submit "$zip_file" \
-                                --key "$ASC_KEY_PATH" \
-                                --key-id "$ASC_KEY_ID" \
-                                --issuer "$ASC_ISSUER" \
-                                --wait 2>&1)
+            auth=(--key "$ASC_KEY_PATH" --key-id "$ASC_KEY_ID" --issuer "$ASC_ISSUER")
         else
-        res=$(xcrun notarytool submit "$zip_file" \
-                                --apple-id $USERNAME \
-                                --password $PASSWORD \
-                                --team-id $ASC_PROVIDER \
-                                --wait 2>&1)
+            auth=(--apple-id "$USERNAME" --password "$PASSWORD" --team-id "$ASC_PROVIDER")
         fi
-        # </MG>
-        echo "Notarytool submit:"
-        echo $res
-        
-        if [[ "$res" =~ id:\ ([^[:space:]]+) ]]; then
-            match="${BASH_REMATCH[1]}"
-            echo "Notarized with id: [$match]"
-        else
-            echo "No match found"
+        match=""
+        for submit_try in 1 2 3; do
+            res=$(xcrun notarytool submit "$zip_file" "${auth[@]}" --no-wait 2>&1)
+            echo "Notarytool submit (try $submit_try):"
+            echo "$res"
+            if [[ "$res" =~ id:\ ([0-9a-fA-F-]{36}) ]]; then
+                match="${BASH_REMATCH[1]}"
+                break
+            fi
+            sleep 30
+        done
+        if [[ -z "$match" ]]; then
+            echo "No submission id"
             exit 1
         fi
+        echo "Submitted with id: [$match]"
+
+        # up to 90 minutes (the first submissions of a new team can take a while)
+        status=""
+        for ((poll = 1; poll <= 90; poll++)); do
+            info=$(xcrun notarytool info "$match" "${auth[@]}" 2>&1)
+            if [[ "$info" =~ status:\ (Accepted|Invalid|Rejected|In\ Progress) ]]; then
+                status="${BASH_REMATCH[1]}"
+            else
+                status="unknown (network?)"
+            fi
+            echo "Notarization status after $poll min: $status"
+            if [[ "$status" == "Accepted" ]]; then
+                break
+            fi
+            if [[ "$status" == "Invalid" || "$status" == "Rejected" ]]; then
+                xcrun notarytool log "$match" "${auth[@]}"
+                exit 1
+            fi
+            sleep 60
+        done
+        if [[ "$status" != "Accepted" ]]; then
+            echo "Notarization not finished after 90 minutes (id $match)"
+            exit 1
+        fi
+        echo "Notarized with id: [$match]"
+        # </MG>
 
         # --- WAIT / RETRY LOGIC FOR STAPLER ---
         # Try stapler up to 5 times with a 5-second delay in between attempts
