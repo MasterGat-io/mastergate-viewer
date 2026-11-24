@@ -1864,6 +1864,10 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                 app_in_dmg=os.path.join(volpath,self.app_name()+".app")
                 print("Attempting to sign '%s'" % app_in_dmg)
                 identity = self.args['signature']
+                # <MG> the full "Developer ID Application: Name (TEAMID)" comes from the
+                # environment (CMake drops the parentheses, see 00-Common.cmake)
+                identity = os.environ.get('MGV_MAC_SIGNING_IDENTITY') or identity
+                # </MG>
                 if identity == '':
                     identity = 'Developer ID Application'
 

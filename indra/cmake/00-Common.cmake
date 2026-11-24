@@ -233,8 +233,11 @@ if (DARWIN)
   # <MG> MasterGate's Apple Developer ID from the environment (GitHub secret
   # MGV_MAC_SIGNING_IDENTITY, e.g. "Developer ID Application: Name (TEAMID)").
   # Without a certificate in the build keychain, viewer_manifest.py signs ad hoc.
+  # The " (TEAMID)" suffix is dropped here: the identity lands unescaped in an Xcode
+  # shell script phase, where "(" is a syntax error. viewer_manifest.py signs with the
+  # full identity read from the environment.
   if (DEFINED ENV{MGV_MAC_SIGNING_IDENTITY} AND NOT "$ENV{MGV_MAC_SIGNING_IDENTITY}" STREQUAL "")
-    set(SIGNING_IDENTITY "$ENV{MGV_MAC_SIGNING_IDENTITY}")
+    string(REGEX REPLACE " *[(][^()]*[)] *$" "" SIGNING_IDENTITY "$ENV{MGV_MAC_SIGNING_IDENTITY}")
   else ()
     set(SIGNING_IDENTITY "Developer ID Application: The Phoenix Firestorm Project, Inc." )
   endif ()
